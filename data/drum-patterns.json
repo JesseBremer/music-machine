@@ -48,6 +48,423 @@
         "tempo": [120, 160]
       }
     },
+    "metal": {
+      "double-bass": {
+        "name": "Double Bass",
+        "description": "Fast double bass drum pattern",
+        "pattern": "KK-s-KK-s",
+        "grid": [
+          ["Kick", "x", "x", ".", "x", "x", ".", "."],
+          ["Snare", ".", ".", "x", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [140, 200]
+      },
+      "blast-beat": {
+        "name": "Blast Beat",
+        "description": "Extreme metal blast beat",
+        "pattern": "Ks-Ks-Ks-Ks",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", "x", ".", "x"],
+          ["Snare", ".", "x", ".", "x", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [180, 220]
+      }
+    },
+    "jazz": {
+      "swing": {
+        "name": "Jazz Swing",
+        "description": "Classic swing rhythm",
+        "pattern": "K..s.K.s",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", ".", "x", "."],
+          ["Ride", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 180]
+      },
+      "bebop": {
+        "name": "Bebop",
+        "description": "Fast bebop pattern",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", ".", ".", ".", "."],
+          ["Ride", "x", ".", "x", "."]
+        ],
+        "tempo": [140, 200]
+      }
+    },
+    "blues": {
+      "shuffle": {
+        "name": "Blues Shuffle",
+        "description": "Traditional blues shuffle",
+        "pattern": "K..sK..s",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [80, 120]
+      },
+      "slow-blues": {
+        "name": "Slow Blues",
+        "description": "Laid-back blues rhythm",
+        "pattern": "K...s...",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [60, 90]
+      }
+    },
+    "funk": {
+      "classic-funk": {
+        "name": "Classic Funk",
+        "description": "Syncopated funk groove",
+        "pattern": "K.sK.s.K",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", ".", "x", ".", "."],
+          ["Snare", ".", "x", ".", "x", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [90, 120]
+      },
+      "ghost-notes": {
+        "name": "Ghost Note Funk",
+        "description": "Funk with ghost note snares",
+        "pattern": "K(s)sK(s)s",
+        "grid": [
+          ["Kick", "x", ".", ".", "x", ".", ".", ".", "."],
+          ["Snare", ".", "o", "x", ".", "o", "x", ".", "o"],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [100, 130]
+      }
+    },
+    "rnb": {
+      "neo-soul": {
+        "name": "Neo-Soul",
+        "description": "Modern R&B groove",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", ".", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", ".", "x", "x", ".", "x", "x"]
+        ],
+        "tempo": [80, 110]
+      },
+      "classic-rnb": {
+        "name": "Classic R&B",
+        "description": "Traditional R&B pattern",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [90, 120]
+      }
+    },
+    "hiphop": {
+      "boom-bap": {
+        "name": "Boom Bap",
+        "description": "Classic hip-hop beat",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [80, 100]
+      },
+      "trap-style": {
+        "name": "Trap Style",
+        "description": "Modern trap influenced beat",
+        "pattern": "K.sK.sK.",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", ".", "x", ".", "."],
+          ["Snare", ".", ".", ".", "x", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [130, 150]
+      }
+    },
+    "edm": {
+      "four-floor": {
+        "name": "Four on the Floor",
+        "description": "Classic house/EDM pattern",
+        "pattern": "K-K-K-K-",
+        "grid": [
+          ["Kick", "x", "x", "x", "x"],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 130]
+      },
+      "progressive": {
+        "name": "Progressive House",
+        "description": "Building progressive pattern",
+        "pattern": "K-K.K-K.",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", "x", ".", "x", "."],
+          ["Snare", ".", ".", ".", "x", ".", ".", ".", "x"],
+          ["Hi-hat", ".", "x", ".", "x", ".", "x", ".", "x"]
+        ],
+        "tempo": [125, 135]
+      }
+    },
+    "house": {
+      "classic-house": {
+        "name": "Classic House",
+        "description": "Traditional house beat",
+        "pattern": "K-K-K-K-",
+        "grid": [
+          ["Kick", "x", "x", "x", "x"],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [120, 130]
+      },
+      "deep-house": {
+        "name": "Deep House",
+        "description": "Laid-back house groove",
+        "pattern": "K.K.K.K.",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", "x", ".", "x", "."],
+          ["Snare", ".", ".", ".", "x", ".", ".", ".", "x"],
+          ["Hi-hat", ".", "x", ".", "x", ".", "x", ".", "x"]
+        ],
+        "tempo": [115, 125]
+      }
+    },
+    "techno": {
+      "basic-techno": {
+        "name": "Basic Techno",
+        "description": "Driving techno beat",
+        "pattern": "K-K-K-K-",
+        "grid": [
+          ["Kick", "x", "x", "x", "x"],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 140]
+      },
+      "industrial": {
+        "name": "Industrial Techno",
+        "description": "Dark industrial pattern",
+        "pattern": "KxKxKxKx",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [130, 145]
+      }
+    },
+    "dubstep": {
+      "classic-dubstep": {
+        "name": "Classic Dubstep",
+        "description": "Syncopated dubstep pattern",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", ".", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", ".", "x", "x", "x", ".", "x"]
+        ],
+        "tempo": [140, 140]
+      },
+      "brostep": {
+        "name": "Brostep",
+        "description": "Heavy aggressive dubstep",
+        "pattern": "K..sK..s",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [140, 140]
+      }
+    },
+    "trap": {
+      "modern-trap": {
+        "name": "Modern Trap",
+        "description": "Contemporary trap beat",
+        "pattern": "K.s.KsK.",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", "x", ".", "x", "."],
+          ["Snare", ".", ".", "x", ".", ".", "x", ".", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [140, 180]
+      },
+      "roll-trap": {
+        "name": "Hi-Hat Roll Trap",
+        "description": "Trap with signature hi-hat rolls",
+        "pattern": "K.s.Ks..",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", ".", ".", "x", ".", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"],
+          ["Roll", ".", ".", ".", ".", ".", ".", "x", "x"]
+        ],
+        "tempo": [140, 160]
+      }
+    },
+    "reggae": {
+      "one-drop": {
+        "name": "One Drop",
+        "description": "Classic reggae rhythm",
+        "pattern": ".s.s",
+        "grid": [
+          ["Kick", ".", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [60, 90]
+      },
+      "rockers": {
+        "name": "Rockers",
+        "description": "Upbeat reggae style",
+        "pattern": "K.sK.s",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [70, 100]
+      }
+    },
+    "ska": {
+      "upstroke": {
+        "name": "Ska Upstroke",
+        "description": "Classic ska rhythm",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", ".", "x", ".", "x"]
+        ],
+        "tempo": [150, 180]
+      }
+    },
+    "punk": {
+      "fast-punk": {
+        "name": "Fast Punk",
+        "description": "High-energy punk beat",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", "x", ".", "x"],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [160, 200]
+      },
+      "hardcore": {
+        "name": "Hardcore Punk",
+        "description": "Aggressive hardcore pattern",
+        "pattern": "KsKsKsKs",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [180, 220]
+      }
+    },
+    "latin": {
+      "salsa": {
+        "name": "Salsa",
+        "description": "Latin salsa rhythm",
+        "pattern": "K.sK.sK.",
+        "grid": [
+          ["Kick", "x", ".", ".", "x", ".", ".", "x", "."],
+          ["Snare", ".", "x", ".", ".", "x", ".", ".", "."],
+          ["Conga", "x", ".", "x", ".", "x", ".", "x", "."],
+          ["Timbale", ".", "x", ".", "x", ".", "x", ".", "x"]
+        ],
+        "tempo": [120, 140]
+      },
+      "bossa-nova": {
+        "name": "Bossa Nova",
+        "description": "Smooth Brazilian rhythm",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 140]
+      }
+    },
+    "afrobeat": {
+      "traditional": {
+        "name": "Traditional Afrobeat",
+        "description": "West African polyrhythm",
+        "pattern": "KsKsKsKs",
+        "grid": [
+          ["Kick", "x", ".", "x", ".", ".", "x", ".", "."],
+          ["Snare", ".", "x", ".", ".", "x", ".", "x", "."],
+          ["Conga", "x", ".", ".", "x", ".", "x", ".", "x"],
+          ["Shaker", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [100, 120]
+      }
+    },
+    "country": {
+      "train-beat": {
+        "name": "Train Beat",
+        "description": "Classic country rhythm",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 140]
+      },
+      "shuffle-country": {
+        "name": "Country Shuffle",
+        "description": "Shuffled country beat",
+        "pattern": "K..sK..s",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [100, 130]
+      }
+    },
+    "folk": {
+      "acoustic": {
+        "name": "Acoustic Folk",
+        "description": "Simple folk rhythm",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [90, 120]
+      }
+    },
+    "ambient": {
+      "atmospheric": {
+        "name": "Atmospheric",
+        "description": "Minimal ambient texture",
+        "pattern": "K...s...",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", ".", ".", ".", "."],
+          ["Snare", ".", ".", ".", ".", "x", ".", ".", "."],
+          ["Texture", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [60, 90]
+      }
+    },
     "lofi": {
       "laid-back": {
         "name": "Laid Back",
@@ -72,28 +489,82 @@
         "tempo": [75, 95]
       }
     },
-    "edm": {
-      "four-floor": {
-        "name": "Four on the Floor",
-        "description": "Classic house/EDM pattern",
+    "chillhop": {
+      "boom-bap-chill": {
+        "name": "Chill Boom Bap",
+        "description": "Relaxed boom bap style",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", ".", "x", ".", "x"]
+        ],
+        "tempo": [80, 100]
+      }
+    },
+    "synthwave": {
+      "retro-wave": {
+        "name": "Retro Wave",
+        "description": "80s inspired electronic beat",
         "pattern": "K-K-K-K-",
         "grid": [
           ["Kick", "x", "x", "x", "x"],
           ["Snare", ".", "x", ".", "x"],
-          ["Hi-hat", "x", "x", "x", "x"]
+          ["Hi-hat", "x", ".", "x", "."]
         ],
-        "tempo": [120, 130]
-      },
-      "trap": {
-        "name": "Trap Beat",
-        "description": "Modern trap-influenced EDM",
-        "pattern": "K.s.K.s.",
+        "tempo": [110, 130]
+      }
+    },
+    "drill": {
+      "uk-drill": {
+        "name": "UK Drill",
+        "description": "Dark UK drill pattern",
+        "pattern": "K.sK..s.",
+        "grid": [
+          ["Kick", "x", ".", ".", "x", ".", ".", ".", "."],
+          ["Snare", ".", ".", "x", ".", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x", "x", "x", "x", "x"]
+        ],
+        "tempo": [140, 150]
+      }
+    },
+    "gospel": {
+      "traditional": {
+        "name": "Traditional Gospel",
+        "description": "Classic gospel rhythm",
+        "pattern": "K-s-K-s-",
         "grid": [
           ["Kick", "x", ".", "x", "."],
           ["Snare", ".", "x", ".", "x"],
           ["Hi-hat", "x", "x", "x", "x"]
         ],
-        "tempo": [140, 180]
+        "tempo": [90, 120]
+      }
+    },
+    "classical": {
+      "orchestral": {
+        "name": "Orchestral",
+        "description": "Classical orchestral rhythm",
+        "pattern": "K...s...",
+        "grid": [
+          ["Timpani", "x", ".", ".", "."],
+          ["Snare", ".", ".", ".", "x"],
+          ["Cymbals", ".", ".", ".", "."]
+        ],
+        "tempo": [80, 120]
+      }
+    },
+    "newage": {
+      "meditative": {
+        "name": "Meditative",
+        "description": "Peaceful new age rhythm",
+        "pattern": "K....s..",
+        "grid": [
+          ["Kick", "x", ".", ".", ".", ".", ".", ".", "."],
+          ["Snare", ".", ".", ".", ".", ".", "x", ".", "."],
+          ["Bells", "x", ".", "x", ".", "x", ".", "x", "."]
+        ],
+        "tempo": [60, 80]
       }
     }
   }

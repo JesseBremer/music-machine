@@ -93,6 +93,9 @@ body {
     color: var(--text-secondary);
     position: relative;
     min-width: 80px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: var(--border-radius);
 }
 
 .progress-step.active {
@@ -102,6 +105,21 @@ body {
 
 .progress-step.completed {
     color: var(--success-color);
+}
+
+.progress-step:hover {
+    background: var(--border-color);
+    color: var(--primary-color);
+}
+
+.progress-step.active:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.progress-step.completed:hover {
+    background: var(--success-color);
+    color: white;
 }
 
 .progress-step::after {

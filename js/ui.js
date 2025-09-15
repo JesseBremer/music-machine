@@ -513,16 +513,23 @@ export function showMessage(message, type = 'info') {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message message-${type}`;
     messageDiv.textContent = message;
+    
+    let backgroundColor = 'var(--primary-color)';
+    if (type === 'error') backgroundColor = 'var(--error-color)';
+    else if (type === 'success') backgroundColor = 'var(--success-color)';
+    else if (type === 'warning') backgroundColor = 'var(--warning-color)';
+    
     messageDiv.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
         padding: 12px 24px;
-        background: var(--primary-color);
+        background: ${backgroundColor};
         color: white;
         border-radius: var(--border-radius);
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        box-shadow: var(--box-shadow-lg);
     `;
     
     document.body.appendChild(messageDiv);

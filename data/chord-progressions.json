@@ -3,83 +3,265 @@
     "major": {
       "I-V-vi-IV": {
         "name": "Pop Progression",
-        "description": "Most popular in modern music",
+        "description": "Most popular in modern music - uplifting and familiar",
         "numerals": ["I", "V", "vi", "IV"],
-        "examples": {
-          "C": ["C", "G", "Am", "F"],
-          "G": ["G", "D", "Em", "C"],
-          "D": ["D", "A", "Bm", "G"],
-          "A": ["A", "E", "F#m", "D"],
-          "E": ["E", "B", "C#m", "A"],
-          "F": ["F", "C", "Dm", "Bb"]
-        }
+        "function": "Tonic-Dominant-Relative Minor-Subdominant"
       },
       "vi-IV-I-V": {
         "name": "Pop Progression (vi start)",
-        "description": "Same as I-V-vi-IV but starting on vi",
+        "description": "Same progression starting on vi - more emotional",
         "numerals": ["vi", "IV", "I", "V"],
-        "examples": {
-          "C": ["Am", "F", "C", "G"],
-          "G": ["Em", "C", "G", "D"],
-          "D": ["Bm", "G", "D", "A"],
-          "A": ["F#m", "D", "A", "E"],
-          "E": ["C#m", "A", "E", "B"],
-          "F": ["Dm", "Bb", "F", "C"]
-        }
+        "function": "Relative Minor-Subdominant-Tonic-Dominant"
+      },
+      "I-vi-IV-V": {
+        "name": "50s Progression",
+        "description": "Classic doo-wop and oldies progression",
+        "numerals": ["I", "vi", "IV", "V"],
+        "function": "Tonic-Relative Minor-Subdominant-Dominant"
       },
       "I-IV-V": {
         "name": "Classic Rock",
         "description": "Traditional blues and rock progression",
         "numerals": ["I", "IV", "V"],
-        "examples": {
-          "C": ["C", "F", "G"],
-          "G": ["G", "C", "D"],
-          "D": ["D", "G", "A"],
-          "A": ["A", "D", "E"],
-          "E": ["E", "A", "B"],
-          "F": ["F", "Bb", "C"]
-        }
+        "function": "Tonic-Subdominant-Dominant"
+      },
+      "I-V-IV": {
+        "name": "Folk Rock",
+        "description": "Simple and effective, common in folk",
+        "numerals": ["I", "V", "IV"],
+        "function": "Tonic-Dominant-Subdominant"
+      },
+      "ii-V-I": {
+        "name": "Jazz Standard",
+        "description": "The most important progression in jazz",
+        "numerals": ["ii", "V", "I"],
+        "function": "Subdominant Function-Dominant-Tonic"
+      },
+      "iii-vi-ii-V-I": {
+        "name": "Circle of Fifths",
+        "description": "Extended jazz progression following circle of fifths",
+        "numerals": ["iii", "vi", "ii", "V", "I"],
+        "function": "Mediant-Relative Minor-Subdominant-Dominant-Tonic"
+      },
+      "I-vi-ii-V": {
+        "name": "Jazz Turnaround",
+        "description": "Common jazz turnaround progression",
+        "numerals": ["I", "vi", "ii", "V"],
+        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+      },
+      "IV-V-vi": {
+        "name": "Modal Interchange",
+        "description": "Creates tension and emotional depth",
+        "numerals": ["IV", "V", "vi"],
+        "function": "Subdominant-Dominant-Relative Minor"
+      },
+      "I-iii-IV-V": {
+        "name": "Mediant Progression",
+        "description": "Uses the iii chord for smooth voice leading",
+        "numerals": ["I", "iii", "IV", "V"],
+        "function": "Tonic-Mediant-Subdominant-Dominant"
+      },
+      "vi-V-IV-V": {
+        "name": "Emotional Progression",
+        "description": "Creates emotional tension and release",
+        "numerals": ["vi", "V", "IV", "V"],
+        "function": "Relative Minor-Dominant-Subdominant-Dominant"
+      },
+      "I-V-vi-iii-IV-I-IV-V": {
+        "name": "Canon in D",
+        "description": "Pachelbel's famous progression",
+        "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
+        "function": "Extended classical progression"
       }
     },
     "minor": {
       "i-VII-VI": {
-        "name": "Natural Minor",
+        "name": "Natural Minor Rock",
         "description": "Dark and powerful minor progression",
-        "numerals": ["i", "VII", "VI"],
-        "examples": {
-          "Am": ["Am", "G", "F"],
-          "Em": ["Em", "D", "C"],
-          "Bm": ["Bm", "A", "G"],
-          "F#m": ["F#m", "E", "D"],
-          "C#m": ["C#m", "B", "A"],
-          "Dm": ["Dm", "C", "Bb"]
-        }
+        "numerals": ["i", "♭VII", "♭VI"],
+        "function": "Tonic-Subtonic-Submediant"
       },
       "i-iv-V": {
         "name": "Minor Blues",
-        "description": "Classic minor blues progression",
+        "description": "Classic minor blues with harmonic minor V",
         "numerals": ["i", "iv", "V"],
-        "examples": {
-          "Am": ["Am", "Dm", "E"],
-          "Em": ["Em", "Am", "B"],
-          "Bm": ["Bm", "Em", "F#"],
-          "F#m": ["F#m", "Bm", "C#"],
-          "C#m": ["C#m", "F#m", "G#"],
-          "Dm": ["Dm", "Gm", "A"]
-        }
+        "function": "Tonic-Subdominant-Dominant"
       },
       "i-VI-III-VII": {
         "name": "Minor Pop",
-        "description": "Modern minor progression",
-        "numerals": ["i", "VI", "III", "VII"],
-        "examples": {
-          "Am": ["Am", "F", "C", "G"],
-          "Em": ["Em", "C", "G", "D"],
-          "Bm": ["Bm", "G", "D", "A"],
-          "F#m": ["F#m", "D", "A", "E"],
-          "C#m": ["C#m", "A", "E", "B"],
-          "Dm": ["Dm", "Bb", "F", "C"]
+        "description": "Modern minor progression, very popular",
+        "numerals": ["i", "♭VI", "♭III", "♭VII"],
+        "function": "Tonic-Submediant-Mediant-Subtonic"
+      },
+      "i-iv-VII-III": {
+        "name": "Andalusian Cadence",
+        "description": "Spanish/flamenco influenced progression",
+        "numerals": ["i", "♭VII", "♭VI", "V"],
+        "function": "Descending progression with Phrygian flavor"
+      },
+      "i-v-iv-i": {
+        "name": "Minor Circle",
+        "description": "Creates a closed loop feeling",
+        "numerals": ["i", "v", "iv", "i"],
+        "function": "Tonic-Dominant-Subdominant-Tonic"
+      },
+      "i-ii°-V-i": {
+        "name": "Minor ii-V-i",
+        "description": "Jazz minor progression",
+        "numerals": ["i", "ii°", "V", "i"],
+        "function": "Tonic-Subdominant Function-Dominant-Tonic"
+      },
+      "i-VII-iv-i": {
+        "name": "Gothic Progression",
+        "description": "Dark, medieval sound",
+        "numerals": ["i", "♭VII", "iv", "i"],
+        "function": "Tonic-Subtonic-Subdominant-Tonic"
+      },
+      "i-VI-VII": {
+        "name": "Minor Rock Ballad",
+        "description": "Emotional and dramatic",
+        "numerals": ["i", "♭VI", "♭VII"],
+        "function": "Tonic-Submediant-Subtonic"
+      },
+      "i-III-VII-iv": {
+        "name": "Epic Minor",
+        "description": "Cinematic and grand",
+        "numerals": ["i", "♭III", "♭VII", "iv"],
+        "function": "Tonic-Mediant-Subtonic-Subdominant"
+      },
+      "i-v-VI-VII": {
+        "name": "Minor Ascending",
+        "description": "Building tension progressively",
+        "numerals": ["i", "v", "♭VI", "♭VII"],
+        "function": "Ascending harmonic movement"
+      }
+    },
+    "modal": {
+      "dorian": {
+        "i-IV-i": {
+          "name": "Dorian Vamp",
+          "description": "Simple dorian mode progression",
+          "numerals": ["i", "IV", "i"],
+          "function": "Modal characteristic with major IV"
+        },
+        "i-ii-IV-i": {
+          "name": "Dorian Extended",
+          "description": "Extended dorian progression",
+          "numerals": ["i", "ii", "IV", "i"],
+          "function": "Natural minor with raised 6th degree"
         }
+      },
+      "mixolydian": {
+        "I-VII-I": {
+          "name": "Mixolydian Rock",
+          "description": "Rock progression using mixolydian mode",
+          "numerals": ["I", "♭VII", "I"],
+          "function": "Major with flattened 7th"
+        },
+        "I-VII-IV-I": {
+          "name": "Mixolydian Extended",
+          "description": "Extended mixolydian progression",
+          "numerals": ["I", "♭VII", "IV", "I"],
+          "function": "Celtic/folk influenced"
+        }
+      },
+      "lydian": {
+        "I-II-I": {
+          "name": "Lydian Dreamy",
+          "description": "Ethereal lydian progression",
+          "numerals": ["I", "II", "I"],
+          "function": "Major with raised 4th degree"
+        }
+      },
+      "phrygian": {
+        "i-II-i": {
+          "name": "Phrygian Dark",
+          "description": "Dark, Spanish-influenced",
+          "numerals": ["i", "♭II", "i"],
+          "function": "Minor with flattened 2nd"
+        }
+      }
+    },
+    "jazz": {
+      "ii7-V7-Imaj7": {
+        "name": "Major ii-V-I",
+        "description": "Most important jazz progression in major",
+        "numerals": ["ii7", "V7", "Imaj7"],
+        "function": "Subdominant-Dominant-Tonic"
+      },
+      "ii7b5-V7-im7": {
+        "name": "Minor ii-V-i",
+        "description": "Minor version of ii-V-I",
+        "numerals": ["ii7♭5", "V7", "im7"],
+        "function": "Half-diminished-Dominant-Minor Tonic"
+      },
+      "Imaj7-vi7-ii7-V7": {
+        "name": "Jazz Turnaround",
+        "description": "Standard jazz turnaround with 7th chords",
+        "numerals": ["Imaj7", "vi7", "ii7", "V7"],
+        "function": "Extended dominant preparation"
+      },
+      "iii7-VI7-ii7-V7-Imaj7": {
+        "name": "Circle of Fifths Jazz",
+        "description": "Extended circle of fifths with 7th chords",
+        "numerals": ["iii7", "VI7", "ii7", "V7", "Imaj7"],
+        "function": "Complete circle of fifths movement"
+      }
+    },
+    "blues": {
+      "I7-I7-I7-I7-IV7-IV7-I7-I7-V7-IV7-I7-V7": {
+        "name": "12-Bar Blues",
+        "description": "The classic 12-bar blues progression",
+        "numerals": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+        "function": "Traditional blues form"
+      },
+      "I7-IV7-V7": {
+        "name": "Quick Change Blues",
+        "description": "Fast blues progression",
+        "numerals": ["I7", "IV7", "V7"],
+        "function": "Simplified blues changes"
+      }
+    },
+    "gospel": {
+      "I-vi-ii-V": {
+        "name": "Gospel Progression",
+        "description": "Common in gospel and R&B",
+        "numerals": ["I", "vi", "ii", "V"],
+        "function": "Circle of fifths movement"
+      },
+      "I-IV-vi-V": {
+        "name": "Contemporary Gospel",
+        "description": "Modern gospel chord progression",
+        "numerals": ["I", "IV", "vi", "V"],
+        "function": "Uplifting and spiritual"
+      }
+    },
+    "latin": {
+      "im-V7-im": {
+        "name": "Latin Minor",
+        "description": "Common in Latin music",
+        "numerals": ["im", "V7", "im"],
+        "function": "Minor with dominant 7th tension"
+      },
+      "Imaj7-VIm7-ii7-V7": {
+        "name": "Bossa Nova",
+        "description": "Sophisticated Brazilian progression",
+        "numerals": ["Imaj7", "VIm7", "ii7", "V7"],
+        "function": "Jazz influenced Latin progression"
+      }
+    },
+    "electronic": {
+      "i-VII-VI-VII": {
+        "name": "EDM Dark",
+        "description": "Common in dark electronic music",
+        "numerals": ["i", "♭VII", "♭VI", "♭VII"],
+        "function": "Tension and release for drops"
+      },
+      "vi-IV-I-V": {
+        "name": "EDM Euphoric",
+        "description": "Uplifting for trance and progressive house",
+        "numerals": ["vi", "IV", "I", "V"],
+        "function": "Emotional build-up progression"
       }
     }
   }

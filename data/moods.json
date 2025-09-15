@@ -1,40 +1,184 @@
 {
   "moods": [
     {
+      "id": "euphoric",
+      "name": "Euphoric",
+      "description": "Pure bliss, overwhelming joy, transcendent",
+      "suggestedKeys": ["C", "G", "D", "A", "F#"],
+      "suggestedScales": ["major", "lydian", "mixolydian"],
+      "tempoRange": [128, 180],
+      "themes": ["freedom", "flying", "limitless", "ecstasy", "transcendence", "heaven", "soaring", "infinite", "blessed", "divine"]
+    },
+    {
       "id": "happy",
       "name": "Happy",
       "description": "Uplifting, joyful, and energetic",
-      "suggestedKeys": ["C", "G", "D", "A"],
-      "suggestedScales": ["major"],
+      "suggestedKeys": ["C", "G", "D", "A", "F"],
+      "suggestedScales": ["major", "mixolydian"],
       "tempoRange": [120, 140],
       "themes": ["joy", "celebration", "sunshine", "dancing", "laughter", "friends", "party", "bright", "cheerful", "positive"]
     },
     {
+      "id": "triumphant",
+      "name": "Triumphant",
+      "description": "Victorious, conquering, heroic",
+      "suggestedKeys": ["E", "B", "F#", "C#", "Bb"],
+      "suggestedScales": ["major", "dorian", "mixolydian"],
+      "tempoRange": [110, 140],
+      "themes": ["victory", "hero", "conquest", "glory", "champion", "warrior", "strength", "power", "epic", "legend"]
+    },
+    {
+      "id": "romantic",
+      "name": "Romantic",
+      "description": "Loving, tender, intimate",
+      "suggestedKeys": ["F", "Bb", "Eb", "Ab", "Db"],
+      "suggestedScales": ["major", "lydian", "minor"],
+      "tempoRange": [60, 100],
+      "themes": ["love", "heart", "tender", "embrace", "passion", "devotion", "soulmate", "forever", "beautiful", "gentle"]
+    },
+    {
       "id": "melancholy",
       "name": "Melancholy",
-      "description": "Thoughtful, introspective, and bittersweet",
-      "suggestedKeys": ["Am", "Em", "Dm", "Bm"],
-      "suggestedScales": ["minor", "dorian"],
+      "description": "Thoughtful, introspective, bittersweet",
+      "suggestedKeys": ["Am", "Em", "Dm", "Bm", "F#m"],
+      "suggestedScales": ["minor", "dorian", "aeolian"],
       "tempoRange": [70, 100],
       "themes": ["rain", "memories", "longing", "autumn", "solitude", "reflection", "tears", "goodbye", "wistful", "nostalgic"]
     },
     {
+      "id": "sad",
+      "name": "Sad",
+      "description": "Sorrowful, grieving, heartbroken",
+      "suggestedKeys": ["Dm", "Gm", "Cm", "Am", "Em"],
+      "suggestedScales": ["minor", "phrygian", "locrian"],
+      "tempoRange": [50, 80],
+      "themes": ["sorrow", "grief", "loss", "broken", "empty", "darkness", "despair", "crying", "alone", "hollow"]
+    },
+    {
+      "id": "angry",
+      "name": "Angry",
+      "description": "Furious, aggressive, intense rage",
+      "suggestedKeys": ["E", "A", "D", "G", "C#m"],
+      "suggestedScales": ["minor", "phrygian", "harmonic minor"],
+      "tempoRange": [140, 200],
+      "themes": ["rage", "fury", "fire", "storm", "thunder", "violence", "rebellion", "fight", "destroy", "chaos"]
+    },
+    {
       "id": "energetic",
       "name": "Energetic",
-      "description": "High-energy, driving, and motivating",
-      "suggestedKeys": ["E", "B", "F#", "C#"],
-      "suggestedScales": ["major", "mixolydian"],
+      "description": "High-energy, driving, motivating",
+      "suggestedKeys": ["E", "B", "F#", "C#", "G"],
+      "suggestedScales": ["major", "mixolydian", "dorian"],
       "tempoRange": [140, 180],
       "themes": ["power", "running", "electric", "lightning", "rush", "adrenaline", "victory", "speed", "action", "intense"]
     },
     {
       "id": "calm",
       "name": "Calm",
-      "description": "Peaceful, relaxing, and serene",
-      "suggestedKeys": ["F", "Bb", "Eb", "Ab"],
-      "suggestedScales": ["major", "lydian"],
+      "description": "Peaceful, relaxing, serene",
+      "suggestedKeys": ["F", "Bb", "Eb", "Ab", "C"],
+      "suggestedScales": ["major", "lydian", "ionian"],
       "tempoRange": [60, 90],
       "themes": ["peace", "water", "clouds", "gentle", "breathe", "meditation", "soft", "flowing", "quiet", "tranquil"]
+    },
+    {
+      "id": "mysterious",
+      "name": "Mysterious",
+      "description": "Enigmatic, secretive, unknown",
+      "suggestedKeys": ["F#m", "C#m", "G#m", "Dm", "Bbm"],
+      "suggestedScales": ["minor", "dorian", "phrygian", "harmonic minor"],
+      "tempoRange": [80, 120],
+      "themes": ["shadow", "secret", "hidden", "whisper", "puzzle", "enigma", "noir", "detective", "unknown", "cryptic"]
+    },
+    {
+      "id": "dark",
+      "name": "Dark",
+      "description": "Ominous, foreboding, sinister",
+      "suggestedKeys": ["Dm", "Gm", "Cm", "F#m", "Bbm"],
+      "suggestedScales": ["minor", "phrygian", "locrian", "harmonic minor"],
+      "tempoRange": [60, 110],
+      "themes": ["darkness", "evil", "shadow", "nightmare", "doom", "gothic", "abyss", "demon", "cursed", "haunted"]
+    },
+    {
+      "id": "epic",
+      "name": "Epic",
+      "description": "Grand, cinematic, larger than life",
+      "suggestedKeys": ["C", "G", "D", "A", "E"],
+      "suggestedScales": ["major", "dorian", "mixolydian"],
+      "tempoRange": [100, 150],
+      "themes": ["legend", "hero", "quest", "mountain", "ocean", "destiny", "adventure", "journey", "saga", "immortal"]
+    },
+    {
+      "id": "dreamy",
+      "name": "Dreamy",
+      "description": "Ethereal, floating, otherworldly",
+      "suggestedKeys": ["F", "Bb", "Eb", "Ab", "Db"],
+      "suggestedScales": ["major", "lydian", "mixolydian"],
+      "tempoRange": [70, 100],
+      "themes": ["dream", "cloud", "floating", "ethereal", "magic", "fantasy", "wonder", "celestial", "drift", "surreal"]
+    },
+    {
+      "id": "nostalgic",
+      "name": "Nostalgic",
+      "description": "Wistful yearning for the past",
+      "suggestedKeys": ["F", "C", "G", "Am", "Dm"],
+      "suggestedScales": ["major", "minor", "dorian"],
+      "tempoRange": [70, 110],
+      "themes": ["memory", "childhood", "yesterday", "vintage", "old", "remember", "past", "faded", "sepia", "antique"]
+    },
+    {
+      "id": "anxious",
+      "name": "Anxious",
+      "description": "Nervous, worried, unsettled",
+      "suggestedKeys": ["F#m", "C#m", "Bm", "Em", "Am"],
+      "suggestedScales": ["minor", "phrygian", "locrian"],
+      "tempoRange": [100, 160],
+      "themes": ["worry", "tension", "stress", "panic", "fear", "nervous", "restless", "uneasy", "troubled", "disorder"]
+    },
+    {
+      "id": "hopeful",
+      "name": "Hopeful",
+      "description": "Optimistic, encouraging, uplifting",
+      "suggestedKeys": ["G", "D", "A", "E", "C"],
+      "suggestedScales": ["major", "mixolydian", "lydian"],
+      "tempoRange": [90, 130],
+      "themes": ["hope", "light", "dawn", "tomorrow", "faith", "believe", "sunrise", "future", "dream", "possible"]
+    },
+    {
+      "id": "playful",
+      "name": "Playful",
+      "description": "Fun, whimsical, childlike",
+      "suggestedKeys": ["C", "F", "G", "D", "A"],
+      "suggestedScales": ["major", "mixolydian", "lydian"],
+      "tempoRange": [120, 160],
+      "themes": ["play", "fun", "toy", "game", "laugh", "silly", "bounce", "skip", "comedy", "quirky"]
+    },
+    {
+      "id": "sensual",
+      "name": "Sensual",
+      "description": "Seductive, sultry, intimate",
+      "suggestedKeys": ["Dm", "Gm", "Am", "Em", "F"],
+      "suggestedScales": ["minor", "dorian", "mixolydian"],
+      "tempoRange": [70, 100],
+      "themes": ["desire", "touch", "silk", "velvet", "wine", "midnight", "fire", "tempt", "seduce", "allure"]
+    },
+    {
+      "id": "spiritual",
+      "name": "Spiritual",
+      "description": "Sacred, divine, transcendent",
+      "suggestedKeys": ["F", "C", "G", "D", "Bb"],
+      "suggestedScales": ["major", "dorian", "lydian"],
+      "tempoRange": [60, 110],
+      "themes": ["sacred", "divine", "prayer", "heaven", "soul", "spirit", "holy", "blessed", "peace", "eternal"]
+    },
+    {
+      "id": "rebellious",
+      "name": "Rebellious",
+      "description": "Defiant, revolutionary, non-conformist",
+      "suggestedKeys": ["E", "A", "D", "G", "B"],
+      "suggestedScales": ["minor", "dorian", "mixolydian"],
+      "tempoRange": [120, 170],
+      "themes": ["rebel", "fight", "revolution", "break", "freedom", "defiant", "resist", "change", "punk", "riot"]
     }
   ]
 }

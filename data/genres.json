@@ -21,14 +21,64 @@
       "characteristics": "Power chords, driving rhythm, guitar solos"
     },
     {
-      "id": "lofi",
-      "name": "Lo-fi",
-      "description": "Relaxed, atmospheric, and nostalgic",
-      "commonProgressions": ["ii-V-I", "vi-IV-I-V", "I-vi-ii-V"],
-      "typicalTempo": [70, 90],
-      "commonStructures": ["loop-based", "ambient"],
-      "instruments": ["piano", "vinyl samples", "soft drums", "ambient pads"],
-      "characteristics": "Jazz harmony, vinyl crackle, mellow drums"
+      "id": "metal",
+      "name": "Metal",
+      "description": "Heavy, aggressive, and powerful",
+      "commonProgressions": ["i-VII-VI", "i-iv-V", "i-ii°-V"],
+      "typicalTempo": [120, 180],
+      "commonStructures": ["intro-verse-chorus-verse-chorus-breakdown-solo-chorus-outro"],
+      "instruments": ["distorted guitar", "bass", "drums", "vocals"],
+      "characteristics": "Heavy distortion, fast tempo, aggressive vocals"
+    },
+    {
+      "id": "jazz",
+      "name": "Jazz",
+      "description": "Complex harmony, improvisation, swing",
+      "commonProgressions": ["ii-V-I", "I-vi-ii-V", "iii-VI-ii-V-I"],
+      "typicalTempo": [120, 180],
+      "commonStructures": ["head-solos-head", "AABA"],
+      "instruments": ["piano", "bass", "drums", "horn section", "guitar"],
+      "characteristics": "Complex chords, improvisation, swing rhythm"
+    },
+    {
+      "id": "blues",
+      "name": "Blues",
+      "description": "12-bar progression, emotional expression",
+      "commonProgressions": ["I-I-I-I-IV-IV-I-I-V-IV-I-V", "I-IV-V"],
+      "typicalTempo": [60, 120],
+      "commonStructures": ["12-bar-blues", "verse-chorus"],
+      "instruments": ["guitar", "harmonica", "piano", "bass", "drums"],
+      "characteristics": "12-bar form, blue notes, call-and-response"
+    },
+    {
+      "id": "country",
+      "name": "Country",
+      "description": "Folk-influenced, storytelling, twang",
+      "commonProgressions": ["I-V-vi-IV", "I-IV-V", "vi-IV-I-V"],
+      "typicalTempo": [100, 140],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["acoustic guitar", "steel guitar", "fiddle", "banjo", "vocals"],
+      "characteristics": "Simple chords, storytelling lyrics, twangy vocals"
+    },
+    {
+      "id": "folk",
+      "name": "Folk",
+      "description": "Traditional, acoustic, storytelling",
+      "commonProgressions": ["I-V-vi-IV", "I-vi-IV-V", "vi-IV-I-V"],
+      "typicalTempo": [80, 120],
+      "commonStructures": ["verse-verse-chorus-verse-chorus"],
+      "instruments": ["acoustic guitar", "harmonica", "banjo", "mandolin"],
+      "characteristics": "Acoustic instruments, simple melodies, narrative lyrics"
+    },
+    {
+      "id": "classical",
+      "name": "Classical",
+      "description": "Orchestral, complex composition, traditional forms",
+      "commonProgressions": ["I-V-I", "ii-V-I", "vi-IV-I-V"],
+      "typicalTempo": [60, 140],
+      "commonStructures": ["sonata-form", "theme-and-variations", "rondo"],
+      "instruments": ["orchestra", "piano", "strings", "woodwinds", "brass"],
+      "characteristics": "Complex harmony, orchestration, formal structures"
     },
     {
       "id": "edm",
@@ -39,6 +89,286 @@
       "commonStructures": ["intro-buildup-drop-breakdown-buildup-drop-outro"],
       "instruments": ["synthesizers", "drum machine", "bass synth", "effects"],
       "characteristics": "Four-on-the-floor, build-ups, drops, electronic sounds"
+    },
+    {
+      "id": "house",
+      "name": "House",
+      "description": "Four-on-the-floor electronic dance music",
+      "commonProgressions": ["i-VII-VI", "vi-IV-I-V"],
+      "typicalTempo": [120, 130],
+      "commonStructures": ["intro-buildup-drop-breakdown-drop-outro"],
+      "instruments": ["drum machine", "synthesizers", "bass", "vocal samples"],
+      "characteristics": "Four-on-the-floor kick, repetitive structure"
+    },
+    {
+      "id": "techno",
+      "name": "Techno",
+      "description": "Repetitive electronic music, industrial sounds",
+      "commonProgressions": ["i-VII-VI", "i-ii°-V"],
+      "typicalTempo": [120, 140],
+      "commonStructures": ["loop-based", "minimal-changes"],
+      "instruments": ["drum machines", "synthesizers", "samplers"],
+      "characteristics": "Repetitive beats, minimal melody, industrial sounds"
+    },
+    {
+      "id": "trance",
+      "name": "Trance",
+      "description": "Euphoric electronic music with build-ups",
+      "commonProgressions": ["i-VI-III-VII", "vi-IV-I-V"],
+      "typicalTempo": [130, 140],
+      "commonStructures": ["intro-breakdown-buildup-climax-breakdown-outro"],
+      "instruments": ["synthesizers", "arpeggiators", "pad sounds"],
+      "characteristics": "Long build-ups, euphoric breakdowns, arpeggiated leads"
+    },
+    {
+      "id": "dubstep",
+      "name": "Dubstep",
+      "description": "Heavy bass, syncopated rhythms, wobble bass",
+      "commonProgressions": ["i-VII-VI", "i-v-VI"],
+      "typicalTempo": [140, 140],
+      "commonStructures": ["intro-buildup-drop-breakdown-drop-outro"],
+      "instruments": ["bass synthesizers", "drum machine", "effects"],
+      "characteristics": "Wobble bass, syncopated drums, heavy drops"
+    },
+    {
+      "id": "trap",
+      "name": "Trap",
+      "description": "Hip-hop influenced electronic music",
+      "commonProgressions": ["i-VII-VI", "vi-IV-I"],
+      "typicalTempo": [140, 180],
+      "commonStructures": ["intro-verse-hook-verse-hook-bridge-hook-outro"],
+      "instruments": ["808 drums", "synthesizers", "vocal samples"],
+      "characteristics": "808 kicks and snares, hi-hat rolls, dark melodies"
+    },
+    {
+      "id": "hiphop",
+      "name": "Hip-Hop",
+      "description": "Rap vocals over rhythmic backing tracks",
+      "commonProgressions": ["i-VII-VI", "vi-IV-I-V", "i-iv-V"],
+      "typicalTempo": [70, 140],
+      "commonStructures": ["intro-verse-hook-verse-hook-bridge-hook-outro"],
+      "instruments": ["drum machine", "bass", "samples", "turntables"],
+      "characteristics": "Strong beat, rap vocals, sampling"
+    },
+    {
+      "id": "rnb",
+      "name": "R&B",
+      "description": "Rhythm and blues, soulful vocals",
+      "commonProgressions": ["ii-V-I", "vi-IV-I-V", "I-vi-ii-V"],
+      "typicalTempo": [60, 120],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["vocals", "bass", "drums", "keyboard", "guitar"],
+      "characteristics": "Soulful vocals, groove-based, call-and-response"
+    },
+    {
+      "id": "funk",
+      "name": "Funk",
+      "description": "Groove-based, rhythmic emphasis",
+      "commonProgressions": ["i-VII", "i-iv", "VII-i"],
+      "typicalTempo": [100, 120],
+      "commonStructures": ["groove-based", "vamp-sections"],
+      "instruments": ["bass guitar", "drums", "guitar", "horns"],
+      "characteristics": "Heavy groove, syncopated rhythms, minimal harmony"
+    },
+    {
+      "id": "soul",
+      "name": "Soul",
+      "description": "Emotional vocals, gospel influence",
+      "commonProgressions": ["I-vi-IV-V", "ii-V-I", "vi-IV-I-V"],
+      "typicalTempo": [60, 120],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["vocals", "organ", "horn section", "rhythm section"],
+      "characteristics": "Emotional vocals, gospel influence, horn sections"
+    },
+    {
+      "id": "gospel",
+      "name": "Gospel",
+      "description": "Religious content, call-and-response",
+      "commonProgressions": ["I-V-vi-IV", "ii-V-I", "vi-IV-I-V"],
+      "typicalTempo": [60, 140],
+      "commonStructures": ["call-response", "verse-chorus"],
+      "instruments": ["organ", "choir", "piano", "drums"],
+      "characteristics": "Religious lyrics, call-and-response, organ prominent"
+    },
+    {
+      "id": "reggae",
+      "name": "Reggae",
+      "description": "Jamaican rhythm, off-beat emphasis",
+      "commonProgressions": ["i-VII-VI-VII", "i-iv-V", "vi-IV-I"],
+      "typicalTempo": [60, 90],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["guitar", "bass", "drums", "keyboards"],
+      "characteristics": "Off-beat rhythm, bass emphasis, Jamaican origin"
+    },
+    {
+      "id": "ska",
+      "name": "Ska",
+      "description": "Upbeat Jamaican music, off-beat guitar",
+      "commonProgressions": ["I-V-vi-IV", "I-IV-V"],
+      "typicalTempo": [150, 180],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["guitar", "bass", "drums", "horn section"],
+      "characteristics": "Off-beat guitar, horn sections, upbeat tempo"
+    },
+    {
+      "id": "punk",
+      "name": "Punk",
+      "description": "Fast, aggressive, rebellious",
+      "commonProgressions": ["I-IV-V", "i-VII-VI", "I-V-vi-IV"],
+      "typicalTempo": [150, 200],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["electric guitar", "bass", "drums", "vocals"],
+      "characteristics": "Fast tempo, simple chords, rebellious attitude"
+    },
+    {
+      "id": "grunge",
+      "name": "Grunge",
+      "description": "Alternative rock with heavy distortion",
+      "commonProgressions": ["i-VII-VI", "i-iv-V", "vi-IV-I-V"],
+      "typicalTempo": [120, 160],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["distorted guitar", "bass", "drums", "vocals"],
+      "characteristics": "Heavy distortion, alternative attitude, dynamic changes"
+    },
+    {
+      "id": "indie",
+      "name": "Indie",
+      "description": "Independent, alternative, creative freedom",
+      "commonProgressions": ["vi-IV-I-V", "I-V-vi-IV", "ii-V-I"],
+      "typicalTempo": [100, 140],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["guitar", "bass", "drums", "keyboards"],
+      "characteristics": "Independent production, creative freedom, varied styles"
+    },
+    {
+      "id": "ambient",
+      "name": "Ambient",
+      "description": "Atmospheric, textural, background music",
+      "commonProgressions": ["I-V-vi", "ii-V-I", "static-harmony"],
+      "typicalTempo": [60, 100],
+      "commonStructures": ["evolving-textures", "minimal-form"],
+      "instruments": ["synthesizers", "field recordings", "effects"],
+      "characteristics": "Atmospheric textures, minimal beats, environmental sounds"
+    },
+    {
+      "id": "lofi",
+      "name": "Lo-fi",
+      "description": "Relaxed, atmospheric, nostalgic with vinyl crackle",
+      "commonProgressions": ["ii-V-I", "vi-IV-I-V", "I-vi-ii-V"],
+      "typicalTempo": [70, 90],
+      "commonStructures": ["loop-based", "ambient"],
+      "instruments": ["piano", "vinyl samples", "soft drums", "ambient pads"],
+      "characteristics": "Jazz harmony, vinyl crackle, mellow drums, nostalgic"
+    },
+    {
+      "id": "chillhop",
+      "name": "Chillhop",
+      "description": "Relaxed hip-hop with jazz influences",
+      "commonProgressions": ["ii-V-I", "vi-IV-I-V", "iii-vi-ii-V"],
+      "typicalTempo": [80, 100],
+      "commonStructures": ["loop-based", "minimal-changes"],
+      "instruments": ["jazz samples", "soft drums", "bass", "vinyl effects"],
+      "characteristics": "Laid-back beats, jazz samples, study music"
+    },
+    {
+      "id": "synthwave",
+      "name": "Synthwave",
+      "description": "80s-inspired electronic music",
+      "commonProgressions": ["vi-IV-I-V", "i-VII-VI-VII"],
+      "typicalTempo": [100, 130],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["analog synthesizers", "drum machines", "guitar"],
+      "characteristics": "80s nostalgia, analog synths, neon aesthetics"
+    },
+    {
+      "id": "vaporwave",
+      "name": "Vaporwave",
+      "description": "Slowed-down samples, 80s aesthetic",
+      "commonProgressions": ["I-V-vi-IV", "ii-V-I"],
+      "typicalTempo": [60, 90],
+      "commonStructures": ["loop-based", "minimal-progression"],
+      "instruments": ["samples", "synthesizers", "effects"],
+      "characteristics": "Slowed samples, nostalgic, surreal aesthetics"
+    },
+    {
+      "id": "drill",
+      "name": "Drill",
+      "description": "Dark, aggressive hip-hop subgenre",
+      "commonProgressions": ["i-VII-VI", "i-iv-V", "vi-IV-i"],
+      "typicalTempo": [130, 150],
+      "commonStructures": ["verse-hook-verse-hook-bridge-hook"],
+      "instruments": ["808s", "dark synths", "vocal samples"],
+      "characteristics": "Dark melodies, aggressive lyrics, 808-heavy"
+    },
+    {
+      "id": "afrobeat",
+      "name": "Afrobeat",
+      "description": "West African rhythms with jazz and funk",
+      "commonProgressions": ["i-VII", "i-iv", "polyrhythmic"],
+      "typicalTempo": [100, 120],
+      "commonStructures": ["extended-jams", "call-response"],
+      "instruments": ["percussion", "horns", "guitar", "bass"],
+      "characteristics": "Complex polyrhythms, horn sections, extended forms"
+    },
+    {
+      "id": "latin",
+      "name": "Latin",
+      "description": "Latin American rhythms and instruments",
+      "commonProgressions": ["i-VII-VI-VII", "ii-V-I", "vi-ii-V-I"],
+      "typicalTempo": [100, 140],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["congas", "timbales", "brass", "piano", "bass"],
+      "characteristics": "Complex rhythms, Latin percussion, brass sections"
+    },
+    {
+      "id": "bossanova",
+      "name": "Bossa Nova",
+      "description": "Brazilian jazz style, smooth and sophisticated",
+      "commonProgressions": ["ii-V-I", "I-vi-ii-V", "iii-VI-ii-V-I"],
+      "typicalTempo": [120, 140],
+      "commonStructures": ["AABA", "verse-chorus"],
+      "instruments": ["nylon guitar", "soft percussion", "vocals", "bass"],
+      "characteristics": "Sophisticated harmony, soft rhythm, Brazilian origin"
+    },
+    {
+      "id": "flamenco",
+      "name": "Flamenco",
+      "description": "Spanish guitar, passionate expression",
+      "commonProgressions": ["i-VII-VI-V", "i-iv-V", "phrygian-mode"],
+      "typicalTempo": [120, 180],
+      "commonStructures": ["traditional-forms", "improvised-sections"],
+      "instruments": ["flamenco guitar", "cajon", "palmas", "vocals"],
+      "characteristics": "Phrygian harmony, complex guitar techniques, passionate vocals"
+    },
+    {
+      "id": "celtic",
+      "name": "Celtic",
+      "description": "Traditional Irish/Scottish music",
+      "commonProgressions": ["I-V-vi-IV", "vi-IV-I-V", "modal-progressions"],
+      "typicalTempo": [100, 160],
+      "commonStructures": ["AABA", "reel", "jig"],
+      "instruments": ["fiddle", "tin whistle", "bodhrán", "uilleann pipes"],
+      "characteristics": "Modal scales, ornamentation, traditional instruments"
+    },
+    {
+      "id": "bluegrass",
+      "name": "Bluegrass",
+      "description": "Fast acoustic country music",
+      "commonProgressions": ["I-IV-V", "I-V-vi-IV", "ii-V-I"],
+      "typicalTempo": [120, 180],
+      "commonStructures": ["verse-chorus-instrumental-chorus"],
+      "instruments": ["banjo", "fiddle", "mandolin", "acoustic guitar", "bass"],
+      "characteristics": "Fast picking, acoustic instruments, vocal harmonies"
+    },
+    {
+      "id": "newage",
+      "name": "New Age",
+      "description": "Meditative, spiritual, healing music",
+      "commonProgressions": ["I-V-vi", "ii-V-I", "static-harmony"],
+      "typicalTempo": [60, 100],
+      "commonStructures": ["flowing-form", "minimal-structure"],
+      "instruments": ["synthesizers", "nature sounds", "flute", "piano"],
+      "characteristics": "Peaceful melodies, nature sounds, spiritual themes"
     }
   ]
 }

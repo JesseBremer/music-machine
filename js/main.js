@@ -78,15 +78,17 @@ async function loadKeyTempoStep() {
         appState.songData.genre
     );
     
+    // Get suggested scales based on mood and genre
+    const suggestedScales = MusicTheory.getSuggestedScalesForMoodAndGenre(
+        appState.songData.mood,
+        appState.songData.genre
+    );
+    
     // Render keys
     UI.renderKeys(suggestedKeys, 'key-options');
     
-    // Render scales
-    const scales = [
-        { name: 'Major', description: 'Bright and happy sound', type: 'major' },
-        { name: 'Minor', description: 'Dark and emotional sound', type: 'minor' }
-    ];
-    UI.renderScales(scales, 'scale-options');
+    // Render scales with enhanced options
+    UI.renderScales(suggestedScales, 'scale-options');
     
     // Render tempos
     UI.renderTempos(tempoRange, 'tempo-options');
@@ -96,13 +98,14 @@ async function loadKeyTempoStep() {
 
 // Load chord progression step
 async function loadChordsStep() {
-    if (!appState.songData.key || !appState.songData.genre) {
-        UI.showMessage('Please select key and genre first', 'error');
+    if (!appState.songData.key || !appState.songData.scale || !appState.songData.genre) {
+        UI.showMessage('Please select key, scale, and genre first', 'error');
         return;
     }
     
     const chordProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
         appState.songData.key,
+        appState.songData.scale,
         appState.songData.genre,
         appState.loadedData.chordProgressions
     );
@@ -182,6 +185,9 @@ async function loadArrangementStep() {
     appState.songData.arrangementTips = arrangementTips;
     UI.renderArrangementTips(arrangementTips, 'arrangement-tips');
     UI.showStep('step-arrangement');
+    
+    // Enable the next button since arrangement is informational
+    UI.enableButton('arrangement-next');
 }
 
 // Load lyrics step
@@ -196,6 +202,9 @@ async function loadLyricsStep() {
     UI.renderThematicWords(thematicWords, 'thematic-words');
     
     UI.showStep('step-lyrics');
+    
+    // Enable the next button since lyrics are optional
+    UI.enableButton('lyrics-next');
 }
 
 // Load export step
@@ -214,6 +223,9 @@ async function loadExportStep() {
 function setupEventListeners() {
     // Navigation button listeners
     setupNavigationListeners();
+    
+    // Progress bar click listeners
+    setupProgressBarListeners();
     
     // Option selection listener
     document.addEventListener('optionSelected', handleOptionSelection);
@@ -284,6 +296,37 @@ function setupNavigationListeners() {
     });
 }
 
+function setupProgressBarListeners() {
+    // Add click listeners to progress bar steps
+    const stepMapping = {
+        1: () => loadMoodStep(),
+        2: () => loadKeyTempoStep(), 
+        3: () => loadChordsStep(),
+        4: () => loadDrumsStep(),
+        5: () => loadBassStep(),
+        6: () => loadMelodyStep(),
+        7: () => loadStructureStep(),
+        8: () => loadArrangementStep(),
+        9: () => loadLyricsStep(),
+        10: () => loadExportStep()
+    };
+    
+    document.querySelectorAll('.progress-step').forEach((step, index) => {
+        const stepNumber = index + 1;
+        step.addEventListener('click', () => {
+            // Only allow navigation to completed steps or current step
+            if (step.classList.contains('completed') || step.classList.contains('active')) {
+                const handler = stepMapping[stepNumber];
+                if (handler) {
+                    handler();
+                }
+            } else {
+                UI.showMessage('Please complete the current step first', 'warning');
+            }
+        });
+    });
+}
+
 // Handle option selections
 function handleOptionSelection(event) {
     const { type, element } = event.detail;
@@ -320,6 +363,7 @@ function handleOptionSelection(event) {
             const progressionId = element.dataset.progressionId;
             const progressions = MusicTheory.getChordProgressionsForKeyAndGenre(
                 appState.songData.key,
+                appState.songData.scale,
                 appState.songData.genre,
                 appState.loadedData.chordProgressions
             );
