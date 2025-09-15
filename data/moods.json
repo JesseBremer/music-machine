@@ -1,0 +1,40 @@
+{
+  "moods": [
+    {
+      "id": "happy",
+      "name": "Happy",
+      "description": "Uplifting, joyful, and energetic",
+      "suggestedKeys": ["C", "G", "D", "A"],
+      "suggestedScales": ["major"],
+      "tempoRange": [120, 140],
+      "themes": ["joy", "celebration", "sunshine", "dancing", "laughter", "friends", "party", "bright", "cheerful", "positive"]
+    },
+    {
+      "id": "melancholy",
+      "name": "Melancholy",
+      "description": "Thoughtful, introspective, and bittersweet",
+      "suggestedKeys": ["Am", "Em", "Dm", "Bm"],
+      "suggestedScales": ["minor", "dorian"],
+      "tempoRange": [70, 100],
+      "themes": ["rain", "memories", "longing", "autumn", "solitude", "reflection", "tears", "goodbye", "wistful", "nostalgic"]
+    },
+    {
+      "id": "energetic",
+      "name": "Energetic",
+      "description": "High-energy, driving, and motivating",
+      "suggestedKeys": ["E", "B", "F#", "C#"],
+      "suggestedScales": ["major", "mixolydian"],
+      "tempoRange": [140, 180],
+      "themes": ["power", "running", "electric", "lightning", "rush", "adrenaline", "victory", "speed", "action", "intense"]
+    },
+    {
+      "id": "calm",
+      "name": "Calm",
+      "description": "Peaceful, relaxing, and serene",
+      "suggestedKeys": ["F", "Bb", "Eb", "Ab"],
+      "suggestedScales": ["major", "lydian"],
+      "tempoRange": [60, 90],
+      "themes": ["peace", "water", "clouds", "gentle", "breathe", "meditation", "soft", "flowing", "quiet", "tranquil"]
+    }
+  ]
+}

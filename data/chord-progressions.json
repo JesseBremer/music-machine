@@ -1,0 +1,86 @@
+{
+  "progressions": {
+    "major": {
+      "I-V-vi-IV": {
+        "name": "Pop Progression",
+        "description": "Most popular in modern music",
+        "numerals": ["I", "V", "vi", "IV"],
+        "examples": {
+          "C": ["C", "G", "Am", "F"],
+          "G": ["G", "D", "Em", "C"],
+          "D": ["D", "A", "Bm", "G"],
+          "A": ["A", "E", "F#m", "D"],
+          "E": ["E", "B", "C#m", "A"],
+          "F": ["F", "C", "Dm", "Bb"]
+        }
+      },
+      "vi-IV-I-V": {
+        "name": "Pop Progression (vi start)",
+        "description": "Same as I-V-vi-IV but starting on vi",
+        "numerals": ["vi", "IV", "I", "V"],
+        "examples": {
+          "C": ["Am", "F", "C", "G"],
+          "G": ["Em", "C", "G", "D"],
+          "D": ["Bm", "G", "D", "A"],
+          "A": ["F#m", "D", "A", "E"],
+          "E": ["C#m", "A", "E", "B"],
+          "F": ["Dm", "Bb", "F", "C"]
+        }
+      },
+      "I-IV-V": {
+        "name": "Classic Rock",
+        "description": "Traditional blues and rock progression",
+        "numerals": ["I", "IV", "V"],
+        "examples": {
+          "C": ["C", "F", "G"],
+          "G": ["G", "C", "D"],
+          "D": ["D", "G", "A"],
+          "A": ["A", "D", "E"],
+          "E": ["E", "A", "B"],
+          "F": ["F", "Bb", "C"]
+        }
+      }
+    },
+    "minor": {
+      "i-VII-VI": {
+        "name": "Natural Minor",
+        "description": "Dark and powerful minor progression",
+        "numerals": ["i", "VII", "VI"],
+        "examples": {
+          "Am": ["Am", "G", "F"],
+          "Em": ["Em", "D", "C"],
+          "Bm": ["Bm", "A", "G"],
+          "F#m": ["F#m", "E", "D"],
+          "C#m": ["C#m", "B", "A"],
+          "Dm": ["Dm", "C", "Bb"]
+        }
+      },
+      "i-iv-V": {
+        "name": "Minor Blues",
+        "description": "Classic minor blues progression",
+        "numerals": ["i", "iv", "V"],
+        "examples": {
+          "Am": ["Am", "Dm", "E"],
+          "Em": ["Em", "Am", "B"],
+          "Bm": ["Bm", "Em", "F#"],
+          "F#m": ["F#m", "Bm", "C#"],
+          "C#m": ["C#m", "F#m", "G#"],
+          "Dm": ["Dm", "Gm", "A"]
+        }
+      },
+      "i-VI-III-VII": {
+        "name": "Minor Pop",
+        "description": "Modern minor progression",
+        "numerals": ["i", "VI", "III", "VII"],
+        "examples": {
+          "Am": ["Am", "F", "C", "G"],
+          "Em": ["Em", "C", "G", "D"],
+          "Bm": ["Bm", "G", "D", "A"],
+          "F#m": ["F#m", "D", "A", "E"],
+          "C#m": ["C#m", "A", "E", "B"],
+          "Dm": ["Dm", "Bb", "F", "C"]
+        }
+      }
+    }
+  }
+}

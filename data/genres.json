@@ -1,0 +1,44 @@
+{
+  "genres": [
+    {
+      "id": "pop",
+      "name": "Pop",
+      "description": "Catchy, accessible, and radio-friendly",
+      "commonProgressions": ["I-V-vi-IV", "vi-IV-I-V", "I-vi-IV-V"],
+      "typicalTempo": [100, 130],
+      "commonStructures": ["verse-chorus-verse-chorus-bridge-chorus"],
+      "instruments": ["vocals", "guitar", "bass", "drums", "keyboard", "strings"],
+      "characteristics": "4/4 time, strong melody, hook-based"
+    },
+    {
+      "id": "rock",
+      "name": "Rock",
+      "description": "Guitar-driven with strong rhythm section",
+      "commonProgressions": ["I-VII-IV", "I-IV-V", "vi-IV-I-V"],
+      "typicalTempo": [110, 140],
+      "commonStructures": ["intro-verse-chorus-verse-chorus-solo-chorus-outro"],
+      "instruments": ["electric guitar", "bass guitar", "drums", "vocals"],
+      "characteristics": "Power chords, driving rhythm, guitar solos"
+    },
+    {
+      "id": "lofi",
+      "name": "Lo-fi",
+      "description": "Relaxed, atmospheric, and nostalgic",
+      "commonProgressions": ["ii-V-I", "vi-IV-I-V", "I-vi-ii-V"],
+      "typicalTempo": [70, 90],
+      "commonStructures": ["loop-based", "ambient"],
+      "instruments": ["piano", "vinyl samples", "soft drums", "ambient pads"],
+      "characteristics": "Jazz harmony, vinyl crackle, mellow drums"
+    },
+    {
+      "id": "edm",
+      "name": "EDM",
+      "description": "Electronic dance music with driving beats",
+      "commonProgressions": ["i-VII-VI-VII", "i-VI-III-VII"],
+      "typicalTempo": [120, 140],
+      "commonStructures": ["intro-buildup-drop-breakdown-buildup-drop-outro"],
+      "instruments": ["synthesizers", "drum machine", "bass synth", "effects"],
+      "characteristics": "Four-on-the-floor, build-ups, drops, electronic sounds"
+    }
+  ]
+}

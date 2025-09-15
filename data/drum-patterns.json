@@ -1,0 +1,100 @@
+{
+  "patterns": {
+    "pop": {
+      "basic-pop": {
+        "name": "Basic Pop Beat",
+        "description": "Simple and effective pop rhythm",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [100, 130]
+      },
+      "disco": {
+        "name": "Four-on-the-Floor",
+        "description": "Classic disco/dance beat",
+        "pattern": "K-K-K-K-",
+        "grid": [
+          ["Kick", "x", "x", "x", "x"],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [110, 130]
+      }
+    },
+    "rock": {
+      "basic-rock": {
+        "name": "Basic Rock Beat",
+        "description": "Standard rock rhythm",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [110, 140]
+      },
+      "power-rock": {
+        "name": "Power Rock",
+        "description": "Driving rock beat",
+        "pattern": "K-s-K-s-",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 160]
+      }
+    },
+    "lofi": {
+      "laid-back": {
+        "name": "Laid Back",
+        "description": "Relaxed lo-fi groove",
+        "pattern": "k.s.k.s.",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", "x", "."],
+          ["Hi-hat", ".", "x", ".", "x"]
+        ],
+        "tempo": [70, 90]
+      },
+      "jazzy": {
+        "name": "Jazzy Shuffle",
+        "description": "Swing-influenced beat",
+        "pattern": "k..sk..s",
+        "grid": [
+          ["Kick", "x", ".", ".", "."],
+          ["Snare", ".", ".", ".", "x"],
+          ["Hi-hat", "x", ".", "x", "."]
+        ],
+        "tempo": [75, 95]
+      }
+    },
+    "edm": {
+      "four-floor": {
+        "name": "Four on the Floor",
+        "description": "Classic house/EDM pattern",
+        "pattern": "K-K-K-K-",
+        "grid": [
+          ["Kick", "x", "x", "x", "x"],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [120, 130]
+      },
+      "trap": {
+        "name": "Trap Beat",
+        "description": "Modern trap-influenced EDM",
+        "pattern": "K.s.K.s.",
+        "grid": [
+          ["Kick", "x", ".", "x", "."],
+          ["Snare", ".", "x", ".", "x"],
+          ["Hi-hat", "x", "x", "x", "x"]
+        ],
+        "tempo": [140, 180]
+      }
+    }
+  }
+}
