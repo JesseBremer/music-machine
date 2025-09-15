@@ -1,0 +1,243 @@
+{
+  "arrangements": {
+    "pop": {
+      "typical_bars": {
+        "Intro": 4,
+        "Verse": 16,
+        "Pre-Chorus": 8,
+        "Chorus": 16,
+        "Bridge": 16,
+        "Outro": 8,
+        "Hook": 4,
+        "Post-Chorus": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Chorus", "Outro"],
+          "total_bars": 96,
+          "duration_minutes": 2.4
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Pre-Chorus", "Chorus", "Verse", "Pre-Chorus", "Chorus", "Bridge", "Chorus", "Outro"],
+          "total_bars": 128,
+          "duration_minutes": 3.2
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Pre-Chorus", "Chorus", "Verse", "Pre-Chorus", "Chorus", "Bridge", "Chorus", "Chorus", "Outro"],
+          "total_bars": 144,
+          "duration_minutes": 3.6
+        }
+      }
+    },
+    "rock": {
+      "typical_bars": {
+        "Intro": 8,
+        "Verse": 16,
+        "Chorus": 16,
+        "Guitar Solo": 32,
+        "Bridge": 16,
+        "Outro": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Guitar Solo", "Chorus", "Outro"],
+          "total_bars": 136,
+          "duration_minutes": 2.8
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Guitar Solo", "Chorus", "Outro"],
+          "total_bars": 152,
+          "duration_minutes": 3.5
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Guitar Solo", "Chorus", "Chorus", "Outro"],
+          "total_bars": 168,
+          "duration_minutes": 4.2
+        }
+      }
+    },
+    "edm": {
+      "typical_bars": {
+        "Intro": 16,
+        "Build-up": 16,
+        "Drop": 32,
+        "Breakdown": 16,
+        "Second Drop": 32,
+        "Outro": 16
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Build-up", "Drop", "Breakdown", "Drop", "Outro"],
+          "total_bars": 128,
+          "duration_minutes": 2.7
+        },
+        "medium": {
+          "sections": ["Intro", "Build-up", "Drop", "Breakdown", "Build-up", "Drop", "Outro"],
+          "total_bars": 144,
+          "duration_minutes": 3.6
+        },
+        "long": {
+          "sections": ["Intro", "Build-up", "Drop", "Breakdown", "Build-up", "Second Drop", "Breakdown", "Drop", "Outro"],
+          "total_bars": 176,
+          "duration_minutes": 4.4
+        }
+      }
+    },
+    "jazz": {
+      "typical_bars": {
+        "Head": 32,
+        "Solo Section": 64,
+        "Trading": 32,
+        "Head Out": 32
+      },
+      "structures": {
+        "short": {
+          "sections": ["Head", "Solo Section", "Head Out"],
+          "total_bars": 128,
+          "duration_minutes": 4.2
+        },
+        "medium": {
+          "sections": ["Head", "Solo Section", "Solo Section", "Head Out"],
+          "total_bars": 160,
+          "duration_minutes": 5.3
+        },
+        "long": {
+          "sections": ["Head", "Solo Section", "Trading", "Solo Section", "Head Out"],
+          "total_bars": 192,
+          "duration_minutes": 6.4
+        }
+      }
+    },
+    "hiphop": {
+      "typical_bars": {
+        "Intro": 8,
+        "Verse": 16,
+        "Hook": 16,
+        "Bridge": 8,
+        "Outro": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Hook", "Verse", "Hook", "Outro"],
+          "total_bars": 80,
+          "duration_minutes": 2.2
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Hook", "Verse", "Hook", "Bridge", "Hook", "Outro"],
+          "total_bars": 96,
+          "duration_minutes": 2.7
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Hook", "Verse", "Hook", "Bridge", "Verse", "Hook", "Outro"],
+          "total_bars": 112,
+          "duration_minutes": 3.1
+        }
+      }
+    },
+    "blues": {
+      "typical_bars": {
+        "Intro": 12,
+        "Verse": 12,
+        "Solo": 24,
+        "Outro": 12
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Verse", "Solo", "Verse", "Outro"],
+          "total_bars": 84,
+          "duration_minutes": 3.5
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Verse", "Solo", "Verse", "Solo", "Verse", "Outro"],
+          "total_bars": 120,
+          "duration_minutes": 5.0
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Verse", "Solo", "Verse", "Solo", "Solo", "Verse", "Outro"],
+          "total_bars": 144,
+          "duration_minutes": 6.0
+        }
+      }
+    },
+    "reggae": {
+      "typical_bars": {
+        "Intro": 8,
+        "Verse": 16,
+        "Chorus": 16,
+        "Bridge": 16,
+        "Outro": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Outro"],
+          "total_bars": 80,
+          "duration_minutes": 3.2
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Chorus", "Outro"],
+          "total_bars": 96,
+          "duration_minutes": 3.8
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Verse", "Chorus", "Outro"],
+          "total_bars": 112,
+          "duration_minutes": 4.5
+        }
+      }
+    },
+    "country": {
+      "typical_bars": {
+        "Intro": 8,
+        "Verse": 16,
+        "Chorus": 16,
+        "Bridge": 16,
+        "Instrumental": 32,
+        "Outro": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Outro"],
+          "total_bars": 80,
+          "duration_minutes": 2.5
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Instrumental", "Chorus", "Outro"],
+          "total_bars": 112,
+          "duration_minutes": 3.5
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Instrumental", "Chorus", "Outro"],
+          "total_bars": 128,
+          "duration_minutes": 4.0
+        }
+      }
+    },
+    "default": {
+      "typical_bars": {
+        "Intro": 8,
+        "Verse": 16,
+        "Chorus": 16,
+        "Bridge": 16,
+        "Solo": 32,
+        "Outro": 8
+      },
+      "structures": {
+        "short": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Outro"],
+          "total_bars": 80,
+          "duration_minutes": 2.7
+        },
+        "medium": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Chorus", "Outro"],
+          "total_bars": 96,
+          "duration_minutes": 3.2
+        },
+        "long": {
+          "sections": ["Intro", "Verse", "Chorus", "Verse", "Chorus", "Bridge", "Solo", "Chorus", "Outro"],
+          "total_bars": 128,
+          "duration_minutes": 4.3
+        }
+      }
+    }
+  }
+}

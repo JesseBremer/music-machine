@@ -6,6 +6,7 @@
     <title>Music Machine - Song Creation Guide</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.5/build/browser/MidiWriter.min.js"></script>
 </head>
 <body>
     <main class="app-container">
@@ -179,7 +180,35 @@
             <div class="export-options">
                 <button id="export-text" class="export-button">Export as Text</button>
                 <button id="export-json" class="export-button">Export as JSON</button>
+                <button id="export-midi" class="export-button">Export MIDI Files</button>
+                <button id="export-ableton" class="export-button">Download Ableton Template</button>
                 <button id="start-over" class="start-over-button">Start New Song</button>
+            </div>
+            
+            <div id="midi-export-options" class="midi-export-panel" style="display: none;">
+                <h3>MIDI Export Options</h3>
+                <div class="track-options">
+                    <label><input type="checkbox" id="export-chords" checked> Chord Progression</label>
+                    <label><input type="checkbox" id="export-bass" checked> Bass Line</label>
+                    <label><input type="checkbox" id="export-melody" checked> Melody</label>
+                    <label><input type="checkbox" id="export-drums" checked> Drum Pattern</label>
+                    <label><input type="checkbox" id="export-harmony" checked> Harmony Parts</label>
+                    <label><input type="checkbox" id="export-pads" checked> Background Pads</label>
+                </div>
+                <div class="arrangement-options">
+                    <h4>Arrangement Settings</h4>
+                    <label>Song Length: <select id="song-length">
+                        <option value="short">Short (2-3 minutes)</option>
+                        <option value="medium" selected>Medium (3-4 minutes)</option>
+                        <option value="long">Long (4-5 minutes)</option>
+                    </select></label>
+                    <label>Variations: <select id="midi-variations">
+                        <option value="1">Single version</option>
+                        <option value="2" selected>2 variations per track</option>
+                        <option value="3">3 variations per track</option>
+                    </select></label>
+                </div>
+                <button id="generate-midi" class="export-button">Generate MIDI Files</button>
             </div>
 
             <div class="navigation">

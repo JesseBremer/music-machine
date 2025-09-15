@@ -45,6 +45,17 @@ export async function getDrumPatternsData() {
     }
 }
 
+export async function getSongStructuresData() {
+    try {
+        const response = await fetch('./data/song-structures.json');
+        const data = await response.json();
+        return data.arrangements;
+    } catch (error) {
+        console.error('Error loading song structures data:', error);
+        return {};
+    }
+}
+
 // Enhanced music theory functions using Tonal.js
 export function getScaleType(key) {
     try {
@@ -349,39 +360,114 @@ function buildChord(rootNote, quality, extension, scaleNotes, degree, isMinorKey
 }
 
 export function getDrumPatternsForGenre(genre, patternsData) {
-    const genrePatterns = patternsData[genre.id] || {};
+    // Map genres to drum pattern categories
+    const genreMapping = {
+        'grunge': ['rock', 'punk', 'metal'],
+        'indie': ['rock', 'folk', 'pop'],
+        'alternative': ['rock', 'punk'],
+        'emo': ['rock', 'punk'],
+        'post-rock': ['rock', 'ambient'],
+        'shoegaze': ['rock', 'ambient'],
+        'garage': ['rock', 'punk'],
+        'noise': ['punk', 'metal'],
+        'progressive': ['rock', 'metal'],
+        'stoner': ['rock', 'metal'],
+        'psychedelic': ['rock', 'ambient']
+    };
     
-    const patterns = Object.keys(genrePatterns).map(patternId => {
-        const pattern = genrePatterns[patternId];
-        return {
-            id: patternId,
+    let allPatterns = [];
+    
+    // First, try to get patterns for the exact genre
+    const directPatterns = patternsData[genre.id] || {};
+    Object.keys(directPatterns).forEach(patternId => {
+        const pattern = directPatterns[patternId];
+        allPatterns.push({
+            id: `${genre.id}-${patternId}`,
             name: pattern.name,
             description: pattern.description,
             pattern: pattern.pattern,
             grid: pattern.grid,
             tempo: pattern.tempo
-        };
+        });
     });
     
-    // If no specific patterns for genre, provide generic patterns
-    if (patterns.length === 0) {
-        return [
-            {
-                id: 'basic-4-4',
-                name: 'Basic 4/4',
-                description: 'Standard rock/pop beat',
-                pattern: 'K-s-K-s-',
-                grid: [
-                    ['Kick', 'x', '.', 'x', '.'],
-                    ['Snare', '.', 'x', '.', 'x'],
-                    ['Hi-hat', 'x', 'x', 'x', 'x']
-                ],
-                tempo: [100, 140]
-            }
-        ];
+    // Then, add patterns from mapped genres
+    const mappedGenres = genreMapping[genre.id] || [];
+    mappedGenres.forEach(mappedGenre => {
+        const mappedPatterns = patternsData[mappedGenre] || {};
+        Object.keys(mappedPatterns).forEach(patternId => {
+            const pattern = mappedPatterns[patternId];
+            allPatterns.push({
+                id: `${mappedGenre}-${patternId}`,
+                name: `${pattern.name} (${mappedGenre})`,
+                description: pattern.description,
+                pattern: pattern.pattern,
+                grid: pattern.grid,
+                tempo: pattern.tempo
+            });
+        });
+    });
+    
+    // Remove duplicates based on pattern content
+    const uniquePatterns = [];
+    const seenPatterns = new Set();
+    
+    allPatterns.forEach(pattern => {
+        const patternKey = pattern.pattern + pattern.name.replace(/\s*\([^)]*\)/, '');
+        if (!seenPatterns.has(patternKey)) {
+            seenPatterns.add(patternKey);
+            uniquePatterns.push(pattern);
+        }
+    });
+    
+    // If still no patterns, provide genre-appropriate fallbacks
+    if (uniquePatterns.length === 0) {
+        if (['rock', 'grunge', 'indie', 'alternative', 'punk'].includes(genre.id)) {
+            return [
+                {
+                    id: 'basic-rock',
+                    name: 'Basic Rock Beat',
+                    description: 'Standard rock rhythm',
+                    pattern: 'K-s-K-s-',
+                    grid: [
+                        ['Kick', 'x', '.', '.', '.'],
+                        ['Snare', '.', '.', 'x', '.'],
+                        ['Hi-hat', 'x', 'x', 'x', 'x']
+                    ],
+                    tempo: [110, 140]
+                },
+                {
+                    id: 'driving-rock',
+                    name: 'Driving Rock',
+                    description: 'More aggressive rock beat',
+                    pattern: 'K-s-K-s-',
+                    grid: [
+                        ['Kick', 'x', '.', 'x', '.'],
+                        ['Snare', '.', 'x', '.', 'x'],
+                        ['Hi-hat', 'x', 'x', 'x', 'x']
+                    ],
+                    tempo: [120, 160]
+                }
+            ];
+        } else {
+            return [
+                {
+                    id: 'basic-4-4',
+                    name: 'Basic 4/4',
+                    description: 'Standard beat',
+                    pattern: 'K-s-K-s-',
+                    grid: [
+                        ['Kick', 'x', '.', 'x', '.'],
+                        ['Snare', '.', 'x', '.', 'x'],
+                        ['Hi-hat', 'x', 'x', 'x', 'x']
+                    ],
+                    tempo: [100, 140]
+                }
+            ];
+        }
     }
     
-    return patterns;
+    return uniquePatterns.slice(0, 8); // Limit to 8 patterns for UI
 }
 
 export function generateBassLine(chordProgression, complexity = 'simple') {
@@ -600,6 +686,20 @@ export function getSongStructureForGenre(genre) {
             { name: 'Classic Rock', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Guitar Solo', 'Chorus', 'Outro'] },
             { name: 'Power Rock', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Guitar Solo', 'Chorus', 'Chorus'] }
         ],
+        'grunge': [
+            { name: 'Grunge Classic', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro'] },
+            { name: 'Alternative Dynamic', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Guitar Solo', 'Chorus', 'Outro'] },
+            { name: 'Grunge Epic', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Guitar Solo', 'Chorus', 'Chorus', 'Outro'] }
+        ],
+        'indie': [
+            { name: 'Indie Standard', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro'] },
+            { name: 'Indie Atmospheric', sections: ['Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Verse', 'Pre-Chorus', 'Chorus', 'Bridge', 'Chorus', 'Outro'] },
+            { name: 'Indie Extended', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Instrumental', 'Chorus', 'Outro'] }
+        ],
+        'punk': [
+            { name: 'Punk Fast', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro'] },
+            { name: 'Punk Raw', sections: ['Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus'] }
+        ],
         'metal': [
             { name: 'Metal Structure', sections: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Breakdown', 'Solo', 'Chorus', 'Outro'] }
         ],
@@ -761,3 +861,1180 @@ export function exportAsText(songData) {
     
     return text;
 }
+
+// ========== ABLETON LIVE TEMPLATE GENERATION ==========
+
+export function generateAbletonTemplate(songData) {
+    const template = {
+        version: '12.0.0',
+        project: {
+            name: songData.title || 'Music Machine Song',
+            tempo: songData.tempo || 120,
+            timeSignature: [4, 4],
+            key: songData.key || 'C'
+        },
+        tracks: [],
+        scenes: [],
+        devicePresets: getAbletonDevicePresets(songData.genre)
+    };
+    
+    // Create tracks based on song data
+    if (songData.chordProgression) {
+        template.tracks.push(createAbletonChordTrack(songData));
+    }
+    
+    if (songData.bassLine) {
+        template.tracks.push(createAbletonBassTrack(songData));
+    }
+    
+    if (songData.melodyIdea) {
+        template.tracks.push(createAbletonMelodyTrack(songData));
+    }
+    
+    if (songData.drumPattern) {
+        template.tracks.push(createAbletonDrumTrack(songData));
+    }
+    
+    // Add utility tracks
+    template.tracks.push(createAbletonUtilityTracks(songData));
+    
+    // Create scene structure based on song structure
+    if (songData.songStructure) {
+        template.scenes = createAbletonScenes(songData);
+    }
+    
+    return template;
+}
+
+function getAbletonDevicePresets(genre) {
+    const presets = {
+        'electronic': {
+            synth: 'Wavetable',
+            bass: 'Bass',
+            drums: 'Drum Rack',
+            effects: ['Reverb', 'Delay', 'Compressor']
+        },
+        'rock': {
+            synth: 'Simpler',
+            bass: 'Bass',
+            drums: 'Drum Rack',
+            effects: ['Amp', 'Overdrive', 'Reverb']
+        },
+        'pop': {
+            synth: 'Wavetable',
+            bass: 'Bass',
+            drums: 'Drum Rack',
+            effects: ['Reverb', 'Compressor', 'EQ Eight']
+        },
+        'jazz': {
+            synth: 'Simpler',
+            bass: 'Bass',
+            drums: 'Drum Rack',
+            effects: ['Reverb', 'Compressor']
+        }
+    };
+    
+    return presets[genre?.id] || presets['pop'];
+}
+
+function createAbletonChordTrack(songData) {
+    return {
+        name: 'Chords',
+        type: 'midi',
+        instrument: 'Wavetable',
+        volume: 0.7,
+        pan: 0,
+        clips: createChordClips(songData),
+        effects: ['Reverb', 'Compressor']
+    };
+}
+
+function createAbletonBassTrack(songData) {
+    return {
+        name: 'Bass',
+        type: 'midi',
+        instrument: 'Bass',
+        volume: 0.8,
+        pan: 0,
+        clips: createBassClips(songData),
+        effects: ['Compressor', 'EQ Eight']
+    };
+}
+
+function createAbletonMelodyTrack(songData) {
+    return {
+        name: 'Lead',
+        type: 'midi',
+        instrument: 'Wavetable',
+        volume: 0.6,
+        pan: 0,
+        clips: createMelodyClips(songData),
+        effects: ['Reverb', 'Delay']
+    };
+}
+
+function createAbletonDrumTrack(songData) {
+    return {
+        name: 'Drums',
+        type: 'midi',
+        instrument: 'Drum Rack',
+        volume: 0.9,
+        pan: 0,
+        clips: createDrumClips(songData),
+        effects: ['Compressor']
+    };
+}
+
+function createAbletonUtilityTracks(songData) {
+    return {
+        name: 'Harmony',
+        type: 'midi',
+        instrument: 'Simpler',
+        volume: 0.4,
+        pan: 0.2,
+        clips: [],
+        effects: ['Reverb']
+    };
+}
+
+function createChordClips(songData) {
+    const clips = [];
+    if (songData.songStructure) {
+        songData.songStructure.forEach((section, index) => {
+            clips.push({
+                name: `${section} Chords`,
+                length: getBarLengthForSection(section, songData.genre),
+                notes: generateChordClipNotes(songData.chordProgression)
+            });
+        });
+    }
+    return clips;
+}
+
+function createBassClips(songData) {
+    const clips = [];
+    if (songData.songStructure) {
+        songData.songStructure.forEach((section, index) => {
+            clips.push({
+                name: `${section} Bass`,
+                length: getBarLengthForSection(section, songData.genre),
+                notes: generateBassClipNotes(songData.bassLine)
+            });
+        });
+    }
+    return clips;
+}
+
+function createMelodyClips(songData) {
+    const clips = [];
+    if (songData.songStructure && songData.melodyIdea) {
+        songData.songStructure.forEach((section, index) => {
+            clips.push({
+                name: `${section} Melody`,
+                length: getBarLengthForSection(section, songData.genre),
+                notes: generateMelodyClipNotes(songData.melodyIdea)
+            });
+        });
+    }
+    return clips;
+}
+
+function createDrumClips(songData) {
+    const clips = [];
+    if (songData.songStructure && songData.drumPattern) {
+        songData.songStructure.forEach((section, index) => {
+            clips.push({
+                name: `${section} Drums`,
+                length: getBarLengthForSection(section, songData.genre),
+                pattern: songData.drumPattern.pattern
+            });
+        });
+    }
+    return clips;
+}
+
+function createAbletonScenes(songData) {
+    const scenes = [];
+    songData.songStructure.forEach((section, index) => {
+        scenes.push({
+            name: section,
+            clips: {
+                chords: index,
+                bass: index,
+                melody: index,
+                drums: index
+            }
+        });
+    });
+    return scenes;
+}
+
+function generateChordClipNotes(chordProgression) {
+    if (!chordProgression?.chords) return [];
+    
+    const notes = [];
+    chordProgression.chords.forEach((chord, index) => {
+        const chordNotes = Tonal.Chord.get(chord).notes;
+        chordNotes.forEach((note, noteIndex) => {
+            notes.push({
+                pitch: Tonal.Midi.toMidi(note + '4'),
+                velocity: 80,
+                start: index * 0.25,
+                duration: 0.25
+            });
+        });
+    });
+    return notes;
+}
+
+function generateBassClipNotes(bassLine) {
+    if (!bassLine?.notes) return [];
+    
+    return bassLine.notes.map((note, index) => ({
+        pitch: Tonal.Midi.toMidi(note + '2'),
+        velocity: 90,
+        start: index * 0.25,
+        duration: 0.2
+    }));
+}
+
+function generateMelodyClipNotes(melodyIdea) {
+    if (!melodyIdea?.pattern) return [];
+    
+    return melodyIdea.pattern.map((note, index) => ({
+        pitch: Tonal.Midi.toMidi(note + '5'),
+        velocity: 75,
+        start: index * 0.125,
+        duration: 0.1
+    }));
+}
+
+export function exportAbletonTemplate(songData) {
+    const projectName = (songData.title || 'Music Machine Song').replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Generate MIDI files instead of a fake .als file
+    const midiFiles = generateTemplateAsMIDI(songData);
+    
+    // Create project folder structure with MIDI files and instructions
+    const projectStructure = {
+        'README.txt': generateProjectReadme(songData),
+        'MIDI Files/': midiFiles,
+        'Instructions.txt': generateAbletonInstructions(songData),
+        'Song Structure.txt': generateSongStructureFile(songData)
+    };
+    
+    return projectStructure;
+}
+
+function generateTemplateAsMIDI(songData) {
+    const midiFiles = {};
+    
+    try {
+        // Generate individual MIDI files for each track
+        if (songData.chordProgression) {
+            const chordTrack = createSimpleChordMIDI(songData);
+            if (chordTrack) {
+                midiFiles['01_Chords.mid'] = chordTrack;
+            }
+        }
+        
+        if (songData.bassLine || songData.chordProgression) {
+            const bassTrack = createSimpleBassMIDI(songData);
+            if (bassTrack) {
+                midiFiles['02_Bass.mid'] = bassTrack;
+            }
+        }
+        
+        if (songData.melodyIdea) {
+            const melodyTrack = createSimpleMelodyMIDI(songData);
+            if (melodyTrack) {
+                midiFiles['03_Melody.mid'] = melodyTrack;
+            }
+        }
+        
+        if (songData.drumPattern) {
+            const drumTrack = createSimpleDrumMIDI(songData);
+            if (drumTrack) {
+                midiFiles['04_Drums.mid'] = drumTrack;
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error generating template MIDI files:', error);
+    }
+    
+    return midiFiles;
+}
+
+function createSimpleChordMIDI(songData) {
+    if (!window.MidiWriter || !songData.chordProgression) return null;
+    
+    try {
+        const track = new MidiWriter.Track();
+        track.setTempo(songData.tempo || 120);
+        track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
+        
+        // Create a simple 4-bar pattern
+        songData.chordProgression.chords.forEach((chord, index) => {
+            const chordNotes = Tonal.Chord.get(chord).notes.slice(0, 4);
+            if (chordNotes.length > 0) {
+                const midiNotes = chordNotes.map(note => {
+                    const midiNum = Tonal.Midi.toMidi(note + '4');
+                    return midiNum || 60; // fallback to middle C
+                });
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: midiNotes,
+                    duration: '1', // whole note
+                    velocity: 80
+                }));
+            }
+        });
+        
+        const write = new MidiWriter.Writer(track);
+        return write.buildFile();
+    } catch (error) {
+        console.error('Error creating chord MIDI:', error);
+        return null;
+    }
+}
+
+function createSimpleBassMIDI(songData) {
+    if (!window.MidiWriter) return null;
+    
+    try {
+        const track = new MidiWriter.Track();
+        track.setTempo(songData.tempo || 120);
+        track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 33})); // Bass
+        
+        // Use bass line or chord roots
+        let bassNotes = [];
+        if (songData.bassLine && songData.bassLine.length > 0) {
+            bassNotes = songData.bassLine.map(note => note.note || note);
+        } else if (songData.chordProgression) {
+            bassNotes = songData.chordProgression.chords.map(chord => {
+                const chordInfo = Tonal.Chord.get(chord);
+                return chordInfo.tonic || chord.charAt(0);
+            });
+        }
+        
+        bassNotes.forEach(note => {
+            const midiNote = Tonal.Midi.toMidi(note + '2') || 36; // fallback to low C
+            track.addEvent(new MidiWriter.NoteEvent({
+                pitch: [midiNote],
+                duration: '1', // whole note
+                velocity: 90
+            }));
+        });
+        
+        const write = new MidiWriter.Writer(track);
+        return write.buildFile();
+    } catch (error) {
+        console.error('Error creating bass MIDI:', error);
+        return null;
+    }
+}
+
+function createSimpleMelodyMIDI(songData) {
+    if (!window.MidiWriter || !songData.melodyIdea) return null;
+    
+    try {
+        const track = new MidiWriter.Track();
+        track.setTempo(songData.tempo || 120);
+        track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
+        
+        songData.melodyIdea.pattern.forEach(note => {
+            const midiNote = Tonal.Midi.toMidi(note + '5') || 72; // fallback to high C
+            track.addEvent(new MidiWriter.NoteEvent({
+                pitch: [midiNote],
+                duration: '4', // quarter note
+                velocity: 75
+            }));
+        });
+        
+        const write = new MidiWriter.Writer(track);
+        return write.buildFile();
+    } catch (error) {
+        console.error('Error creating melody MIDI:', error);
+        return null;
+    }
+}
+
+function createSimpleDrumMIDI(songData) {
+    if (!window.MidiWriter || !songData.drumPattern) return null;
+    
+    try {
+        const track = new MidiWriter.Track();
+        track.setTempo(songData.tempo || 120);
+        
+        // Create a simple drum pattern
+        const drumMap = { kick: 36, snare: 38, hihat: 42 };
+        
+        // Simple 4/4 pattern
+        const pattern = [
+            { drum: 'kick', beat: 1 },
+            { drum: 'hihat', beat: 1.5 },
+            { drum: 'snare', beat: 2 },
+            { drum: 'hihat', beat: 2.5 },
+            { drum: 'kick', beat: 3 },
+            { drum: 'hihat', beat: 3.5 },
+            { drum: 'snare', beat: 4 },
+            { drum: 'hihat', beat: 4.5 }
+        ];
+        
+        pattern.forEach(({ drum, beat }) => {
+            track.addEvent(new MidiWriter.NoteEvent({
+                pitch: [drumMap[drum] || 36],
+                duration: '8', // eighth note
+                velocity: 100,
+                channel: 10 // drum channel
+            }));
+        });
+        
+        const write = new MidiWriter.Writer(track);
+        return write.buildFile();
+    } catch (error) {
+        console.error('Error creating drum MIDI:', error);
+        return null;
+    }
+}
+
+function generateAbletonInstructions(songData) {
+    return `ABLETON LIVE IMPORT INSTRUCTIONS
+==============================
+
+Your Music Machine song has been exported as MIDI files ready for Ableton Live!
+
+QUICK START:
+1. Open Ableton Live
+2. Create a new Live Set
+3. Drag and drop the MIDI files from the "MIDI Files" folder onto separate tracks
+4. Assign instruments to each track:
+   - 01_Chords.mid → Wavetable, Piano, or any harmonic instrument
+   - 02_Bass.mid → Bass instrument or Operator in bass mode
+   - 03_Melody.mid → Lead synth, Piano, or any melodic instrument
+   - 04_Drums.mid → Drum Rack (Channel 10 for standard drum mapping)
+
+SONG DETAILS:
+- Title: ${songData.title || 'My Song'}
+- Genre: ${songData.genre?.name || 'Unknown'}
+- Key: ${songData.key || 'C'}
+- Tempo: ${songData.tempo || 120} BPM
+- Mood: ${songData.mood?.name || 'Unknown'}
+
+SUGGESTED ABLETON INSTRUMENTS:
+For ${songData.genre?.name || 'this genre'}:
+${getAbletonInstrumentSuggestions(songData.genre?.id || 'pop')}
+
+ARRANGEMENT TIPS:
+${getArrangementTipsText(songData.genre?.id || 'pop')}
+
+Need help? Check out Ableton's official tutorials or the Live manual for more details on working with MIDI files.
+
+Generated with Music Machine v2.0
+Happy music making! 🎵
+`;
+}
+
+function getAbletonInstrumentSuggestions(genreId) {
+    const suggestions = {
+        'pop': `- Chords: Wavetable (Mallets & Bells > Warm Bell)
+- Bass: Bass (Synth Bass > Sub Bass)
+- Melody: Wavetable (Keys > Felt Piano)
+- Effects: Reverb, Compressor, EQ Eight`,
+        
+        'rock': `- Chords: Amp + Cabinet (Clean guitar sound)
+- Bass: Bass (Electric Bass > Vintage Electric)
+- Melody: Amp + Overdrive (Lead guitar sound)
+- Drums: Drum Rack (Rock kit)
+- Effects: Amp, Overdrive, Reverb`,
+        
+        'edm': `- Chords: Wavetable (Synth Plucks > Pluck It)
+- Bass: Wavetable (Synth Bass > Reese Bass)
+- Melody: Wavetable (Synth Lead > Basic Lead)
+- Effects: Reverb, Delay, Compressor, Auto Filter`,
+        
+        'jazz': `- Chords: Impulse (Jazz Piano) or Wavetable (Keys > EP Dirty)
+- Bass: Bass (Acoustic Bass > Upright Bass)
+- Melody: Wavetable (Keys > EP Clean)
+- Effects: Reverb, Compressor`,
+        
+        'ambient': `- Chords: Wavetable (Pads > Warm Pad)
+- Bass: Wavetable (Bass > Sub Bass)
+- Melody: Wavetable (Pads > Evolving Pad)
+- Effects: Reverb (Large Hall), Delay, Auto Filter`
+    };
+    
+    return suggestions[genreId] || suggestions['pop'];
+}
+
+function getArrangementTipsText(genreId) {
+    const tips = {
+        'pop': 'Keep it simple and catchy. Use automation to create builds and drops.',
+        'rock': 'Use distortion and reverb. Create dynamic contrast between verses and chorus.',
+        'edm': 'Focus on the drop. Use risers, sweeps, and heavy compression.',
+        'jazz': 'Leave space for improvisation. Use subtle swing timing.',
+        'ambient': 'Create atmosphere with long reverbs and evolving textures.'
+    };
+    
+    return tips[genreId] || tips['pop'];
+}
+
+function generateSongStructureFile(songData) {
+    let structure = `SONG STRUCTURE
+=============
+
+`;
+    
+    if (songData.songStructure && songData.songStructure.length > 0) {
+        structure += `Recommended structure for your ${songData.genre?.name || 'song'}:
+
+`;
+        songData.songStructure.forEach((section, index) => {
+            structure += `${index + 1}. ${section}\n`;
+        });
+        
+        structure += `\nArrangement suggestions:\n`;
+        if (songData.arrangementTips) {
+            Object.entries(songData.arrangementTips).forEach(([section, tip]) => {
+                structure += `- ${section}: ${tip}\n`;
+            });
+        }
+    } else {
+        structure += `Basic song structure suggestion:
+1. Intro
+2. Verse
+3. Chorus
+4. Verse
+5. Chorus
+6. Bridge
+7. Chorus
+8. Outro
+
+Customize this structure to fit your creative vision!
+`;
+    }
+    
+    return structure;
+}
+
+function getPresetFiles(genre) {
+    return {
+        'Chord_Preset.adv': JSON.stringify({ device: 'Wavetable', preset: 'Default' }),
+        'Bass_Preset.adv': JSON.stringify({ device: 'Bass', preset: 'Default' }),
+        'Drum_Kit.adg': JSON.stringify({ device: 'Drum Rack', samples: getDrumSamples(genre) })
+    };
+}
+
+function getDrumSamples(genre) {
+    const sampleMappings = {
+        'electronic': {
+            kick: 'Electronic_Kick.wav',
+            snare: 'Electronic_Snare.wav',
+            hihat: 'Electronic_HiHat.wav'
+        },
+        'rock': {
+            kick: 'Rock_Kick.wav',
+            snare: 'Rock_Snare.wav',
+            hihat: 'Rock_HiHat.wav'
+        }
+    };
+    
+    return sampleMappings[genre?.id] || sampleMappings['electronic'];
+}
+
+function generateProjectReadme(songData) {
+    return `MUSIC MACHINE PROJECT
+===================
+
+Project: ${songData.title || 'Untitled Song'}
+Generated: ${new Date().toLocaleDateString()}
+
+SONG DETAILS:
+- Genre: ${songData.genre?.name || 'Unknown'}
+- Mood: ${songData.mood?.name || 'Unknown'}
+- Key: ${songData.key || 'C'}
+- Tempo: ${songData.tempo || 120} BPM
+- Scale: ${songData.scale || 'major'}
+
+TRACK STRUCTURE:
+1. Chords - Main harmonic foundation
+2. Bass - Low-end rhythm and harmony
+3. Lead - Melodic content
+4. Drums - Rhythmic foundation
+5. Harmony - Additional harmonic layers
+
+INSTRUCTIONS:
+1. Open this project in Ableton Live 12+
+2. Load the included presets on each track
+3. Adjust levels and effects to taste
+4. Record your own parts or modify existing clips
+5. Use the scene structure to arrange your song
+
+Generated with Music Machine v2.0
+`;
+}
+
+// ========== MIDI EXPORT FUNCTIONALITY ==========
+
+export async function generateMIDITracks(songData, options = {}) {
+    try {
+        if (!window.MidiWriter) {
+            // Fallback: generate text-based MIDI files info instead
+            return generateMIDIFallback(songData, options);
+        }
+        
+        const structuresData = await getSongStructuresData();
+        const arrangement = getArrangementStructure(songData, structuresData, options.songLength || 'medium');
+        
+        const tracks = {};
+        
+        try {
+            if (options.exportChords) {
+                const chordTrack = generateChordTrack(songData, arrangement, options);
+                if (chordTrack) tracks.chords = chordTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate chord track:', error);
+        }
+        
+        try {
+            if (options.exportBass) {
+                const bassTrack = generateBassTrack(songData, arrangement, options);
+                if (bassTrack) tracks.bass = bassTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate bass track:', error);
+        }
+        
+        try {
+            if (options.exportMelody) {
+                const melodyTrack = generateMelodyTrack(songData, arrangement, options);
+                if (melodyTrack) tracks.melody = melodyTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate melody track:', error);
+        }
+        
+        try {
+            if (options.exportDrums) {
+                const drumTrack = generateDrumTrack(songData, arrangement, options);
+                if (drumTrack) tracks.drums = drumTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate drum track:', error);
+        }
+        
+        try {
+            if (options.exportHarmony) {
+                const harmonyTrack = generateHarmonyTrack(songData, arrangement, options);
+                if (harmonyTrack) tracks.harmony = harmonyTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate harmony track:', error);
+        }
+        
+        try {
+            if (options.exportPads) {
+                const padTrack = generatePadTrack(songData, arrangement, options);
+                if (padTrack) tracks.pads = padTrack;
+            }
+        } catch (error) {
+            console.warn('Failed to generate pad track:', error);
+        }
+        
+        return {
+            tracks,
+            arrangement,
+            metadata: {
+                title: songData.title || 'Untitled Song',
+                tempo: songData.tempo || 120,
+                key: songData.key || 'C',
+                timeSignature: [4, 4],
+                duration: calculateTotalDuration(arrangement)
+            }
+        };
+    } catch (error) {
+        console.error('MIDI generation error:', error);
+        throw error;
+    }
+}
+
+function generateChordTrack(songData, arrangement, options) {
+    if (!songData.chordProgression || !songData.chordProgression.chords) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
+    
+    let currentTime = 0;
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        const chordsPerBar = Math.ceil(songData.chordProgression.chords.length / 4);
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            songData.chordProgression.chords.forEach((chord, index) => {
+                const chordNotes = Tonal.Chord.get(chord).notes.slice(0, 4);
+                const midiNotes = chordNotes.map(note => Tonal.Midi.toMidi(note + '4'));
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: midiNotes,
+                    duration: 'q',
+                    velocity: 70,
+                    startTick: currentTime
+                }));
+                currentTime += 480; // Quarter note in ticks
+            });
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function generateBassTrack(songData, arrangement, options) {
+    if (!songData.bassLine && !songData.chordProgression) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 33})); // Bass
+    
+    let currentTime = 0;
+    
+    // Generate bass notes from either bass line or chord roots
+    let bassNotes = [];
+    if (songData.bassLine && songData.bassLine.length > 0) {
+        bassNotes = songData.bassLine.map(note => typeof note === 'object' ? note.note : note);
+    } else if (songData.chordProgression && songData.chordProgression.chords) {
+        bassNotes = songData.chordProgression.chords.map(chord => {
+            const chordInfo = Tonal.Chord.get(chord);
+            return chordInfo.tonic || chord.charAt(0);
+        });
+    }
+    
+    if (bassNotes.length === 0) return null;
+    
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            bassNotes.forEach((note, index) => {
+                const midiNote = Tonal.Midi.toMidi(note + '2') || 36; // fallback to low C
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: [midiNote],
+                    duration: 'q',
+                    velocity: 85,
+                    startTick: currentTime
+                }));
+                currentTime += 480;
+            });
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function generateMelodyTrack(songData, arrangement, options) {
+    if (!songData.melodyIdea || !songData.melodyIdea.pattern) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
+    
+    let currentTime = 0;
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            songData.melodyIdea.pattern.forEach((note, index) => {
+                const midiNote = Tonal.Midi.toMidi(note + '5');
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: midiNote,
+                    duration: '8',
+                    velocity: 75,
+                    startTick: currentTime
+                }));
+                currentTime += 240; // Eighth note
+            });
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function generateDrumTrack(songData, arrangement, options) {
+    if (!songData.drumPattern || !songData.drumPattern.pattern) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1, channel: 10})); // Drum channel
+    
+    let currentTime = 0;
+    const drumMap = { kick: 36, snare: 38, hihat: 42, openhat: 46, crash: 49 };
+    
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            Object.entries(songData.drumPattern.pattern).forEach(([drum, pattern]) => {
+                pattern.forEach((hit, index) => {
+                    if (hit === 1) {
+                        track.addEvent(new MidiWriter.NoteEvent({
+                            pitch: drumMap[drum] || 36,
+                            duration: '16',
+                            velocity: 90,
+                            startTick: currentTime + (index * 120),
+                            channel: 10
+                        }));
+                    }
+                });
+            });
+            currentTime += 1920; // One bar in ticks
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function generateHarmonyTrack(songData, arrangement, options) {
+    if (!songData.chordProgression || !songData.chordProgression.chords) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 49})); // String ensemble
+    
+    let currentTime = 0;
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            songData.chordProgression.chords.forEach((chord, index) => {
+                const chordNotes = Tonal.Chord.get(chord).notes.slice(1, 3); // Inner voices
+                const midiNotes = chordNotes.map(note => Tonal.Midi.toMidi(note + '4'));
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: midiNotes,
+                    duration: 'h',
+                    velocity: 50,
+                    startTick: currentTime
+                }));
+                currentTime += 960; // Half note
+            });
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function generatePadTrack(songData, arrangement, options) {
+    if (!songData.chordProgression || !songData.chordProgression.chords) return null;
+    
+    const track = new MidiWriter.Track();
+    track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 89})); // Warm pad
+    
+    let currentTime = 0;
+    arrangement.sections.forEach(section => {
+        const sectionBars = section.bars;
+        
+        for (let bar = 0; bar < sectionBars; bar++) {
+            songData.chordProgression.chords.forEach((chord, index) => {
+                const chordNotes = Tonal.Chord.get(chord).notes;
+                const midiNotes = chordNotes.map(note => Tonal.Midi.toMidi(note + '3'));
+                
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: midiNotes,
+                    duration: 'w',
+                    velocity: 40,
+                    startTick: currentTime
+                }));
+                currentTime += 1920; // Whole note
+            });
+        }
+    });
+    
+    const write = new MidiWriter.Writer(track);
+    return write.buildFile();
+}
+
+function calculateTotalDuration(arrangement) {
+    return arrangement.sections.reduce((total, section) => total + section.bars, 0) * 4; // Beats
+}
+
+function getArrangementStructure(songData, structuresData, songLength) {
+    // structuresData is already the arrangements object from getSongStructuresData()
+    const genreData = structuresData[songData.genre?.id] || structuresData.default;
+    
+    if (!genreData || !genreData.structures) {
+        // Fallback structure if data is missing
+        return {
+            sections: [
+                { name: 'Intro', bars: 4 },
+                { name: 'Verse', bars: 16 },
+                { name: 'Chorus', bars: 16 },
+                { name: 'Outro', bars: 8 }
+            ],
+            totalBars: 44,
+            duration: 2.5
+        };
+    }
+    
+    const structure = genreData.structures[songLength] || genreData.structures.medium;
+    
+    if (!structure) {
+        // Fallback if specific length not found
+        return {
+            sections: [
+                { name: 'Intro', bars: 4 },
+                { name: 'Verse', bars: 16 },
+                { name: 'Chorus', bars: 16 },
+                { name: 'Outro', bars: 8 }
+            ],
+            totalBars: 44,
+            duration: 2.5
+        };
+    }
+    
+    return {
+        sections: structure.sections.map(sectionName => ({
+            name: sectionName,
+            bars: genreData.typical_bars[sectionName] || 8
+        })),
+        totalBars: structure.total_bars,
+        duration: structure.duration_minutes
+    };
+}
+
+function getBarLengthForSection(section, genre) {
+    const defaultLengths = {
+        'Intro': 4,
+        'Verse': 16,
+        'Chorus': 16,
+        'Bridge': 16,
+        'Outro': 8,
+        'Solo': 32,
+        'Hook': 8,
+        'Pre-Chorus': 8,
+        'Post-Chorus': 8,
+        'Build-up': 16,
+        'Drop': 32,
+        'Breakdown': 16,
+        'Head': 32,
+        'Trading': 32,
+        'Guitar Solo': 32,
+        'Instrumental': 32
+    };
+    
+    return defaultLengths[section] || 8;
+}
+
+
+function mapGenreToStructureKey(genreId) {
+    const mapping = {
+        'pop': 'pop',
+        'rock': 'rock',
+        'metal': 'rock',
+        'edm': 'edm',
+        'house': 'edm',
+        'techno': 'edm',
+        'dubstep': 'edm',
+        'trance': 'edm',
+        'jazz': 'jazz',
+        'blues': 'blues',
+        'hiphop': 'hiphop',
+        'trap': 'hiphop',
+        'reggae': 'reggae',
+        'country': 'country'
+    };
+    return mapping[genreId] || 'default';
+}
+
+// Fallback MIDI generation when MidiWriter is not available
+function generateMIDIFallback(songData, options) {
+    console.warn('MidiWriter library not available, generating text-based MIDI information instead');
+    
+    const tracks = {};
+    const midiInfo = {
+        title: songData.title || 'My Song',
+        key: songData.key || 'C',
+        tempo: songData.tempo || 120,
+        scale: songData.scale || 'major'
+    };
+    
+    // Generate text representations of MIDI data
+    if (options.exportChords && songData.chordProgression) {
+        tracks.chords = generateChordInfo(songData.chordProgression, midiInfo);
+    }
+    
+    if (options.exportBass && (songData.bassLine || songData.chordProgression)) {
+        tracks.bass = generateBassInfo(songData, midiInfo);
+    }
+    
+    if (options.exportMelody && songData.melodyIdea) {
+        tracks.melody = generateMelodyInfo(songData.melodyIdea, midiInfo);
+    }
+    
+    if (options.exportDrums && songData.drumPattern) {
+        tracks.drums = generateDrumInfo(songData.drumPattern, midiInfo);
+    }
+    
+    return {
+        tracks,
+        arrangement: { sections: [], totalBars: 0, duration: 0 },
+        metadata: midiInfo,
+        fallback: true
+    };
+}
+
+function generateChordInfo(chordProgression, midiInfo) {
+    return {
+        name: `${midiInfo.title}_Chords`,
+        type: 'text',
+        content: `CHORD PROGRESSION MIDI DATA
+Key: ${midiInfo.key}
+Tempo: ${midiInfo.tempo} BPM
+Chords: ${chordProgression.chords.join(' - ')}
+
+MIDI Notes (approximate):
+${chordProgression.chords.map((chord, i) => {
+    const chordNotes = Tonal.Chord.get(chord).notes.slice(0, 4);
+    return `Bar ${i + 1}: ${chord} (${chordNotes.join(', ')})`;
+}).join('\n')}
+
+Instructions for DAW import:
+1. Create a new MIDI track
+2. Set tempo to ${midiInfo.tempo} BPM
+3. Manually enter the chord notes above
+4. Each chord should be one bar (4 beats)
+`
+    };
+}
+
+function generateBassInfo(songData, midiInfo) {
+    let bassNotes = [];
+    if (songData.bassLine && songData.bassLine.length > 0) {
+        bassNotes = songData.bassLine.map(note => typeof note === 'object' ? note.note : note);
+    } else if (songData.chordProgression) {
+        bassNotes = songData.chordProgression.chords.map(chord => {
+            const chordInfo = Tonal.Chord.get(chord);
+            return chordInfo.tonic || chord.charAt(0);
+        });
+    }
+    
+    return {
+        name: `${midiInfo.title}_Bass`,
+        type: 'text',
+        content: `BASS LINE MIDI DATA
+Key: ${midiInfo.key}
+Tempo: ${midiInfo.tempo} BPM
+Bass Notes: ${bassNotes.join(' - ')}
+
+MIDI Notes (Low Octave):
+${bassNotes.map((note, i) => `Bar ${i + 1}: ${note}2 (MIDI note ${Tonal.Midi.toMidi(note + '2') || 36})`).join('\n')}
+
+Instructions for DAW import:
+1. Create a bass track with a bass instrument
+2. Set tempo to ${midiInfo.tempo} BPM
+3. Enter the bass notes above in low octave (octave 2)
+4. Each note should be one bar (4 beats)
+`
+    };
+}
+
+function generateMelodyInfo(melodyIdea, midiInfo) {
+    return {
+        name: `${midiInfo.title}_Melody`,
+        type: 'text',
+        content: `MELODY MIDI DATA
+Key: ${midiInfo.key}
+Tempo: ${midiInfo.tempo} BPM
+Melody: ${melodyIdea.name}
+Pattern: ${melodyIdea.pattern.join(' - ')}
+
+MIDI Notes (High Octave):
+${melodyIdea.pattern.map((note, i) => `Beat ${i + 1}: ${note}5 (MIDI note ${Tonal.Midi.toMidi(note + '5') || 72})`).join('\n')}
+
+Instructions for DAW import:
+1. Create a lead/melody track
+2. Set tempo to ${midiInfo.tempo} BPM
+3. Enter the melody notes above in high octave (octave 5)
+4. Use eighth or quarter note timing
+`
+    };
+}
+
+function generateDrumInfo(drumPattern, midiInfo) {
+    return {
+        name: `${midiInfo.title}_Drums`,
+        type: 'text',
+        content: `DRUM PATTERN MIDI DATA
+Tempo: ${midiInfo.tempo} BPM
+Pattern: ${drumPattern.name}
+
+Standard MIDI Drum Mapping:
+- Kick Drum: MIDI note 36 (Channel 10)
+- Snare Drum: MIDI note 38 (Channel 10)
+- Hi-Hat: MIDI note 42 (Channel 10)
+
+Basic 4/4 Pattern (repeat every bar):
+Beat 1: Kick
+Beat 1.5: Hi-Hat
+Beat 2: Snare
+Beat 2.5: Hi-Hat
+Beat 3: Kick
+Beat 3.5: Hi-Hat
+Beat 4: Snare
+Beat 4.5: Hi-Hat
+
+Instructions for DAW import:
+1. Create a drum track with a drum kit
+2. Set tempo to ${midiInfo.tempo} BPM
+3. Use Channel 10 for drums (standard MIDI)
+4. Program the pattern above with appropriate velocities
+`
+    };
+}
+
+export function exportMIDIFiles(midiTracks) {
+    const files = [];
+    
+    if (midiTracks.fallback) {
+        // Handle fallback text files
+        Object.entries(midiTracks.tracks).forEach(([trackType, trackData]) => {
+            if (trackData && trackData.content) {
+                files.push({
+                    name: `${trackData.name}.txt`,
+                    blob: new Blob([trackData.content], { type: 'text/plain' }),
+                    type: trackType
+                });
+            }
+        });
+    } else {
+        // Handle binary MIDI files
+        Object.entries(midiTracks.tracks).forEach(([trackType, trackData]) => {
+            if (trackData && trackData.length > 0) {
+                files.push({
+                    name: `${trackType}.mid`,
+                    blob: new Blob([trackData], { type: 'audio/midi' }),
+                    type: trackType
+                });
+            }
+        });
+    }
+    
+    return files;
+}
+
+export function downloadMIDIFiles(files) {
+    files.forEach(file => {
+        const url = URL.createObjectURL(file.blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+}
+

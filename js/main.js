@@ -239,6 +239,9 @@ function setupEventListeners() {
     // Export buttons
     const exportTextBtn = document.getElementById('export-text');
     const exportJsonBtn = document.getElementById('export-json');
+    const exportMidiBtn = document.getElementById('export-midi');
+    const exportAbletonBtn = document.getElementById('export-ableton');
+    const generateMidiBtn = document.getElementById('generate-midi');
     const startOverBtn = document.getElementById('start-over');
     
     if (exportTextBtn) {
@@ -247,6 +250,18 @@ function setupEventListeners() {
     
     if (exportJsonBtn) {
         exportJsonBtn.addEventListener('click', exportAsJSON);
+    }
+    
+    if (exportMidiBtn) {
+        exportMidiBtn.addEventListener('click', showMidiExportOptions);
+    }
+    
+    if (exportAbletonBtn) {
+        exportAbletonBtn.addEventListener('click', exportAbletonTemplate);
+    }
+    
+    if (generateMidiBtn) {
+        generateMidiBtn.addEventListener('click', generateMIDIFiles);
     }
     
     if (startOverBtn) {
@@ -368,6 +383,7 @@ function handleOptionSelection(event) {
                 appState.loadedData.chordProgressions
             );
             appState.songData.chordProgression = progressions.find(p => p.id === progressionId);
+            UI.enableButton('chords-next');
             break;
             
         case 'drum-pattern':
@@ -377,11 +393,13 @@ function handleOptionSelection(event) {
                 appState.loadedData.drumPatterns
             );
             appState.songData.drumPattern = patterns.find(p => p.id === patternId);
+            UI.enableButton('drums-next');
             break;
             
         case 'bass-complexity':
             appState.songData.bassComplexity = element.dataset.complexity;
             generateAndDisplayBassLine();
+            UI.enableButton('bass-next');
             break;
             
         case 'melody-idea':
@@ -392,12 +410,14 @@ function handleOptionSelection(event) {
                 appState.songData.scale
             );
             appState.songData.melodyIdea = melodyIdeas[melodyIndex];
+            UI.enableButton('melody-next');
             break;
             
         case 'song-structure':
             const structureIndex = parseInt(element.dataset.structureIndex);
             const structures = MusicTheory.getSongStructureForGenre(appState.songData.genre);
             appState.songData.songStructure = structures[structureIndex].sections;
+            UI.enableButton('structure-next');
             break;
     }
 }
@@ -479,5 +499,275 @@ function startOver() {
     UI.showMessage('Starting new song creation', 'info');
 }
 
+// Show MIDI export options panel
+function showMidiExportOptions() {
+    const midiPanel = document.getElementById('midi-export-options');
+    if (midiPanel) {
+        midiPanel.style.display = midiPanel.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Generate MIDI files based on selected options
+async function generateMIDIFiles() {
+    try {
+        // Check if MidiWriter is available, if not try to load it
+        if (!window.MidiWriter) {
+            UI.showMessage('Loading MIDI library...', 'info');
+            try {
+                await loadMidiWriter();
+            } catch (error) {
+                UI.showMessage('Failed to load MIDI library. Please refresh the page and try again.', 'error');
+                return;
+            }
+        }
+        
+        // Get export options from checkboxes
+        const options = {
+            exportChords: document.getElementById('export-chords')?.checked || false,
+            exportBass: document.getElementById('export-bass')?.checked || false,
+            exportMelody: document.getElementById('export-melody')?.checked || false,
+            exportDrums: document.getElementById('export-drums')?.checked || false,
+            exportHarmony: document.getElementById('export-harmony')?.checked || false,
+            exportPads: document.getElementById('export-pads')?.checked || false,
+            songLength: document.getElementById('song-length')?.value || 'medium',
+            variations: parseInt(document.getElementById('midi-variations')?.value) || 2
+        };
+        
+        if (!Object.values(options).some(val => val === true)) {
+            UI.showMessage('Please select at least one track to export', 'warning');
+            return;
+        }
+        
+        UI.showMessage('Generating MIDI files...', 'info');
+        
+        const midiData = await MusicTheory.generateMIDITracks(appState.songData, options);
+        
+        // Generate downloadable MIDI files
+        const midiFiles = MusicTheory.exportMIDIFiles(midiData);
+        
+        if (midiFiles.length === 0) {
+            UI.showMessage('No MIDI tracks were generated. Please complete more song elements.', 'warning');
+            return;
+        }
+        
+        // Download all MIDI files
+        MusicTheory.downloadMIDIFiles(midiFiles);
+        
+        if (midiData.fallback) {
+            UI.showMessage(`✅ Exported ${midiFiles.length} MIDI instruction files! Open the text files for step-by-step DAW import instructions with exact note data.`, 'info');
+        } else {
+            UI.showMessage(`Successfully exported ${midiFiles.length} MIDI files`, 'success');
+        }
+        
+    } catch (error) {
+        console.error('MIDI export failed:', error);
+        UI.showMessage('MIDI export failed. Please try again.', 'error');
+    }
+}
+
+
+// Export Ableton Live template
+async function exportAbletonTemplate() {
+    try {
+        if (!appState.songData.genre || !appState.songData.key) {
+            UI.showMessage('Please complete the song creation process first', 'warning');
+            return;
+        }
+        
+        // Check if required libraries are available
+        if (!window.JSZip) {
+            UI.showMessage('Loading required libraries...', 'info');
+            try {
+                await loadJSZip();
+            } catch (error) {
+                UI.showMessage('Failed to load ZIP library. Please refresh the page and try again.', 'error');
+                return;
+            }
+        }
+        
+        if (!window.MidiWriter) {
+            try {
+                await loadMidiWriter();
+            } catch (error) {
+                UI.showMessage('Failed to load MIDI library. Please refresh the page and try again.', 'error');
+                return;
+            }
+        }
+        
+        UI.showMessage('Generating Ableton Live template...', 'info');
+        
+        const templateData = MusicTheory.exportAbletonTemplate(appState.songData);
+        const projectName = (appState.songData.title || 'Music Machine Song').replace(/[^a-zA-Z0-9]/g, '_');
+        
+        // Create a ZIP file structure
+        const zip = new JSZip();
+        
+        // Add files to ZIP
+        Object.entries(templateData).forEach(([filename, content]) => {
+            if (typeof content === 'string') {
+                // Regular text file
+                zip.file(filename, content);
+            } else if (typeof content === 'object' && content !== null) {
+                // Handle folders
+                Object.entries(content).forEach(([subfile, subcontent]) => {
+                    if (subcontent instanceof Uint8Array || subcontent instanceof ArrayBuffer) {
+                        // MIDI file - binary data
+                        zip.file(`${filename}${subfile}`, subcontent);
+                    } else if (typeof subcontent === 'string') {
+                        // Text file in subfolder
+                        zip.file(`${filename}${subfile}`, subcontent);
+                    } else if (typeof subcontent === 'object') {
+                        // Nested folder structure
+                        Object.entries(subcontent).forEach(([subsubfile, subsubcontent]) => {
+                            zip.file(`${filename}${subfile}${subsubfile}`, subsubcontent);
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Generate and download ZIP
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${projectName}_Ableton_Template.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        UI.showMessage('Ableton MIDI template downloaded successfully - check Instructions.txt for setup guide', 'success');
+        
+    } catch (error) {
+        console.error('Ableton template export failed:', error);
+        UI.showMessage('Failed to generate Ableton template. JSZip library may be missing.', 'error');
+    }
+}
+
+// Load external libraries dynamically
+function loadJSZip() {
+    return new Promise((resolve, reject) => {
+        if (window.JSZip) {
+            resolve(window.JSZip);
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+        script.onload = () => resolve(window.JSZip);
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function loadMidiWriter() {
+    return new Promise((resolve, reject) => {
+        if (window.MidiWriter) {
+            resolve(window.MidiWriter);
+            return;
+        }
+        
+        // Try multiple CDN URLs as fallbacks
+        const urls = [
+            'https://cdn.jsdelivr.net/npm/midi-writer-js@2.0.5/build/browser/MidiWriter.min.js',
+            'https://unpkg.com/midi-writer-js@2.0.5/build/browser/MidiWriter.min.js',
+            'https://cdn.jsdelivr.net/npm/midi-writer-js@latest/build/browser/MidiWriter.min.js'
+        ];
+        
+        let urlIndex = 0;
+        
+        function tryNextUrl() {
+            if (urlIndex >= urls.length) {
+                reject(new Error('All MidiWriter CDN URLs failed'));
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = urls[urlIndex];
+            
+            script.onload = () => {
+                if (window.MidiWriter) {
+                    console.log(`MidiWriter loaded successfully from: ${urls[urlIndex]}`);
+                    resolve(window.MidiWriter);
+                } else {
+                    console.warn(`Script loaded but MidiWriter not available from: ${urls[urlIndex]}`);
+                    urlIndex++;
+                    tryNextUrl();
+                }
+            };
+            
+            script.onerror = (error) => {
+                console.warn(`Failed to load MidiWriter from: ${urls[urlIndex]}`, error);
+                urlIndex++;
+                tryNextUrl();
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        tryNextUrl();
+    });
+}
+
+// Initialize all external libraries
+async function initializeLibraries() {
+    const loadPromises = [
+        loadJSZip().catch(error => console.warn('Failed to load JSZip library:', error))
+    ];
+    
+    // Check if MidiWriter is already loaded from HTML script tag
+    if (!window.MidiWriter) {
+        loadPromises.push(
+            loadMidiWriter().catch(error => console.warn('Failed to load MidiWriter library:', error))
+        );
+    } else {
+        console.log('MidiWriter already loaded from HTML script tag');
+    }
+    
+    try {
+        await Promise.all(loadPromises);
+        console.log('All libraries loaded successfully');
+    } catch (error) {
+        console.warn('Some libraries failed to load:', error);
+    }
+}
+
+// Check library status (for debugging)
+function checkLibraries() {
+    console.log('Library Status:');
+    console.log('- Tonal.js:', !!window.Tonal ? '✅ Loaded' : '❌ Not loaded');
+    console.log('- MidiWriter.js:', !!window.MidiWriter ? '✅ Loaded' : '❌ Not loaded');
+    console.log('- JSZip.js:', !!window.JSZip ? '✅ Loaded' : '❌ Not loaded');
+    
+    // Update MIDI export button text based on library availability
+    const midiButton = document.getElementById('export-midi');
+    if (midiButton) {
+        if (!window.MidiWriter) {
+            midiButton.textContent = 'Export MIDI Instructions';
+            midiButton.title = 'MIDI library unavailable - will export text instructions instead';
+        } else {
+            midiButton.textContent = 'Export MIDI Files';
+            midiButton.title = 'Export binary MIDI files';
+        }
+    }
+}
+
 // Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize the main app immediately
+    initializeApp();
+    
+    // Load libraries in parallel (non-blocking)
+    await initializeLibraries();
+    
+    // Log library status for debugging immediately and after delay
+    checkLibraries();
+    setTimeout(() => {
+        console.log('--- Library Status After 2 seconds ---');
+        checkLibraries();
+    }, 2000);
+});
+
+// Expose library check function to global scope for debugging
+window.checkLibraries = checkLibraries;

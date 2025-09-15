@@ -448,6 +448,71 @@ body {
     justify-content: center;
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+/* MIDI Export Panel */
+.midi-export-panel {
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    border: 2px solid var(--primary-color);
+    animation: fadeIn 0.3s ease;
+}
+
+.track-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.track-options label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.track-options label:hover {
+    background: var(--surface-color);
+}
+
+.track-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.arrangement-options {
+    background: var(--surface-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+}
+
+.arrangement-options h4 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.arrangement-options label {
+    display: block;
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+.arrangement-options select {
+    margin-left: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--border-radius) / 2);
+    background: white;
 }
 
 /* Responsive Design */

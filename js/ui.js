@@ -458,7 +458,7 @@ export function renderSongSummary(songData, container) {
     `;
 }
 
-function selectOption(cardElement, optionType) {
+export function selectOption(cardElement, optionType) {
     // Remove selection from siblings
     const siblings = cardElement.parentNode.querySelectorAll('.option-card, .chord-card, .drum-card, .bass-card, .melody-card');
     siblings.forEach(sibling => sibling.classList.remove('selected'));
