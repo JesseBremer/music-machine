@@ -125,16 +125,6 @@ export function renderScales(scales, container) {
 
         scaleCard.addEventListener('click', () => {
             selectOption(scaleCard, 'scale');
-            // Show scale theory explanation
-            setTimeout(() => {
-                const currentKey = window.appState?.songData?.key || 'C';
-                if (window.MusicTheory && window.MusicTheory.explainScale) {
-                    const explanation = window.MusicTheory.explainScale(currentKey, scale.type);
-                    if (explanation) {
-                        showScaleTheoryModal(explanation);
-                    }
-                }
-            }, 100);
         });
         scaleContainer.appendChild(scaleCard);
     });
@@ -215,11 +205,40 @@ export function displayChords(chordProgression, key) {
     const chordDisplay = document.getElementById('chord-display');
     if (!chordDisplay || !chordProgression) return;
 
+    // Generate chord diagrams for each chord in the progression
+    let chordDiagramsHTML = '';
+    if (chordProgression.chords && chordProgression.chords.length > 0) {
+        chordDiagramsHTML = `
+            <div class="chord-diagrams">
+                <h6>🎸 Visual Chord Guide</h6>
+                <div class="chord-diagrams-container">
+                    ${chordProgression.chords.map(chord => `
+                        <div class="chord-diagrams-single">
+                            <div class="chord-label">${chord}</div>
+                            ${window.generateGuitarDiagram ? window.generateGuitarDiagram(chord) : ''}
+                            ${window.generatePianoDiagram ? window.generatePianoDiagram(chord) : ''}
+                            ${window.generateBassDiagram ? window.generateBassDiagram(chord) : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     chordDisplay.innerHTML = `
         <div class="chord-progression">
             <h5>${chordProgression.name}</h5>
             <div class="chords">${chordProgression.chords.join(' - ')}</div>
             <div class="numerals">${chordProgression.numerals.join(' - ')}</div>
+            <div class="audio-controls">
+                <button class="play-btn" onclick="playChordProgression('${chordProgression.name}')">
+                    ▶️ Play Progression
+                </button>
+                <button class="stop-btn" onclick="stopAudio()">
+                    ⏹️ Stop
+                </button>
+            </div>
+            ${chordDiagramsHTML}
             <button class="theory-toggle" onclick="toggleTheoryExplanation('chord-theory')">
                 🎓 Learn the Theory
             </button>
@@ -297,6 +316,14 @@ export function displayDrumPattern(drumPattern) {
         <div class="drum-pattern-display">
             <h5>${drumPattern.name}</h5>
             ${gridHTML}
+            <div class="audio-controls">
+                <button class="play-btn" onclick="playDrumPattern('${drumPattern.name}')">
+                    🥁 Play Beat
+                </button>
+                <button class="stop-btn" onclick="stopAudio()">
+                    ⏹️ Stop
+                </button>
+            </div>
             <button class="theory-toggle" onclick="toggleTheoryExplanation('rhythm-theory')">
                 🎓 Learn the Rhythm Theory
             </button>
@@ -355,13 +382,21 @@ export function renderBassOptions(bassLines, container) {
 export function displayBassLine(bassLine) {
     const bassDisplay = document.getElementById('bass-display');
     if (!bassDisplay || !bassLine) return;
-    
+
     const bassNotes = bassLine.map(note => note.note).join(' - ');
-    
+
     bassDisplay.innerHTML = `
         <div class="bass-line-display">
             <h5>Bass Line</h5>
             <div class="bass-notes">${bassNotes}</div>
+            <div class="audio-controls">
+                <button class="play-btn" onclick="playBassLine()">
+                    🎸 Play Bass
+                </button>
+                <button class="stop-btn" onclick="stopAudio()">
+                    ⏹️ Stop
+                </button>
+            </div>
         </div>
     `;
 }
@@ -413,12 +448,20 @@ export function renderMelodyIdeas(melodyIdeas, container) {
 export function displayMelody(melodyIdea) {
     const melodyDisplay = document.getElementById('melody-display');
     if (!melodyDisplay || !melodyIdea) return;
-    
+
     melodyDisplay.innerHTML = `
         <div class="melody-display">
             <h5>${melodyIdea.name}</h5>
             <div class="melody-notes">${melodyIdea.pattern.join(' - ')}</div>
             <div class="rhythm-info">Rhythm: ${melodyIdea.rhythm} notes</div>
+            <div class="audio-controls">
+                <button class="play-btn" onclick="playMelodyIdea()">
+                    🎵 Play Melody
+                </button>
+                <button class="stop-btn" onclick="stopAudio()">
+                    ⏹️ Stop
+                </button>
+            </div>
         </div>
     `;
 }
@@ -542,6 +585,20 @@ export function renderSongSummary(songData, container) {
                 <p><strong>Melody:</strong> ${songData.melodyIdea?.name || 'Not set'}</p>
             </div>
         </div>
+
+        <div class="full-song-playback">
+            <h4>🎵 Preview Your Song</h4>
+            <div class="audio-controls large-controls">
+                <button class="play-btn large-play-btn" onclick="playFullArrangement()">
+                    ▶️ Play Full Song Preview
+                </button>
+                <button class="stop-btn" onclick="stopAudio()">
+                    ⏹️ Stop
+                </button>
+            </div>
+            <p class="playback-info">This will play all your musical elements together: chords, drums, bass, and melody.</p>
+        </div>
+
         ${songData.lyrics ? `<div class="lyrics-summary"><h4>Lyrics</h4><pre>${songData.lyrics}</pre></div>` : ''}
     `;
 }
@@ -792,39 +849,52 @@ export function showScaleTheoryModal(explanation) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(4px);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
+        animation: fadeIn 0.2s ease-out;
     `;
 
-    // Create modal content
+    // Create modal content with studio styling
     const modal = document.createElement('div');
     modal.className = 'theory-modal';
     modal.style.cssText = `
-        background: white;
-        border-radius: var(--border-radius);
-        max-width: 90vw;
-        max-height: 90vh;
+        background: var(--gradient-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-lg);
+        max-width: 85vw;
+        max-height: 85vh;
         overflow-y: auto;
-        padding: var(--spacing-xl);
+        padding: var(--spacing-lg);
         position: relative;
-        box-shadow: var(--box-shadow-lg);
+        box-shadow: var(--box-shadow-lg), var(--glow-secondary);
+        color: var(--text-primary);
+        animation: slideInUp 0.3s ease-out;
     `;
 
-    // Add close button
+    // Add close button with studio styling
     const closeButton = document.createElement('button');
-    closeButton.innerHTML = '×';
+    closeButton.innerHTML = '⨯';
     closeButton.style.cssText = `
         position: absolute;
-        top: var(--spacing-md);
-        right: var(--spacing-md);
-        background: none;
-        border: none;
-        font-size: 2rem;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        background: var(--gradient-button);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        width: 28px;
+        height: 28px;
+        font-size: var(--font-size-large);
         cursor: pointer;
-        color: var(--text-secondary);
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+        font-family: var(--font-family-mono);
     `;
     closeButton.addEventListener('click', () => document.body.removeChild(overlay));
 
@@ -849,6 +919,159 @@ export function showScaleTheoryModal(explanation) {
     // Render the explanation
     renderScaleTheoryExplanation(explanation, 'scale-theory-modal-content');
 }
+
+// ===================================
+// AUDIO PLAYBACK FUNCTIONS
+// ===================================
+
+// Global functions for theory display
+window.showKeyScaleTheory = function() {
+    const appState = window.appState;
+    if (!appState || !appState.songData.key || !appState.songData.scale) {
+        showMessage('Please select both a key and scale first', 'warning');
+        return;
+    }
+
+    if (window.MusicTheory && window.MusicTheory.explainScale) {
+        const explanation = window.MusicTheory.explainScale(appState.songData.key, appState.songData.scale);
+        if (explanation) {
+            showScaleTheoryModal(explanation);
+        }
+    }
+};
+
+window.updateScaleTheoryButton = function() {
+    const appState = window.appState;
+    const theoryBtn = document.getElementById('scale-theory-btn');
+
+    if (theoryBtn && appState && appState.songData.key && appState.songData.scale) {
+        theoryBtn.style.display = 'block';
+    } else if (theoryBtn) {
+        theoryBtn.style.display = 'none';
+    }
+};
+
+// Global audio control functions
+window.playChordProgression = function(progressionName) {
+    const appState = window.appState;
+    if (!appState || !appState.songData.chordProgression) {
+        console.warn('No chord progression available to play');
+        return;
+    }
+
+    const tempo = appState.songData.tempo || 120;
+    const key = appState.songData.key || 'C';
+
+    console.log('Playing chord progression:', progressionName, 'at tempo:', tempo, 'in key:', key);
+
+    if (window.audioEngine) {
+        try {
+            window.audioEngine.playChordProgression(appState.songData.chordProgression, tempo, key);
+            showMessage('Playing chord progression...', 'info');
+        } catch (error) {
+            console.error('Error playing chord progression:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    } else {
+        showMessage('Audio engine not available', 'error');
+    }
+};
+
+window.playDrumPattern = function(patternName) {
+    const appState = window.appState;
+    if (!appState || !appState.songData.drumPattern) {
+        console.warn('No drum pattern available to play');
+        return;
+    }
+
+    const tempo = appState.songData.tempo || 120;
+
+    console.log('Playing drum pattern:', patternName, 'at tempo:', tempo);
+
+    if (window.audioEngine) {
+        try {
+            window.audioEngine.playDrumPattern(appState.songData.drumPattern, tempo, 2); // 2 bars
+            showMessage('Playing drum pattern...', 'info');
+        } catch (error) {
+            console.error('Error playing drum pattern:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    } else {
+        showMessage('Audio engine not available', 'error');
+    }
+};
+
+window.playBassLine = function() {
+    const appState = window.appState;
+    if (!appState || !appState.songData.bassLine) {
+        console.warn('No bass line available to play');
+        return;
+    }
+
+    const tempo = appState.songData.tempo || 120;
+
+    if (window.audioEngine) {
+        try {
+            window.audioEngine.playBassLine(appState.songData.bassLine, tempo);
+            showMessage('Playing bass line...', 'info');
+        } catch (error) {
+            console.error('Error playing bass line:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    }
+};
+
+window.playMelodyIdea = function() {
+    const appState = window.appState;
+    if (!appState || !appState.songData.melodyIdea) {
+        console.warn('No melody idea available to play');
+        return;
+    }
+
+    const tempo = appState.songData.tempo || 120;
+
+    if (window.audioEngine) {
+        try {
+            window.audioEngine.playMelodyIdea(appState.songData.melodyIdea, tempo);
+            showMessage('Playing melody idea...', 'info');
+        } catch (error) {
+            console.error('Error playing melody:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    }
+};
+
+window.playFullArrangement = function() {
+    const appState = window.appState;
+    if (!appState || !appState.songData) {
+        console.warn('No song data available to play');
+        return;
+    }
+
+    if (window.audioEngine) {
+        try {
+            const duration = window.audioEngine.playFullArrangement(appState.songData, {
+                bars: 4,
+                tempo: appState.songData.tempo || 120
+            });
+            showMessage(`Playing full arrangement... (${Math.round(duration)}s)`, 'info');
+        } catch (error) {
+            console.error('Error playing full arrangement:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    }
+};
+
+window.stopAudio = function() {
+    if (window.audioEngine) {
+        try {
+            window.audioEngine.stop();
+            showMessage('Audio stopped', 'info');
+        } catch (error) {
+            console.error('Error stopping audio:', error);
+        }
+    }
+};
 
 export function enableButton(buttonId) {
     const button = document.getElementById(buttonId);

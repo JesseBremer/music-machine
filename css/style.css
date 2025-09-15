@@ -1,35 +1,55 @@
-/* CSS Variables for consistent theming */
+/* CSS Variables for Dark Studio Theme */
 :root {
-    --primary-color: #6366f1;
-    --secondary-color: #8b5cf6;
-    --accent-color: #f59e0b;
-    --background-color: #f8fafc;
-    --surface-color: #ffffff;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --border-color: #e5e7eb;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --error-color: #ef4444;
-    
-    --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --font-size-small: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-large: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 2rem;
-    
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-    
-    --border-radius: 0.5rem;
-    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Studio Color Palette */
+    --primary-color: #ff6b6b;           /* Warm red accent (studio monitor glow) */
+    --secondary-color: #4ecdc4;         /* Teal accent (VU meter green) */
+    --accent-color: #ffd93d;            /* Golden yellow (warning lights) */
+    --background-color: #0f0f0f;        /* Deep black background */
+    --surface-color: #1a1a1a;           /* Dark charcoal surfaces */
+    --surface-elevated: #242424;        /* Slightly lighter for elevated elements */
+    --text-primary: #e8e8e8;            /* Light grey text */
+    --text-secondary: #a0a0a0;          /* Muted grey text */
+    --text-muted: #666666;              /* Very muted text */
+    --border-color: #333333;            /* Dark borders */
+    --border-subtle: #2a2a2a;           /* Very subtle borders */
+    --success-color: #4ecdc4;           /* Teal for success */
+    --warning-color: #ffd93d;           /* Yellow for warnings */
+    --error-color: #ff6b6b;             /* Red for errors */
+
+    /* Studio Lighting Effects */
+    --glow-primary: 0 0 20px rgba(255, 107, 107, 0.3);
+    --glow-secondary: 0 0 15px rgba(78, 205, 196, 0.2);
+    --glow-accent: 0 0 10px rgba(255, 217, 61, 0.3);
+
+    /* Typography */
+    --font-family-base: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+    --font-size-small: 0.8rem;
+    --font-size-base: 0.9rem;
+    --font-size-large: 1rem;
+    --font-size-xl: 1.1rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+
+    /* Compact Spacing */
+    --spacing-xs: 0.15rem;
+    --spacing-sm: 0.35rem;
+    --spacing-md: 0.7rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.4rem;
+    --spacing-2xl: 2rem;
+
+    /* Professional Studio Elements */
+    --border-radius: 0.25rem;            /* Subtle, professional corners */
+    --border-radius-lg: 0.4rem;
+    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --box-shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.6), 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+    --box-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    /* Studio Equipment Textures */
+    --gradient-surface: linear-gradient(145deg, #1e1e1e, #161616);
+    --gradient-button: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+    --gradient-active: linear-gradient(145deg, #ff6b6b, #e55555);
 }
 
 /* Base styles */
@@ -42,45 +62,57 @@
 body {
     font-family: var(--font-family-base);
     font-size: var(--font-size-base);
-    line-height: 1.6;
+    line-height: 1.4;
     color: var(--text-primary);
-    background-color: var(--background-color);
+    background: var(--background-color);
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 107, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(78, 205, 196, 0.03) 0%, transparent 50%);
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 .app-container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
 }
 
 /* Header */
 .app-header {
     text-align: center;
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md) 0;
 }
 
 .app-header h1 {
-    font-size: var(--font-size-3xl);
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--spacing-xs);
+    letter-spacing: -0.02em;
 }
 
 .app-header p {
-    font-size: var(--font-size-large);
-    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    color: var(--text-muted);
+    font-weight: 400;
 }
 
 /* Progress Bar */
 .progress-bar {
     display: flex;
     justify-content: space-between;
-    margin-bottom: var(--spacing-2xl);
-    padding: var(--spacing-md);
-    background: var(--surface-color);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm);
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--box-shadow-inset);
     overflow-x: auto;
 }
 
@@ -144,16 +176,40 @@ body {
 /* Step Sections */
 .step-section {
     display: none;
-    background: var(--surface-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-2xl);
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
     box-shadow: var(--box-shadow);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    position: relative;
 }
 
 .step-section.active {
     display: block;
-    animation: fadeIn 0.3s ease-in-out;
+    animation: slideInUp 0.2s ease-out;
+}
+
+.step-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Studio Animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeIn {
@@ -164,6 +220,24 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: var(--glow-primary);
+    }
+    50% {
+        box-shadow: var(--glow-primary), 0 0 30px rgba(255, 107, 107, 0.4);
     }
 }
 
@@ -196,9 +270,9 @@ body {
 .bass-grid,
 .melody-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 }
 
 .option-card,
@@ -206,13 +280,15 @@ body {
 .drum-card,
 .bass-card,
 .melody-card {
-    background: var(--background-color);
-    border: 2px solid var(--border-color);
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
+    transition: all 0.15s ease;
+    text-align: left;
+    position: relative;
+    box-shadow: var(--box-shadow-inset);
 }
 
 .option-card:hover,
@@ -221,8 +297,9 @@ body {
 .bass-card:hover,
 .melody-card:hover {
     border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-1px);
+    box-shadow: var(--glow-primary), var(--box-shadow);
+    background: var(--surface-elevated);
 }
 
 .option-card.selected,
@@ -231,8 +308,22 @@ body {
 .bass-card.selected,
 .melody-card.selected {
     border-color: var(--primary-color);
-    background: var(--primary-color);
+    background: var(--gradient-active);
     color: white;
+    box-shadow: var(--glow-primary), var(--box-shadow-lg);
+}
+
+.option-card.selected::before,
+.chord-card.selected::before,
+.drum-card.selected::before,
+.bass-card.selected::before,
+.melody-card.selected::before {
+    content: '●';
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    color: white;
+    font-size: var(--font-size-small);
 }
 
 .option-card h4,
@@ -240,8 +331,18 @@ body {
 .drum-card h4,
 .bass-card h4,
 .melody-card h4 {
-    font-size: var(--font-size-large);
-    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.option-card.selected h4,
+.chord-card.selected h4,
+.drum-card.selected h4,
+.bass-card.selected h4,
+.melody-card.selected h4 {
+    color: white;
 }
 
 .option-card p,
@@ -250,8 +351,17 @@ body {
 .bass-card p,
 .melody-card p {
     font-size: var(--font-size-small);
-    color: inherit;
-    opacity: 0.8;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.option-card.selected p,
+.chord-card.selected p,
+.drum-card.selected p,
+.bass-card.selected p,
+.melody-card.selected p {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Display Areas */
@@ -361,31 +471,39 @@ body {
     margin-bottom: var(--spacing-xl);
 }
 
-/* Buttons */
+/* Studio Buttons */
 .next-button,
 .back-button,
 .export-button,
 .generate-button,
 .start-over-button {
-    padding: var(--spacing-md) var(--spacing-xl);
-    border: none;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-small);
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.02em;
+    background: var(--gradient-button);
+    color: var(--text-primary);
+    font-family: var(--font-family-mono);
+    position: relative;
+    overflow: hidden;
 }
 
 .next-button {
-    background: var(--primary-color);
+    background: var(--gradient-active);
     color: white;
+    border-color: var(--primary-color);
+    box-shadow: var(--glow-primary);
 }
 
 .next-button:hover:not(:disabled) {
-    background: var(--secondary-color);
+    box-shadow: var(--glow-primary), var(--box-shadow);
     transform: translateY(-1px);
+    brightness: 1.1;
 }
 
 .next-button:disabled {
@@ -780,30 +898,37 @@ body {
    ===================================== */
 
 .theory-toggle {
-    background: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--gradient-button);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius);
     cursor: pointer;
     font-size: var(--font-size-small);
-    margin-top: var(--spacing-md);
-    transition: all 0.3s ease;
+    margin-top: var(--spacing-sm);
+    transition: all 0.15s ease;
     font-weight: 500;
+    font-family: var(--font-family-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    box-shadow: var(--box-shadow-inset);
 }
 
 .theory-toggle:hover {
-    background: var(--primary-color);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    box-shadow: var(--glow-secondary);
     transform: translateY(-1px);
+    background: var(--surface-elevated);
 }
 
 .theory-explanation {
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-lg);
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--gradient-surface);
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--box-shadow-inset);
 }
 
 .theory-content {
@@ -908,73 +1033,79 @@ body {
     font-style: italic;
 }
 
-/* Scale Display */
+/* Scale Display - Studio Theme */
 .scale-notes {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 }
 
 .scale-note {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: white;
-    padding: var(--spacing-md);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: var(--spacing-sm);
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow);
-    min-width: 80px;
+    box-shadow: var(--box-shadow-inset);
+    min-width: 65px;
 }
 
 .note-name {
-    font-size: var(--font-size-large);
-    font-weight: bold;
+    font-size: var(--font-size-base);
+    font-weight: 600;
     color: var(--primary-color);
+    font-family: var(--font-family-mono);
 }
 
 .degree-name {
     font-size: var(--font-size-small);
-    color: var(--text-secondary);
+    color: var(--text-muted);
     text-align: center;
     margin-top: var(--spacing-xs);
+    line-height: 1.2;
 }
 
 .mood-character {
-    background: white;
-    padding: var(--spacing-md);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: var(--spacing-sm);
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--secondary-color);
+    border-left: 3px solid var(--secondary-color);
     font-style: italic;
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
 }
 
 .scale-chords {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
 }
 
 .scale-chord {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: white;
-    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--box-shadow-inset);
 }
 
 .chord-numeral {
-    font-weight: bold;
-    color: var(--primary-color);
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
 }
 
 .chord-name {
     font-size: var(--font-size-small);
-    color: var(--text-secondary);
+    color: var(--text-muted);
 }
 
 /* Rhythm Display */
@@ -1057,7 +1188,7 @@ body {
     color: white;
 }
 
-/* Theory Tips Lists */
+/* Theory Tips Lists - Studio Theme */
 .theory-tips,
 .scale-tips,
 .melody-tips,
@@ -1073,13 +1204,16 @@ body {
 .melody-tips li,
 .rhythm-techniques li,
 .rhythm-variations li {
-    background: white;
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--primary-color);
-    box-shadow: var(--box-shadow);
-    line-height: 1.5;
+    border-left: 3px solid var(--primary-color);
+    box-shadow: var(--box-shadow-inset);
+    line-height: 1.4;
+    color: var(--text-primary);
+    font-size: var(--font-size-small);
 }
 
 .theory-tips li:last-child,
@@ -1091,12 +1225,14 @@ body {
 }
 
 .usage-info {
-    background: white;
-    padding: var(--spacing-md);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: var(--spacing-sm);
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--secondary-color);
+    border-left: 3px solid var(--secondary-color);
     font-style: italic;
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
 }
 
 .loading {
@@ -1127,5 +1263,424 @@ body {
     .rhythm-info {
         flex-direction: column;
         gap: var(--spacing-sm);
+    }
+}
+
+/* =====================================
+   AUDIO CONTROLS STYLES
+   ===================================== */
+
+.audio-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.large-controls {
+    justify-content: center;
+    margin: var(--spacing-lg) 0;
+}
+
+.play-btn, .stop-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-family: var(--font-family-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.play-btn {
+    background: var(--gradient-active);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: var(--glow-primary);
+}
+
+.play-btn:hover {
+    box-shadow: var(--glow-primary), var(--box-shadow);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.play-btn:active {
+    transform: translateY(0);
+}
+
+.stop-btn {
+    background: var(--gradient-button);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.stop-btn:hover {
+    border-color: var(--error-color);
+    color: var(--error-color);
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+    transform: translateY(-1px);
+}
+
+.large-play-btn {
+    font-size: var(--font-size-large);
+    padding: var(--spacing-md) var(--spacing-xl);
+    min-width: 250px;
+    justify-content: center;
+}
+
+.full-song-playback {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-xl) 0;
+    text-align: center;
+    box-shadow: var(--box-shadow-lg);
+}
+
+.full-song-playback h4 {
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-2xl);
+}
+
+.playback-info {
+    margin-top: var(--spacing-md);
+    opacity: 0.9;
+    font-style: italic;
+}
+
+.full-song-playback .play-btn {
+    background: white;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.full-song-playback .play-btn:hover {
+    background: var(--background-color);
+    color: var(--secondary-color);
+}
+
+.full-song-playback .stop-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.full-song-playback .stop-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Audio control responsiveness */
+@media (max-width: 768px) {
+    .audio-controls {
+        justify-content: center;
+    }
+
+    .large-play-btn {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .full-song-playback {
+        padding: var(--spacing-lg);
+    }
+
+    .large-controls {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+}
+
+/* =====================================
+   CHORD DIAGRAMS STYLES
+   ===================================== */
+
+.chord-diagrams {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chord-diagrams-single {
+    display: flex;
+    gap: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Guitar Diagram */
+.guitar-diagram {
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    min-width: 120px;
+    box-shadow: var(--box-shadow);
+}
+
+.guitar-diagram .chord-name {
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--primary-color);
+    font-size: var(--font-size-small);
+}
+
+.svg-guitar-container {
+    margin: var(--spacing-sm) auto;
+    max-width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.svg-guitar-container svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.diagram-placeholder {
+    padding: var(--spacing-md);
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    border: 1px dashed var(--border-color);
+}
+
+/* Piano Diagram */
+.piano-diagram {
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    min-width: 200px;
+    box-shadow: var(--box-shadow);
+}
+
+.piano-diagram .chord-name {
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--secondary-color);
+    font-size: var(--font-size-small);
+}
+
+.piano-keys {
+    display: flex;
+    position: relative;
+    height: 60px;
+    margin: var(--spacing-sm) 0;
+    justify-content: center;
+}
+
+.piano-key {
+    position: relative;
+    border: 1px solid #333;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.piano-key.white {
+    background: #f8f8f8;
+    color: #333;
+    width: 20px;
+    height: 60px;
+    z-index: 1;
+}
+
+.piano-key.black {
+    background: #1a1a1a;
+    color: #fff;
+    width: 12px;
+    height: 40px;
+    position: absolute;
+    z-index: 2;
+    margin-left: -6px;
+}
+
+.piano-key.black:nth-of-type(1) { left: 14px; }
+.piano-key.black:nth-of-type(2) { left: 34px; }
+.piano-key.black:nth-of-type(3) { left: 74px; }
+.piano-key.black:nth-of-type(4) { left: 94px; }
+.piano-key.black:nth-of-type(5) { left: 114px; }
+
+.piano-key.pressed {
+    background: var(--secondary-color) !important;
+    color: var(--background-color) !important;
+    box-shadow: var(--glow-secondary);
+    transform: translateY(2px);
+}
+
+.note-label {
+    font-size: 8px;
+    font-weight: 600;
+    padding: 2px;
+}
+
+.chord-notes {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+/* Bass Diagram */
+.bass-diagram {
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    min-width: 160px;
+    box-shadow: var(--box-shadow);
+}
+
+.bass-diagram .chord-name {
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--accent-color);
+    font-size: var(--font-size-small);
+}
+
+.bass-fretboard {
+    margin: var(--spacing-sm) 0;
+}
+
+.bass-string {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    padding: 2px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.bass-string:last-child {
+    border-bottom: none;
+}
+
+.string-label {
+    width: 20px;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.bass-fret {
+    width: 20px;
+    height: 16px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    margin-left: 1px;
+    background: var(--surface-color);
+    position: relative;
+}
+
+.bass-fret.open {
+    background: var(--surface-elevated);
+    border-color: var(--success-color);
+}
+
+.bass-fret.root-note {
+    background: var(--accent-color);
+    color: var(--background-color);
+    font-weight: 600;
+    box-shadow: var(--glow-accent);
+}
+
+.fret-note {
+    font-size: 6px;
+    position: absolute;
+    bottom: -1px;
+    color: var(--text-muted);
+}
+
+.bass-fret.root-note .fret-note {
+    color: var(--background-color);
+}
+
+.bass-info {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+/* Diagram Containers */
+.chord-progression .chords {
+    margin-bottom: var(--spacing-md);
+}
+
+.chord-progression .chord-diagrams {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+}
+
+.chord-progression .chord-diagrams h6 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    font-size: var(--font-size-base);
+}
+
+.chord-diagrams-container {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chord-label {
+    font-size: var(--font-size-large);
+    font-weight: 600;
+    color: var(--accent-color);
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(255, 217, 61, 0.1);
+    border: 1px solid var(--accent-color);
+    border-radius: var(--border-radius);
+}
+
+/* Responsive chord diagrams */
+@media (max-width: 768px) {
+    .chord-diagrams {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .guitar-diagram,
+    .piano-diagram,
+    .bass-diagram {
+        min-width: auto;
+        width: 100%;
+        max-width: 250px;
+    }
+
+    .piano-keys {
+        transform: scale(0.8);
     }
 }
