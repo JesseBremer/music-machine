@@ -122,8 +122,20 @@ export function renderScales(scales, container) {
             <h4>${scale.name}</h4>
             <p>${scale.description}</p>
         `;
-        
-        scaleCard.addEventListener('click', () => selectOption(scaleCard, 'scale'));
+
+        scaleCard.addEventListener('click', () => {
+            selectOption(scaleCard, 'scale');
+            // Show scale theory explanation
+            setTimeout(() => {
+                const currentKey = window.appState?.songData?.key || 'C';
+                if (window.MusicTheory && window.MusicTheory.explainScale) {
+                    const explanation = window.MusicTheory.explainScale(currentKey, scale.type);
+                    if (explanation) {
+                        showScaleTheoryModal(explanation);
+                    }
+                }
+            }, 100);
+        });
         scaleContainer.appendChild(scaleCard);
     });
 }
@@ -190,24 +202,54 @@ export function renderChordProgressions(progressions, container) {
         
         chordCard.addEventListener('click', () => {
             selectOption(chordCard, 'chord-progression');
-            displayChords(progression);
+            // Get the current key from appState if available
+            const currentKey = window.appState?.songData?.key || progression.key || 'C';
+            displayChords(progression, currentKey);
         });
         
         chordContainer.appendChild(chordCard);
     });
 }
 
-export function displayChords(chordProgression) {
+export function displayChords(chordProgression, key) {
     const chordDisplay = document.getElementById('chord-display');
     if (!chordDisplay || !chordProgression) return;
-    
+
     chordDisplay.innerHTML = `
         <div class="chord-progression">
             <h5>${chordProgression.name}</h5>
             <div class="chords">${chordProgression.chords.join(' - ')}</div>
             <div class="numerals">${chordProgression.numerals.join(' - ')}</div>
+            <button class="theory-toggle" onclick="toggleTheoryExplanation('chord-theory')">
+                🎓 Learn the Theory
+            </button>
+            <div id="chord-theory" class="theory-explanation" style="display: none;">
+                <div class="loading">Loading theory explanation...</div>
+            </div>
         </div>
     `;
+
+    // Load theory explanation asynchronously
+    if (key && window.MusicTheory && window.MusicTheory.explainChordProgression) {
+        setTimeout(() => {
+            try {
+                console.log('Explaining chord progression:', chordProgression.name, 'in key:', key);
+                const explanation = window.MusicTheory.explainChordProgression(chordProgression, key);
+                console.log('Generated explanation:', explanation);
+                if (explanation) {
+                    renderChordTheoryExplanation(explanation, 'chord-theory');
+                } else {
+                    document.getElementById('chord-theory').innerHTML = '<p>Could not generate theory explanation.</p>';
+                }
+            } catch (error) {
+                console.error('Error generating chord theory:', error);
+                document.getElementById('chord-theory').innerHTML = '<p>Error loading theory explanation.</p>';
+            }
+        }, 100);
+    } else {
+        console.log('Theory explanation not available:', { key, MusicTheory: !!window.MusicTheory, func: !!window.MusicTheory?.explainChordProgression });
+        document.getElementById('chord-theory').innerHTML = '<p>Theory explanation not available.</p>';
+    }
 }
 
 export function renderDrumPatterns(patterns, container) {
@@ -239,7 +281,7 @@ export function renderDrumPatterns(patterns, container) {
 export function displayDrumPattern(drumPattern) {
     const drumDisplay = document.getElementById('drum-display');
     if (!drumDisplay || !drumPattern) return;
-    
+
     let gridHTML = '<div class="drum-grid-display">';
     drumPattern.grid.forEach(track => {
         gridHTML += `<div class="drum-track">`;
@@ -250,13 +292,41 @@ export function displayDrumPattern(drumPattern) {
         gridHTML += `</div>`;
     });
     gridHTML += '</div>';
-    
+
     drumDisplay.innerHTML = `
         <div class="drum-pattern-display">
             <h5>${drumPattern.name}</h5>
             ${gridHTML}
+            <button class="theory-toggle" onclick="toggleTheoryExplanation('rhythm-theory')">
+                🎓 Learn the Rhythm Theory
+            </button>
+            <div id="rhythm-theory" class="theory-explanation" style="display: none;">
+                <div class="loading">Loading rhythm explanation...</div>
+            </div>
         </div>
     `;
+
+    // Load rhythm theory explanation asynchronously
+    if (window.MusicTheory && window.MusicTheory.explainRhythm) {
+        setTimeout(() => {
+            try {
+                console.log('Explaining rhythm pattern:', drumPattern.name);
+                const explanation = window.MusicTheory.explainRhythm(drumPattern);
+                console.log('Generated rhythm explanation:', explanation);
+                if (explanation) {
+                    renderRhythmTheoryExplanation(explanation, 'rhythm-theory');
+                } else {
+                    document.getElementById('rhythm-theory').innerHTML = '<p>Could not generate rhythm explanation.</p>';
+                }
+            } catch (error) {
+                console.error('Error generating rhythm theory:', error);
+                document.getElementById('rhythm-theory').innerHTML = '<p>Error loading rhythm explanation.</p>';
+            }
+        }, 100);
+    } else {
+        console.log('Rhythm theory not available:', { MusicTheory: !!window.MusicTheory, func: !!window.MusicTheory?.explainRhythm });
+        document.getElementById('rhythm-theory').innerHTML = '<p>Rhythm theory not available.</p>';
+    }
 }
 
 export function renderBassOptions(bassLines, container) {
@@ -299,27 +369,45 @@ export function displayBassLine(bassLine) {
 export function renderMelodyIdeas(melodyIdeas, container) {
     const melodyContainer = document.getElementById(container);
     if (!melodyContainer) return;
-    
-    melodyContainer.innerHTML = '';
-    
+
+    melodyContainer.innerHTML = `
+        <div class="melody-ideas-wrapper">
+            <div class="melody-options" id="melody-options"></div>
+            <button class="theory-toggle" onclick="toggleTheoryExplanation('melody-theory')">
+                🎓 Learn Melody Theory
+            </button>
+            <div id="melody-theory" class="theory-explanation" style="display: none;">
+                <div class="loading">Loading melody theory...</div>
+            </div>
+        </div>
+    `;
+
+    const melodyOptionsContainer = document.getElementById('melody-options');
+
     melodyIdeas.forEach((idea, index) => {
         const melodyCard = document.createElement('div');
         melodyCard.className = 'melody-card';
         melodyCard.dataset.melodyIndex = index;
-        
+
         melodyCard.innerHTML = `
             <h4>${idea.name}</h4>
             <p>${idea.description}</p>
             <div class="melody-preview">${idea.pattern.join(' - ')}</div>
+            <span class="difficulty-badge difficulty-${idea.difficulty}">${idea.difficulty}</span>
         `;
-        
+
         melodyCard.addEventListener('click', () => {
             selectOption(melodyCard, 'melody-idea');
             displayMelody(idea);
         });
-        
-        melodyContainer.appendChild(melodyCard);
+
+        melodyOptionsContainer.appendChild(melodyCard);
     });
+
+    // Load melody theory explanation
+    setTimeout(() => {
+        renderMelodyTheoryTips(melodyIdeas, 'melody-theory');
+    }, 100);
 }
 
 export function displayMelody(melodyIdea) {
@@ -492,6 +580,274 @@ export function downloadFile(content, filename, type = 'text/plain') {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// ===================================
+// MUSIC THEORY UI FUNCTIONS
+// ===================================
+
+export function renderChordTheoryExplanation(explanation, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !explanation) return;
+
+    container.innerHTML = `
+        <div class="theory-content">
+            <div class="theory-header">
+                <h4>🎵 ${explanation.name} Theory</h4>
+                <p class="key-info">Key: ${explanation.key}</p>
+            </div>
+
+            <div class="theory-section">
+                <h5>Harmonic Function</h5>
+                <div class="function-display">
+                    <span class="function-sequence">${explanation.harmonicFunction.sequence}</span>
+                    <p class="function-explanation">${explanation.harmonicFunction.explanation}</p>
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h5>Chord Analysis</h5>
+                <div class="chord-analysis">
+                    ${explanation.analysis.map(chord => `
+                        <div class="chord-detail">
+                            <div class="chord-name">${chord.chord} (${chord.numeral})</div>
+                            <div class="chord-function">${chord.function}</div>
+                            <div class="chord-explanation">${chord.explanation}</div>
+                            ${chord.chordTones.length > 0 ?
+                                `<div class="chord-tones">Notes: ${chord.chordTones.join(', ')}</div>` : ''
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            ${explanation.theoryNotes.length > 0 ? `
+                <div class="theory-section">
+                    <h5>Theory Notes</h5>
+                    <ul class="theory-tips">
+                        ${explanation.theoryNotes.map(note => `<li>${note}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+
+            <div class="theory-section">
+                <h5>Common Usage</h5>
+                <p class="usage-info">${explanation.commonUse}</p>
+            </div>
+        </div>
+    `;
+}
+
+export function renderScaleTheoryExplanation(explanation, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !explanation) return;
+
+    container.innerHTML = `
+        <div class="theory-content">
+            <div class="theory-header">
+                <h4>🎼 ${explanation.name} Scale</h4>
+            </div>
+
+            <div class="theory-section">
+                <h5>Scale Notes</h5>
+                <div class="scale-notes">
+                    ${explanation.notes.map((note, index) => `
+                        <span class="scale-note">
+                            <span class="note-name">${note}</span>
+                            <span class="degree-name">${explanation.degrees[index] || ''}</span>
+                        </span>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h5>Character & Mood</h5>
+                <p class="mood-character">${explanation.moodCharacter}</p>
+            </div>
+
+            ${explanation.commonChords.length > 0 ? `
+                <div class="theory-section">
+                    <h5>Common Chords in this Scale</h5>
+                    <div class="scale-chords">
+                        ${explanation.commonChords.map(chord => `
+                            <span class="scale-chord">
+                                <span class="chord-numeral">${chord.numeral}</span>
+                                <span class="chord-name">${chord.chord}</span>
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <div class="theory-section">
+                <h5>Tips for Using This Scale</h5>
+                <ul class="scale-tips">
+                    ${explanation.tips.map(tip => `<li>${tip}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+export function renderRhythmTheoryExplanation(explanation, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !explanation) return;
+
+    container.innerHTML = `
+        <div class="theory-content">
+            <div class="theory-header">
+                <h4>🥁 ${explanation.name} Rhythm</h4>
+                <div class="rhythm-info">
+                    <span>Time: ${explanation.timeSignature}</span>
+                    <span>Tempo: ${explanation.tempo}</span>
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h5>How This Rhythm Works</h5>
+                <p class="rhythm-explanation">${explanation.explanation}</p>
+            </div>
+
+            ${explanation.techniques.length > 0 ? `
+                <div class="theory-section">
+                    <h5>Rhythmic Techniques</h5>
+                    <ul class="rhythm-techniques">
+                        ${explanation.techniques.map(technique => `<li>${technique}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+
+            <div class="theory-section">
+                <h5>Variations to Try</h5>
+                <ul class="rhythm-variations">
+                    ${explanation.variations.map(variation => `<li>${variation}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+export function renderMelodyTheoryTips(melodyIdeas, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !melodyIdeas) return;
+
+    container.innerHTML = `
+        <div class="theory-content">
+            <div class="theory-header">
+                <h4>🎶 Melody Construction Tips</h4>
+            </div>
+
+            <div class="theory-section">
+                <h5>About Your Melody Ideas</h5>
+                <div class="melody-explanations">
+                    ${melodyIdeas.map(idea => `
+                        <div class="melody-idea-theory">
+                            <h6>${idea.name}</h6>
+                            <p>${idea.description}</p>
+                            <span class="difficulty-badge difficulty-${idea.difficulty}">${idea.difficulty}</span>
+                            <div class="melody-pattern">${idea.pattern.join(' - ')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h5>General Melody Tips</h5>
+                <ul class="melody-tips">
+                    <li><strong>Step vs. Leap:</strong> Mix stepwise motion (neighboring notes) with leaps for interest</li>
+                    <li><strong>Chord Tones:</strong> Landing on chord tones (1st, 3rd, 5th) creates harmony</li>
+                    <li><strong>Tension & Release:</strong> Use non-chord tones to create tension, resolve to chord tones</li>
+                    <li><strong>Rhythm:</strong> Vary note lengths - don't make every note the same duration</li>
+                    <li><strong>Range:</strong> Use your instrument's full range, but don't jump around randomly</li>
+                    <li><strong>Repetition:</strong> Repeat melodic phrases with small variations for memorability</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// Global function for theory toggle buttons
+window.toggleTheoryExplanation = function(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+
+        // Update button text
+        const button = element.previousElementSibling;
+        if (button && button.classList.contains('theory-toggle')) {
+            const isVisible = element.style.display === 'block';
+            button.textContent = isVisible ? '🎓 Hide Theory' : '🎓 Learn the Theory';
+        }
+    }
+};
+
+// Show scale theory modal
+export function showScaleTheoryModal(explanation) {
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'theory-modal-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.className = 'theory-modal';
+    modal.style.cssText = `
+        background: white;
+        border-radius: var(--border-radius);
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: var(--spacing-xl);
+        position: relative;
+        box-shadow: var(--box-shadow-lg);
+    `;
+
+    // Add close button
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '×';
+    closeButton.style.cssText = `
+        position: absolute;
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+    `;
+    closeButton.addEventListener('click', () => document.body.removeChild(overlay));
+
+    // Create a container for the explanation
+    const container = document.createElement('div');
+    container.id = 'scale-theory-modal-content';
+
+    modal.appendChild(closeButton);
+    modal.appendChild(container);
+    overlay.appendChild(modal);
+
+    // Close modal when clicking overlay
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    });
+
+    // Add to document
+    document.body.appendChild(overlay);
+
+    // Render the explanation
+    renderScaleTheoryExplanation(explanation, 'scale-theory-modal-content');
 }
 
 export function enableButton(buttonId) {

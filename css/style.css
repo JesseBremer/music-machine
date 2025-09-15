@@ -774,3 +774,358 @@ body {
         margin-bottom: var(--spacing-xs);
     }
 }
+
+/* =====================================
+   MUSIC THEORY EDUCATION STYLES
+   ===================================== */
+
+.theory-toggle {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    margin-top: var(--spacing-md);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.theory-toggle:hover {
+    background: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.theory-explanation {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+}
+
+.theory-content {
+    max-width: 100%;
+}
+
+.theory-header {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.theory-header h4 {
+    color: var(--primary-color);
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.key-info {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.theory-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.theory-section h5 {
+    color: var(--text-primary);
+    font-size: var(--font-size-large);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+.theory-section h6 {
+    color: var(--primary-color);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+}
+
+/* Harmonic Function Display */
+.function-display {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--accent-color);
+}
+
+.function-sequence {
+    font-family: 'Courier New', monospace;
+    font-size: var(--font-size-large);
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: var(--spacing-sm);
+}
+
+.function-explanation {
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+    margin: 0;
+}
+
+/* Chord Analysis */
+.chord-analysis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.chord-detail {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+}
+
+.chord-name {
+    font-size: var(--font-size-large);
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.chord-function {
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.chord-explanation {
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-sm);
+}
+
+.chord-tones {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Scale Display */
+.scale-notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.scale-note {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+    min-width: 80px;
+}
+
+.note-name {
+    font-size: var(--font-size-large);
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.degree-name {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: var(--spacing-xs);
+}
+
+.mood-character {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--secondary-color);
+    font-style: italic;
+    color: var(--text-primary);
+}
+
+.scale-chords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.scale-chord {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+}
+
+.chord-numeral {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.chord-name {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+}
+
+/* Rhythm Display */
+.rhythm-info {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.rhythm-info span {
+    background: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.rhythm-explanation {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--accent-color);
+    line-height: 1.6;
+}
+
+/* Melody Ideas */
+.melody-ideas-wrapper {
+    width: 100%;
+}
+
+.melody-explanations {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.melody-idea-theory {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+    position: relative;
+}
+
+.melody-pattern {
+    font-family: 'Courier New', monospace;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+}
+
+.difficulty-badge {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.difficulty-easy {
+    background: var(--success-color);
+    color: white;
+}
+
+.difficulty-medium {
+    background: var(--warning-color);
+    color: white;
+}
+
+.difficulty-hard {
+    background: var(--error-color);
+    color: white;
+}
+
+/* Theory Tips Lists */
+.theory-tips,
+.scale-tips,
+.melody-tips,
+.rhythm-techniques,
+.rhythm-variations {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.theory-tips li,
+.scale-tips li,
+.melody-tips li,
+.rhythm-techniques li,
+.rhythm-variations li {
+    background: white;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+    box-shadow: var(--box-shadow);
+    line-height: 1.5;
+}
+
+.theory-tips li:last-child,
+.scale-tips li:last-child,
+.melody-tips li:last-child,
+.rhythm-techniques li:last-child,
+.rhythm-variations li:last-child {
+    margin-bottom: 0;
+}
+
+.usage-info {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--secondary-color);
+    font-style: italic;
+    color: var(--text-primary);
+}
+
+.loading {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: var(--spacing-lg);
+}
+
+/* Responsive adjustments for theory sections */
+@media (max-width: 768px) {
+    .chord-analysis {
+        grid-template-columns: 1fr;
+    }
+
+    .scale-notes {
+        justify-content: center;
+    }
+
+    .scale-chords {
+        justify-content: center;
+    }
+
+    .melody-explanations {
+        grid-template-columns: 1fr;
+    }
+
+    .rhythm-info {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+}

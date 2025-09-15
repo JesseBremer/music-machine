@@ -30,6 +30,10 @@ const appState = {
     }
 };
 
+// Make appState and MusicTheory globally available for theory explanations
+window.appState = appState;
+window.MusicTheory = MusicTheory;
+
 // Initialize the application
 async function initializeApp() {
     try {
