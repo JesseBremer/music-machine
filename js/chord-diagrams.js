@@ -98,7 +98,8 @@ export function generateGuitarDiagram(chordName) {
             const fingers = [];
 
             chord.frets.forEach((fret, stringIndex) => {
-                const guitarString = stringIndex + 1; // SVGuitar uses 1-6 indexing
+                // Reverse string order: our data is [6th,5th,4th,3rd,2nd,1st] but SVGuitar expects [1st,2nd,3rd,4th,5th,6th]
+                const guitarString = 6 - stringIndex; // Reverse the string order for right-handed view
 
                 if (fret === null) {
                     // Muted string
@@ -114,14 +115,19 @@ export function generateGuitarDiagram(chordName) {
             });
 
             try {
+                // Calculate position based on the lowest fret
+                const activeFrets = chord.frets.filter(f => f !== null && f !== 0);
+                const minFret = activeFrets.length > 0 ? Math.min(...activeFrets) : 1;
+                const position = Math.max(1, minFret > 4 ? minFret - 1 : 1);
+
                 new window.svguitar.SVGuitarChord(element)
                     .configure({
                         style: 'normal',
                         orientation: 'vertical',
                         strings: 6,
                         frets: 5,
-                        position: 0,
-                        tuning: ['E', 'A', 'D', 'G', 'B', 'E'],
+                        position: position,
+                        tuning: ['E', 'B', 'G', 'D', 'A', 'E'], // Reversed for right-handed view: 1st to 6th string
                         strokeWidth: 2,
                         backgroundColor: 'transparent',
                         strokeColor: '#e0e0e0',
@@ -157,7 +163,7 @@ export function generateGuitarDiagram(chordName) {
     return container;
 }
 
-// Generate piano diagram
+// Generate piano diagram with professional SVG
 export function generatePianoDiagram(chordName) {
     // Get chord notes using Tonal.js if available
     let chordNotes = [];
@@ -176,67 +182,244 @@ export function generatePianoDiagram(chordName) {
         chordNotes = getBasicChordNotes(chordName);
     }
 
-    let html = `<div class="piano-diagram">
-        <div class="chord-name">${chordName}</div>
-        <div class="piano-keys">`;
+    // Create unique ID for this chart
+    const chartId = `piano-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
 
-    // Generate one octave of keys
-    const keyOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    // Create container with SVG
+    const container = `
+        <div class="piano-diagram">
+            <div class="chord-name">${chordName}</div>
+            <div id="${chartId}" class="svg-piano-container">
+                ${generatePianoSVG(chordName, chordNotes)}
+            </div>
+            <div class="chord-notes">Notes: ${chordNotes.join(', ')}</div>
+        </div>
+    `;
 
-    keyOrder.forEach(note => {
-        const keyInfo = pianoKeys[note];
+    return container;
+}
+
+// Generate professional piano SVG
+function generatePianoSVG(chordName, chordNotes) {
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '');
+    const width = 280;
+    const height = 120;
+    const whiteKeyWidth = 40;
+    const whiteKeyHeight = 100;
+    const blackKeyWidth = 24;
+    const blackKeyHeight = 65;
+
+    // Define piano layout for one octave
+    const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const blackKeys = [
+        { note: 'C#', position: 1 },
+        { note: 'D#', position: 2 },
+        { note: 'F#', position: 4 },
+        { note: 'G#', position: 5 },
+        { note: 'A#', position: 6 }
+    ];
+
+    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="whiteKeyGradient${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="blackKeyGradient${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#2c2c2c;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="pressedWhiteGradient${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#ffd93d;stop-opacity:0.8" />
+                <stop offset="100%" style="stop-color:#ffcc02;stop-opacity:0.9" />
+            </linearGradient>
+            <linearGradient id="pressedBlackGradient${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:0.9" />
+                <stop offset="100%" style="stop-color:#e55656;stop-opacity:1" />
+            </linearGradient>
+        </defs>`;
+
+    // Draw white keys
+    whiteKeys.forEach((note, index) => {
+        const x = index * whiteKeyWidth;
         const isPressed = chordNotes.some(chordNote =>
             chordNote.replace(/[0-9]/g, '') === note
         );
 
-        const keyClass = `piano-key ${keyInfo.type}${isPressed ? ' pressed' : ''}`;
+        const fillColor = isPressed ? `url(#pressedWhiteGradient${chartId})` : `url(#whiteKeyGradient${chartId})`;
+        const strokeColor = isPressed ? '#ffd93d' : '#cccccc';
+        const strokeWidth = isPressed ? '2' : '1';
 
-        html += `<div class="${keyClass}" data-note="${note}">
-            <span class="note-label">${note}</span>
-        </div>`;
+        svgContent += `
+            <rect x="${x}" y="0" width="${whiteKeyWidth}" height="${whiteKeyHeight}"
+                  fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
+            <text x="${x + whiteKeyWidth/2}" y="${whiteKeyHeight - 10}"
+                  text-anchor="middle" font-family="Arial, sans-serif" font-size="12"
+                  fill="${isPressed ? '#000' : '#666'}" font-weight="${isPressed ? 'bold' : 'normal'}">
+                ${note}
+            </text>`;
     });
 
-    html += `</div>
-        <div class="chord-notes">Notes: ${chordNotes.join(', ')}</div>
-    </div>`;
+    // Draw black keys
+    blackKeys.forEach(({ note, position }) => {
+        const x = (position - 1) * whiteKeyWidth + whiteKeyWidth - blackKeyWidth/2;
+        const isPressed = chordNotes.some(chordNote =>
+            chordNote.replace(/[0-9]/g, '') === note
+        );
 
-    return html;
+        const fillColor = isPressed ? `url(#pressedBlackGradient${chartId})` : `url(#blackKeyGradient${chartId})`;
+        const strokeColor = isPressed ? '#ff6b6b' : '#999999';
+
+        svgContent += `
+            <rect x="${x}" y="0" width="${blackKeyWidth}" height="${blackKeyHeight}"
+                  fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" />
+            <text x="${x + blackKeyWidth/2}" y="${blackKeyHeight - 8}"
+                  text-anchor="middle" font-family="Arial, sans-serif" font-size="10"
+                  fill="${isPressed ? '#fff' : '#ccc'}" font-weight="${isPressed ? 'bold' : 'normal'}">
+                ${note}
+            </text>`;
+    });
+
+    svgContent += '</svg>';
+    return svgContent;
 }
 
-// Generate bass fretboard diagram
+// Generate bass fretboard diagram with professional SVG
 export function generateBassDiagram(chordName) {
-    // Get root note of the chord
+    // Get chord notes using Tonal.js if available
+    let chordNotes = [];
     const rootNote = chordName.replace(/[^A-G#b]/g, '');
 
-    let html = `<div class="bass-diagram">
-        <div class="chord-name">${chordName} Bass</div>
-        <div class="bass-fretboard">`;
-
-    // Generate strings (4-string bass)
-    bassFretboard.strings.forEach((stringNote, stringIndex) => {
-        html += `<div class="bass-string" data-string="${stringNote}">
-            <div class="string-label">${stringNote}</div>`;
-
-        // Generate frets for this string
-        for (let fret = 0; fret <= 5; fret++) {
-            const fretNote = getNoteAtFret(stringNote, fret);
-            const isRoot = fretNote === rootNote;
-            const fretClass = `bass-fret${isRoot ? ' root-note' : ''}${fret === 0 ? ' open' : ''}`;
-
-            html += `<div class="${fretClass}" data-fret="${fret}" data-note="${fretNote}">
-                ${isRoot ? '●' : ''}
-                <span class="fret-note">${fretNote}</span>
-            </div>`;
+    if (window.Tonal && window.Tonal.Chord) {
+        try {
+            const chordInfo = window.Tonal.Chord.get(chordName);
+            chordNotes = chordInfo.notes || [];
+        } catch (error) {
+            console.warn('Error getting chord notes:', error);
         }
+    }
 
-        html += `</div>`;
+    // Fallback to basic triads if Tonal.js fails
+    if (chordNotes.length === 0) {
+        chordNotes = getBasicChordNotes(chordName);
+    }
+
+    // Create unique ID for this chart
+    const chartId = `bass-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+
+    // Create container with SVG
+    const container = `
+        <div class="bass-diagram">
+            <div class="chord-name">${chordName} Bass</div>
+            <div id="${chartId}" class="svg-bass-container">
+                ${generateBassSVG(chordName, chordNotes, rootNote)}
+            </div>
+            <div class="bass-info">Chord tones: ${chordNotes.join(', ')}</div>
+        </div>
+    `;
+
+    return container;
+}
+
+// Generate professional bass fretboard SVG
+function generateBassSVG(chordName, chordNotes, rootNote) {
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '');
+    const width = 300;
+    const height = 160;
+    const fretWidth = 45;
+    const stringSpacing = 30;
+    const startY = 20;
+    const numFrets = 5;
+
+    // 4-string bass tuning (from top to bottom visually)
+    const bassStrings = ['G', 'D', 'A', 'E'];
+
+    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="neckGradient${chartId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#A0522D;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+            </linearGradient>
+            <radialGradient id="rootNoteGradient${chartId}" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" style="stop-color:#ffd93d;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ffcc02;stop-opacity:1" />
+            </radialGradient>
+            <radialGradient id="chordNoteGradient${chartId}" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#45b7b8;stop-opacity:1" />
+            </radialGradient>
+        </defs>`;
+
+    // Draw fretboard background
+    svgContent += `<rect x="0" y="${startY}" width="${width}" height="${bassStrings.length * stringSpacing}"
+                        fill="url(#neckGradient${chartId})" stroke="#654321" stroke-width="2" />`;
+
+    // Draw fret lines
+    for (let fret = 1; fret <= numFrets; fret++) {
+        const x = fret * fretWidth;
+        svgContent += `<line x1="${x}" y1="${startY}" x2="${x}" y2="${startY + bassStrings.length * stringSpacing}"
+                            stroke="#666" stroke-width="2" />`;
+    }
+
+    // Draw strings and fret markers
+    bassStrings.forEach((stringNote, stringIndex) => {
+        const y = startY + (stringIndex + 0.5) * stringSpacing;
+
+        // Draw string line
+        svgContent += `<line x1="0" y1="${y}" x2="${width}" y2="${y}"
+                            stroke="#C0C0C0" stroke-width="2" />`;
+
+        // Draw string label
+        svgContent += `<text x="10" y="${y - 5}" font-family="Arial, sans-serif" font-size="12"
+                            fill="#fff" font-weight="bold">${stringNote}</text>`;
+
+        // Draw fret positions
+        for (let fret = 0; fret <= numFrets; fret++) {
+            const fretNote = getNoteAtFret(stringNote, fret);
+            const x = fret === 0 ? 25 : fret * fretWidth + fretWidth/2;
+
+            // Check if this note is in the chord
+            const isRoot = fretNote === rootNote;
+            const isChordTone = chordNotes.some(note => note.replace(/[0-9]/g, '') === fretNote);
+
+            if (isRoot || isChordTone) {
+                const radius = isRoot ? 12 : 8;
+                const fill = isRoot ? `url(#rootNoteGradient${chartId})` : `url(#chordNoteGradient${chartId})`;
+                const stroke = isRoot ? '#ffd93d' : '#4ecdc4';
+
+                // Draw note circle
+                svgContent += `<circle cx="${x}" cy="${y}" r="${radius}"
+                                    fill="${fill}" stroke="${stroke}" stroke-width="2" />`;
+
+                // Draw note label
+                svgContent += `<text x="${x}" y="${y + 4}" text-anchor="middle"
+                                    font-family="Arial, sans-serif" font-size="10"
+                                    fill="#000" font-weight="bold">${fretNote}</text>`;
+
+                // Draw fret number below for non-open strings
+                if (fret > 0) {
+                    svgContent += `<text x="${x}" y="${startY + bassStrings.length * stringSpacing + 15}"
+                                        text-anchor="middle" font-family="Arial, sans-serif" font-size="10"
+                                        fill="#ccc">${fret}</text>`;
+                }
+            }
+        }
     });
 
-    html += `</div>
-        <div class="bass-info">Root note positions for ${rootNote}</div>
-    </div>`;
+    // Add fret position indicators
+    svgContent += `<text x="25" y="${startY + bassStrings.length * stringSpacing + 15}"
+                        text-anchor="middle" font-family="Arial, sans-serif" font-size="10"
+                        fill="#ccc">0</text>`;
 
-    return html;
+    // Add legend
+    svgContent += `<circle cx="20" cy="${height - 25}" r="6" fill="url(#rootNoteGradient${chartId})" stroke="#ffd93d" stroke-width="1" />`;
+    svgContent += `<text x="35" y="${height - 20}" font-family="Arial, sans-serif" font-size="10" fill="#ccc">Root</text>`;
+    svgContent += `<circle cx="80" cy="${height - 25}" r="4" fill="url(#chordNoteGradient${chartId})" stroke="#4ecdc4" stroke-width="1" />`;
+    svgContent += `<text x="90" y="${height - 20}" font-family="Arial, sans-serif" font-size="10" fill="#ccc">Chord Tone</text>`;
+
+    svgContent += '</svg>';
+    return svgContent;
 }
 
 // Helper function to get basic chord notes

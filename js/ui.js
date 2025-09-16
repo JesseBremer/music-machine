@@ -205,6 +205,83 @@ export function displayChords(chordProgression, key) {
     const chordDisplay = document.getElementById('chord-display');
     if (!chordDisplay || !chordProgression) return;
 
+    // Generate advanced analysis using new Tonal.js features
+    let advancedAnalysisHTML = '';
+    let voiceLeadingHTML = '';
+    let chordVoicingsHTML = '';
+
+    if (key && window.MusicTheory && chordProgression.chords && chordProgression.chords.length > 0) {
+        // Roman numeral analysis
+        if (window.MusicTheory.analyzeProgressionWithRomanNumerals) {
+            const analysis = window.MusicTheory.analyzeProgressionWithRomanNumerals(chordProgression, key);
+            if (analysis) {
+                advancedAnalysisHTML = `
+                    <div class="advanced-analysis">
+                        <h6>🎼 Advanced Analysis</h6>
+                        <div class="roman-numerals">
+                            ${analysis.chords.map(c => `
+                                <span class="chord-analysis">
+                                    <strong>${c.chord}</strong><br>
+                                    <span class="roman">${c.romanNumeral}</span><br>
+                                    <span class="function">${c.function}</span>
+                                </span>
+                            `).join('')}
+                        </div>
+                        ${analysis.functionalAnalysis.length > 0 ? `
+                            <div class="functional-analysis">
+                                <h7>Functional Analysis:</h7>
+                                ${analysis.functionalAnalysis.map(tip => `<div class="analysis-tip">${tip}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                // Voice leading analysis
+                if (analysis.voiceLeadingTips.length > 0) {
+                    voiceLeadingHTML = `
+                        <div class="voice-leading-analysis">
+                            <h6>🎵 Voice Leading Analysis</h6>
+                            ${analysis.voiceLeadingTips.map(tip => `
+                                <div class="voice-leading-tip ${tip.smooth ? 'smooth' : 'rough'}">
+                                    <div class="transition">${tip.transition}</div>
+                                    <div class="smoothness">Avg movement: ${tip.avgMovement} semitones ${tip.smooth ? '✅' : '⚠️'}</div>
+                                    <div class="movements">
+                                        ${tip.analysis.map(movement => `<div class="movement">${movement}</div>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Chord voicings for the first chord
+        if (window.MusicTheory.generateChordVoicings && chordProgression.chords.length > 0) {
+            const firstChord = chordProgression.chords[0];
+            const voicings = window.MusicTheory.generateChordVoicings(firstChord);
+            if (voicings.length > 0) {
+                chordVoicingsHTML = `
+                    <div class="chord-voicings">
+                        <h6>🎹 Chord Voicing Options (${firstChord})</h6>
+                        <div class="voicing-options">
+                            ${voicings.map(voicing => `
+                                <div class="voicing-option" data-voicing='${JSON.stringify(voicing)}'>
+                                    <div class="voicing-name">${voicing.name}</div>
+                                    <div class="voicing-notes">${voicing.notes.join(' - ')}</div>
+                                    <div class="voicing-description">${voicing.description}</div>
+                                    <button class="play-voicing-btn" onclick="playVoicing('${JSON.stringify(voicing.midiNotes).replace(/"/g, '&quot;')}')">
+                                        ▶️ Play
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
     // Generate chord diagrams for each chord in the progression
     let chordDiagramsHTML = '';
     if (chordProgression.chords && chordProgression.chords.length > 0) {
@@ -238,6 +315,9 @@ export function displayChords(chordProgression, key) {
                     ⏹️ Stop
                 </button>
             </div>
+            ${advancedAnalysisHTML}
+            ${voiceLeadingHTML}
+            ${chordVoicingsHTML}
             ${chordDiagramsHTML}
             <button class="theory-toggle" onclick="toggleTheoryExplanation('chord-theory')">
                 🎓 Learn the Theory
@@ -405,8 +485,35 @@ export function renderMelodyIdeas(melodyIdeas, container) {
     const melodyContainer = document.getElementById(container);
     if (!melodyContainer) return;
 
+    // Generate smart melody suggestions if chord progression and key are available
+    let smartMelodyHTML = '';
+    const currentChordProgression = window.appState?.currentProgression;
+    const currentKey = window.appState?.currentKey;
+
+    if (currentChordProgression && currentKey && window.MusicTheory?.generateSmartMelody) {
+        smartMelodyHTML = `
+            <div class="smart-melody-generator">
+                <h6>🤖 AI Melody Generator</h6>
+                <p>Generate melodies that follow voice leading principles with your chord progression</p>
+                <div class="melody-styles">
+                    <button class="melody-style-btn" onclick="generateSmartMelody('smooth')">
+                        🎵 Smooth & Flowing
+                    </button>
+                    <button class="melody-style-btn" onclick="generateSmartMelody('angular')">
+                        🎢 Angular & Dramatic
+                    </button>
+                    <button class="melody-style-btn" onclick="generateSmartMelody('pentatonic')">
+                        🎯 Pentatonic & Safe
+                    </button>
+                </div>
+                <div id="generated-melody" class="generated-melody" style="display: none;"></div>
+            </div>
+        `;
+    }
+
     melodyContainer.innerHTML = `
         <div class="melody-ideas-wrapper">
+            ${smartMelodyHTML}
             <div class="melody-options" id="melody-options"></div>
             <button class="theory-toggle" onclick="toggleTheoryExplanation('melody-theory')">
                 🎓 Learn Melody Theory

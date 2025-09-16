@@ -2840,3 +2840,389 @@ function getRhythmVariations(drumPattern) {
     ];
 }
 
+// ===== ADVANCED TONAL.JS FEATURES =====
+
+// Voice Leading Analysis and Optimization
+export function analyzeVoiceLeading(chord1, chord2, key) {
+    try {
+        const chord1Info = Tonal.Chord.get(chord1);
+        const chord2Info = Tonal.Chord.get(chord2);
+
+        if (!chord1Info.notes || !chord2Info.notes) {
+            return { smooth: false, analysis: 'Unable to analyze chords' };
+        }
+
+        // Calculate semitone movements for each voice
+        const voices = Math.min(chord1Info.notes.length, chord2Info.notes.length);
+        const movements = [];
+        let totalMovement = 0;
+
+        for (let i = 0; i < voices; i++) {
+            const note1 = chord1Info.notes[i];
+            const note2 = chord2Info.notes[i];
+            const movement = Tonal.Interval.distance(note1, note2);
+            const semitones = Tonal.Interval.semitones(movement);
+            movements.push({ from: note1, to: note2, semitones });
+            totalMovement += Math.abs(semitones);
+        }
+
+        // Analyze smoothness (less movement = smoother)
+        const avgMovement = totalMovement / voices;
+        const isSmooth = avgMovement <= 3; // Average movement of 3 semitones or less
+
+        return {
+            smooth: isSmooth,
+            totalMovement,
+            avgMovement: Math.round(avgMovement * 10) / 10,
+            movements,
+            analysis: generateVoiceLeadingAnalysis(movements, isSmooth)
+        };
+    } catch (error) {
+        console.error('Voice leading analysis error:', error);
+        return { smooth: false, analysis: 'Error analyzing voice leading' };
+    }
+}
+
+function generateVoiceLeadingAnalysis(movements, isSmooth) {
+    const analysis = [];
+
+    if (isSmooth) {
+        analysis.push('✅ Smooth voice leading detected');
+    } else {
+        analysis.push('⚠️ Large voice movements - consider chord inversions');
+    }
+
+    // Identify specific voice movements
+    movements.forEach((move, i) => {
+        const voiceName = ['Bass', 'Tenor', 'Alto', 'Soprano'][i] || `Voice ${i + 1}`;
+        if (Math.abs(move.semitones) === 0) {
+            analysis.push(`${voiceName}: ${move.from} stays (common tone)`);
+        } else if (Math.abs(move.semitones) <= 2) {
+            analysis.push(`${voiceName}: ${move.from} → ${move.to} (step-wise)`);
+        } else if (Math.abs(move.semitones) <= 4) {
+            analysis.push(`${voiceName}: ${move.from} → ${move.to} (small leap)`);
+        } else {
+            analysis.push(`${voiceName}: ${move.from} → ${move.to} (large leap - ${Math.abs(move.semitones)} semitones)`);
+        }
+    });
+
+    return analysis;
+}
+
+// Generate Multiple Chord Voicings
+export function generateChordVoicings(chordName, options = {}) {
+    try {
+        const {
+            instrument = 'piano', // 'piano', 'guitar', 'generic'
+            voiceCount = 4,
+            range = { low: 'C3', high: 'C6' },
+            includeInversions = true
+        } = options;
+
+        const chord = Tonal.Chord.get(chordName);
+        if (!chord.notes) return [];
+
+        const voicings = [];
+
+        // Root position
+        voicings.push({
+            name: `${chordName} (Root Position)`,
+            notes: chord.notes.slice(0, voiceCount),
+            type: 'root',
+            bass: chord.notes[0],
+            description: 'Standard root position voicing'
+        });
+
+        if (includeInversions && chord.notes.length >= 3) {
+            // First inversion
+            const firstInv = [...chord.notes.slice(1), chord.notes[0]];
+            voicings.push({
+                name: `${chordName}/${chord.notes[1]} (1st Inversion)`,
+                notes: firstInv.slice(0, voiceCount),
+                type: 'first_inversion',
+                bass: chord.notes[1],
+                description: 'First inversion - smoother bass line'
+            });
+
+            // Second inversion (if triad or larger)
+            if (chord.notes.length >= 3) {
+                const secondInv = [...chord.notes.slice(2), ...chord.notes.slice(0, 2)];
+                voicings.push({
+                    name: `${chordName}/${chord.notes[2]} (2nd Inversion)`,
+                    notes: secondInv.slice(0, voiceCount),
+                    type: 'second_inversion',
+                    bass: chord.notes[2],
+                    description: 'Second inversion - often used as passing chord'
+                });
+            }
+        }
+
+        // Jazz/Extended voicings for 7th chords
+        if (chord.notes.length >= 4) {
+            // Drop 2 voicing
+            if (chord.notes.length >= 4) {
+                const drop2 = [chord.notes[0], chord.notes[2], chord.notes[3], chord.notes[1]];
+                voicings.push({
+                    name: `${chordName} (Drop 2)`,
+                    notes: drop2,
+                    type: 'drop2',
+                    bass: chord.notes[0],
+                    description: 'Drop 2 voicing - popular in jazz'
+                });
+            }
+        }
+
+        // Add MIDI note numbers for each voicing
+        return voicings.map(voicing => ({
+            ...voicing,
+            midiNotes: voicing.notes.map(note => {
+                const midiNote = Tonal.Midi.toMidi(note + '4');
+                return midiNote || 60; // fallback to middle C
+            })
+        }));
+
+    } catch (error) {
+        console.error('Chord voicing generation error:', error);
+        return [];
+    }
+}
+
+// Enhanced Chord Progression Analysis with Roman Numerals
+export function analyzeProgressionWithRomanNumerals(progression, key) {
+    try {
+        const keyInfo = Tonal.Key.majorKey(key);
+        if (!keyInfo.scale) return null;
+
+        const analysis = {
+            key,
+            chords: [],
+            functionalAnalysis: [],
+            voiceLeadingTips: [],
+            modalInterchange: []
+        };
+
+        progression.chords.forEach((chord, index) => {
+            const chordInfo = Tonal.Chord.get(chord);
+            const rootNote = chordInfo.tonic || chord.replace(/[^A-G#b]/g, '');
+
+            // Find scale degree
+            const scaleIndex = keyInfo.scale.indexOf(rootNote);
+            let romanNumeral = 'Unknown';
+            let function_ = 'Unknown';
+
+            if (scaleIndex !== -1) {
+                // Determine if major or minor chord
+                const isMinor = chord.includes('m') && !chord.includes('maj');
+                const degree = scaleIndex + 1;
+
+                romanNumeral = getRomanNumeralForDegree(degree, isMinor);
+                function_ = getChordFunctionByDegree(degree);
+            } else {
+                // Check for modal interchange or secondary dominants
+                romanNumeral = analyzeNonDiatonicChord(chord, key);
+                function_ = 'Modal/Chromatic';
+                analysis.modalInterchange.push(`${chord} - ${romanNumeral}`);
+            }
+
+            analysis.chords.push({
+                chord,
+                romanNumeral,
+                function: function_,
+                notes: chordInfo.notes || [],
+                root: rootNote
+            });
+
+            // Voice leading analysis
+            if (index > 0) {
+                const voiceLeading = analyzeVoiceLeading(progression.chords[index - 1], chord, key);
+                analysis.voiceLeadingTips.push({
+                    transition: `${progression.chords[index - 1]} → ${chord}`,
+                    ...voiceLeading
+                });
+            }
+        });
+
+        // Functional analysis
+        analysis.functionalAnalysis = generateFunctionalAnalysis(analysis.chords);
+
+        return analysis;
+    } catch (error) {
+        console.error('Progression analysis error:', error);
+        return null;
+    }
+}
+
+function getRomanNumeralForDegree(degree, isMinor) {
+    const numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    const numeral = numerals[degree - 1];
+    return isMinor ? numeral.toLowerCase() : numeral;
+}
+
+function getChordFunctionByDegree(degree) {
+    const functions = {
+        1: 'Tonic',
+        2: 'Supertonic',
+        3: 'Mediant',
+        4: 'Subdominant',
+        5: 'Dominant',
+        6: 'Submediant',
+        7: 'Leading Tone'
+    };
+    return functions[degree] || 'Unknown';
+}
+
+function analyzeNonDiatonicChord(chord, key) {
+    // Simple secondary dominant detection
+    if (chord.includes('7') && !chord.includes('maj7')) {
+        return 'V7/?'; // Secondary dominant
+    }
+
+    // Modal interchange detection (simplified)
+    const chordRoot = chord.replace(/[^A-G#b]/g, '');
+    const keyInfo = Tonal.Key.minorKey(key);
+
+    if (keyInfo.scale && keyInfo.scale.includes(chordRoot)) {
+        return 'borrow from parallel minor';
+    }
+
+    return 'chromatic';
+}
+
+function generateFunctionalAnalysis(chords) {
+    const analysis = [];
+
+    // Look for common progressions
+    const numerals = chords.map(c => c.romanNumeral).join(' - ');
+
+    if (numerals.includes('I - V - vi - IV')) {
+        analysis.push('✨ Classic pop progression (I-V-vi-IV) - very strong and memorable');
+    }
+    if (numerals.includes('ii - V - I')) {
+        analysis.push('🎵 ii-V-I progression - the cornerstone of jazz harmony');
+    }
+    if (numerals.includes('vi - IV - I - V')) {
+        analysis.push('🔄 Circle progression - creates forward momentum');
+    }
+    if (numerals.includes('I - vi - ii - V')) {
+        analysis.push('📀 50s doo-wop progression - classic nostalgic sound');
+    }
+
+    // Functional flow analysis
+    let hasTonicToSubdominant = false;
+    let hasSubdominantToDominant = false;
+    let hasDominantToTonic = false;
+
+    for (let i = 0; i < chords.length - 1; i++) {
+        const current = chords[i].function;
+        const next = chords[i + 1].function;
+
+        if (current === 'Tonic' && next === 'Subdominant') hasTonicToSubdominant = true;
+        if (current === 'Subdominant' && next === 'Dominant') hasSubdominantToDominant = true;
+        if (current === 'Dominant' && next === 'Tonic') hasDominantToTonic = true;
+    }
+
+    if (hasTonicToSubdominant && hasSubdominantToDominant && hasDominantToTonic) {
+        analysis.push('🏛️ Classical functional harmony - Tonic → Subdominant → Dominant → Tonic');
+    }
+
+    return analysis;
+}
+
+// Smart Melody Generation with Voice Leading
+export function generateSmartMelody(chordProgression, key, options = {}) {
+    try {
+        const {
+            style = 'smooth', // 'smooth', 'angular', 'pentatonic'
+            preferChordTones = true,
+            avoidLargeLeaps = true,
+            octave = 5
+        } = options;
+
+        const scale = Tonal.Scale.get(`${key} major`);
+        if (!scale.notes) return null;
+
+        const melody = [];
+        let lastNote = scale.notes[0]; // Start on tonic
+
+        chordProgression.chords.forEach((chord, index) => {
+            const chordInfo = Tonal.Chord.get(chord);
+            const chordTones = chordInfo.notes || [];
+
+            let nextNote;
+
+            if (preferChordTones && chordTones.length > 0) {
+                // Choose chord tone with smallest interval from last note
+                let bestNote = chordTones[0];
+                let smallestInterval = 12; // Start with octave
+
+                chordTones.forEach(note => {
+                    const interval = Math.abs(Tonal.Interval.semitones(Tonal.Interval.distance(lastNote, note)));
+                    if (interval < smallestInterval) {
+                        smallestInterval = interval;
+                        bestNote = note;
+                    }
+                });
+
+                nextNote = bestNote;
+            } else {
+                // Use scale notes
+                const lastIndex = scale.notes.indexOf(lastNote);
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                const stepSize = avoidLargeLeaps ? (Math.random() > 0.7 ? 2 : 1) : Math.floor(Math.random() * 4) + 1;
+                const nextIndex = (lastIndex + (direction * stepSize) + scale.notes.length) % scale.notes.length;
+                nextNote = scale.notes[nextIndex];
+            }
+
+            melody.push({
+                note: nextNote,
+                chord: chord,
+                octave: octave,
+                midiNote: Tonal.Midi.toMidi(nextNote + octave),
+                isChordTone: chordTones.includes(nextNote),
+                intervalFromPrevious: index > 0 ? Tonal.Interval.distance(lastNote, nextNote) : 'unison'
+            });
+
+            lastNote = nextNote;
+        });
+
+        return {
+            melody,
+            analysis: analyzeMelodyQuality(melody),
+            style,
+            key
+        };
+    } catch (error) {
+        console.error('Smart melody generation error:', error);
+        return null;
+    }
+}
+
+function analyzeMelodyQuality(melody) {
+    const analysis = [];
+    let chordToneCount = 0;
+    let largeLeaps = 0;
+
+    melody.forEach((note, index) => {
+        if (note.isChordTone) chordToneCount++;
+
+        if (index > 0) {
+            const interval = note.intervalFromPrevious;
+            const semitones = Math.abs(Tonal.Interval.semitones(interval));
+            if (semitones > 4) largeLeaps++;
+        }
+    });
+
+    const chordTonePercentage = Math.round((chordToneCount / melody.length) * 100);
+    analysis.push(`${chordTonePercentage}% chord tones - ${chordTonePercentage > 60 ? 'strong harmonic connection' : 'more scalar/linear'}`);
+
+    if (largeLeaps === 0) {
+        analysis.push('✅ Smooth melody - no large leaps');
+    } else if (largeLeaps <= 2) {
+        analysis.push('⚠️ Few large leaps - good for dramatic effect');
+    } else {
+        analysis.push('🎢 Angular melody - many large leaps');
+    }
+
+    return analysis;
+}
+

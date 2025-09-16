@@ -648,6 +648,71 @@ class AudioEngine {
             });
         }
     }
+
+    // =====================================
+    // CHORD AND MELODY PLAYBACK METHODS
+    // =====================================
+
+    // Play a chord using MIDI note numbers
+    playChord(midiNotes, duration = 1.0) {
+        if (!this.audioContext || !Array.isArray(midiNotes)) return;
+
+        this.resumeAudioContext();
+        const startTime = this.audioContext.currentTime + 0.1;
+
+        midiNotes.forEach(midiNote => {
+            if (typeof midiNote === 'number' && midiNote >= 0 && midiNote <= 127) {
+                const frequency = this.midiToFrequency(midiNote);
+                this.playChordNote(frequency, duration, startTime);
+            }
+        });
+    }
+
+    // Play a melody sequence using MIDI note numbers
+    playMelody(midiNotes, noteDuration = 0.5) {
+        if (!this.audioContext || !Array.isArray(midiNotes)) return;
+
+        this.resumeAudioContext();
+        let currentTime = this.audioContext.currentTime + 0.1;
+
+        midiNotes.forEach(midiNote => {
+            if (typeof midiNote === 'number' && midiNote >= 0 && midiNote <= 127) {
+                const frequency = this.midiToFrequency(midiNote);
+                this.playMelodyNote(frequency, noteDuration, currentTime);
+                currentTime += noteDuration;
+            }
+        });
+    }
+
+    // Convert MIDI note number to frequency
+    midiToFrequency(midiNote) {
+        return 440 * Math.pow(2, (midiNote - 69) / 12);
+    }
+
+    // Play a single chord note
+    playChordNote(frequency, duration, startTime) {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        // Set up oscillator
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+
+        // Set up envelope
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+        // Connect nodes
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGain);
+
+        // Start and stop
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+    }
 }
 
 // Create global audio engine instance

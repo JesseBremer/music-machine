@@ -35,6 +35,99 @@ const appState = {
 window.appState = appState;
 window.MusicTheory = MusicTheory;
 
+// Global function for playing chord voicings
+window.playVoicing = function(midiNotesStr) {
+    try {
+        const midiNotes = JSON.parse(midiNotesStr);
+        if (window.audioEngine && window.audioEngine.playChord) {
+            // Play the chord voicing using the audio engine
+            window.audioEngine.playChord(midiNotes);
+        } else {
+            console.warn('Audio engine not available for voicing playback');
+        }
+    } catch (error) {
+        console.error('Error playing voicing:', error);
+    }
+};
+
+// Global function for generating smart melodies
+window.generateSmartMelody = function(style) {
+    try {
+        const currentChordProgression = window.appState?.currentProgression;
+        const currentKey = window.appState?.currentKey;
+
+        if (!currentChordProgression || !currentKey || !window.MusicTheory?.generateSmartMelody) {
+            console.warn('Smart melody generation not available');
+            return;
+        }
+
+        // Configure generation options based on style
+        const options = {
+            style: style,
+            preferChordTones: style !== 'pentatonic',
+            avoidLargeLeaps: style === 'smooth',
+            octave: 5
+        };
+
+        const melodyResult = window.MusicTheory.generateSmartMelody(currentChordProgression, currentKey, options);
+
+        if (melodyResult) {
+            displayGeneratedMelody(melodyResult, style);
+        } else {
+            console.error('Failed to generate melody');
+        }
+    } catch (error) {
+        console.error('Error generating smart melody:', error);
+    }
+};
+
+function displayGeneratedMelody(melodyResult, style) {
+    const generatedMelodyDiv = document.getElementById('generated-melody');
+    if (!generatedMelodyDiv) return;
+
+    const melodyNotes = melodyResult.melody.map(note => `${note.note}${note.octave}`);
+
+    generatedMelodyDiv.innerHTML = `
+        <div class="generated-melody-content">
+            <h7>Generated ${style.charAt(0).toUpperCase() + style.slice(1)} Melody</h7>
+            <div class="melody-sequence">
+                ${melodyResult.melody.map((note, i) => `
+                    <span class="melody-note ${note.isChordTone ? 'chord-tone' : 'scale-tone'}">
+                        ${note.note}${note.octave}
+                        <small>${note.chord}</small>
+                    </span>
+                `).join('')}
+            </div>
+            <div class="melody-analysis">
+                ${melodyResult.analysis.map(tip => `<div class="analysis-tip">${tip}</div>`).join('')}
+            </div>
+            <div class="melody-controls">
+                <button class="play-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
+                    🎵 Play Generated Melody
+                </button>
+                <button class="regenerate-btn" onclick="generateSmartMelody('${style}')">
+                    🔄 Generate New Variation
+                </button>
+            </div>
+        </div>
+    `;
+
+    generatedMelodyDiv.style.display = 'block';
+}
+
+window.playGeneratedMelody = function(midiNotesStr) {
+    try {
+        const midiNotes = JSON.parse(midiNotesStr);
+        if (window.audioEngine && window.audioEngine.playMelody) {
+            window.audioEngine.playMelody(midiNotes);
+        } else {
+            console.warn('Audio engine melody playback not available');
+        }
+    } catch (error) {
+        console.error('Error playing generated melody:', error);
+    }
+};
+
 // Initialize the application
 async function initializeApp() {
     try {
