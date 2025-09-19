@@ -18,8 +18,8 @@ const appState = {
         bassLine: null,
         bassComplexity: 'simple',
         melodyIdea: null,
-        songStructure: null,
-        arrangementTips: null,
+        songStructure: [],
+        songSections: [],
         lyrics: '',
         title: 'My Song'
     },
@@ -256,63 +256,37 @@ async function loadMelodyStep() {
     UI.showStep('step-melody');
 }
 
-// Load structure step
-async function loadStructureStep() {
-    if (!appState.songData.genre) {
-        UI.showMessage('Please select a genre first', 'error');
+// Load songcraft step
+async function loadSongcraftStep() {
+    if (!appState.songData.chordProgression) {
+        UI.showMessage('Please select a chord progression first', 'error');
         return;
     }
-    
-    const songStructures = MusicTheory.getSongStructureForGenre(appState.songData.genre);
-    UI.renderSongStructure(songStructures, 'structure-builder');
-    UI.showStep('step-structure');
-}
 
-// Load arrangement step
-async function loadArrangementStep() {
-    if (!appState.songData.genre || !appState.songData.songStructure) {
-        UI.showMessage('Please select genre and song structure first', 'error');
-        return;
-    }
-    
-    const arrangementTips = MusicTheory.getArrangementSuggestions(
-        appState.songData.genre,
-        appState.songData.songStructure
-    );
-    
-    appState.songData.arrangementTips = arrangementTips;
-    UI.renderArrangementTips(arrangementTips, 'arrangement-tips');
-    UI.showStep('step-arrangement');
-    
-    // Enable the next button since arrangement is informational
-    UI.enableButton('arrangement-next');
-}
+    // Initialize songcraft workspace
+    UI.initializeSongcraftWorkspace(appState.songData);
+    UI.showStep('step-songcraft');
 
-// Load lyrics step
-async function loadLyricsStep() {
-    if (!appState.songData.mood) {
-        UI.showMessage('Please select a mood first', 'error');
-        return;
-    }
-    
-    // Render thematic words based on mood
-    const thematicWords = appState.songData.mood.themes || [];
-    UI.renderThematicWords(thematicWords, 'thematic-words');
-    
-    UI.showStep('step-lyrics');
-    
-    // Enable the next button since lyrics are optional
-    UI.enableButton('lyrics-next');
+    // Enable the next button since songcraft is optional
+    UI.enableButton('songcraft-next');
 }
 
 // Load export step
 async function loadExportStep() {
-    // Get lyrics from textarea
-    const lyricsTextarea = document.getElementById('lyrics-text');
-    if (lyricsTextarea) {
-        appState.songData.lyrics = lyricsTextarea.value;
-    }
-    
+    // Collect song sections data from songcraft workspace
+    const songSections = document.querySelectorAll('.song-section');
+    appState.songData.songSections = Array.from(songSections).map(section => {
+        const sectionTypeSelect = section.querySelector('.section-type');
+        const chordInput = section.querySelector('.chord-progression-input');
+        const lyricsInput = section.querySelector('.lyrics-input');
+
+        return {
+            type: sectionTypeSelect?.value || 'Verse',
+            chords: chordInput?.value || '',
+            lyrics: lyricsInput?.value || ''
+        };
+    });
+
     UI.renderSongSummary(appState.songData, 'song-summary');
     UI.showStep('step-export');
 }
@@ -368,17 +342,22 @@ function setupEventListeners() {
 }
 
 function setupNavigationListeners() {
-    // Next buttons
+    // Next buttons (both top and bottom)
     const nextButtons = {
         'mood-next': () => loadKeyTempoStep(),
+        'mood-next-top': () => loadKeyTempoStep(),
         'key-tempo-next': () => loadChordsStep(),
+        'key-tempo-next-top': () => loadChordsStep(),
         'chords-next': () => loadDrumsStep(),
+        'chords-next-top': () => loadDrumsStep(),
         'drums-next': () => loadBassStep(),
+        'drums-next-top': () => loadBassStep(),
         'bass-next': () => loadMelodyStep(),
-        'melody-next': () => loadStructureStep(),
-        'structure-next': () => loadArrangementStep(),
-        'arrangement-next': () => loadLyricsStep(),
-        'lyrics-next': () => loadExportStep()
+        'bass-next-top': () => loadMelodyStep(),
+        'melody-next': () => loadSongcraftStep(),
+        'melody-next-top': () => loadSongcraftStep(),
+        'songcraft-next': () => loadExportStep(),
+        'songcraft-next-top': () => loadExportStep()
     };
     
     Object.entries(nextButtons).forEach(([buttonId, handler]) => {
@@ -388,17 +367,21 @@ function setupNavigationListeners() {
         }
     });
     
-    // Back buttons
+    // Back buttons (both top and bottom)
     const backButtons = {
         'key-tempo-back': () => loadMoodStep(),
+        'key-tempo-back-top': () => loadMoodStep(),
         'chords-back': () => loadKeyTempoStep(),
+        'chords-back-top': () => loadKeyTempoStep(),
         'drums-back': () => loadChordsStep(),
+        'drums-back-top': () => loadChordsStep(),
         'bass-back': () => loadDrumsStep(),
+        'bass-back-top': () => loadDrumsStep(),
         'melody-back': () => loadBassStep(),
-        'structure-back': () => loadMelodyStep(),
-        'arrangement-back': () => loadStructureStep(),
-        'lyrics-back': () => loadArrangementStep(),
-        'export-back': () => loadLyricsStep()
+        'melody-back-top': () => loadBassStep(),
+        'songcraft-back': () => loadMelodyStep(),
+        'songcraft-back-top': () => loadMelodyStep(),
+        'export-back': () => loadSongcraftStep()
     };
     
     Object.entries(backButtons).forEach(([buttonId, handler]) => {
@@ -413,15 +396,13 @@ function setupProgressBarListeners() {
     // Add click listeners to progress bar steps
     const stepMapping = {
         1: () => loadMoodStep(),
-        2: () => loadKeyTempoStep(), 
+        2: () => loadKeyTempoStep(),
         3: () => loadChordsStep(),
         4: () => loadDrumsStep(),
         5: () => loadBassStep(),
         6: () => loadMelodyStep(),
-        7: () => loadStructureStep(),
-        8: () => loadArrangementStep(),
-        9: () => loadLyricsStep(),
-        10: () => loadExportStep()
+        7: () => loadSongcraftStep(),
+        8: () => loadExportStep()
     };
     
     document.querySelectorAll('.progress-step').forEach((step, index) => {
@@ -496,8 +477,8 @@ function handleOptionSelection(event) {
             UI.enableButton('drums-next');
             break;
             
-        case 'bass-complexity':
-            appState.songData.bassComplexity = element.dataset.complexity;
+        case 'bass-pattern':
+            appState.songData.bassPattern = element.dataset.patternId;
             generateAndDisplayBassLine();
             UI.enableButton('bass-next');
             break;
@@ -538,7 +519,7 @@ function generateAndDisplayBassLine() {
     if (appState.songData.chordProgression) {
         appState.songData.bassLine = MusicTheory.generateBassLine(
             appState.songData.chordProgression,
-            appState.songData.bassComplexity
+            appState.songData.bassPattern || 'simple'
         );
         UI.displayBassLine(appState.songData.bassLine);
     }

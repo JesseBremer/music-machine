@@ -205,82 +205,6 @@ export function displayChords(chordProgression, key) {
     const chordDisplay = document.getElementById('chord-display');
     if (!chordDisplay || !chordProgression) return;
 
-    // Generate advanced analysis using new Tonal.js features
-    let advancedAnalysisHTML = '';
-    let voiceLeadingHTML = '';
-    let chordVoicingsHTML = '';
-
-    if (key && window.MusicTheory && chordProgression.chords && chordProgression.chords.length > 0) {
-        // Roman numeral analysis
-        if (window.MusicTheory.analyzeProgressionWithRomanNumerals) {
-            const analysis = window.MusicTheory.analyzeProgressionWithRomanNumerals(chordProgression, key);
-            if (analysis) {
-                advancedAnalysisHTML = `
-                    <div class="advanced-analysis">
-                        <h6>🎼 Advanced Analysis</h6>
-                        <div class="roman-numerals">
-                            ${analysis.chords.map(c => `
-                                <span class="chord-analysis">
-                                    <strong>${c.chord}</strong><br>
-                                    <span class="roman">${c.romanNumeral}</span><br>
-                                    <span class="function">${c.function}</span>
-                                </span>
-                            `).join('')}
-                        </div>
-                        ${analysis.functionalAnalysis.length > 0 ? `
-                            <div class="functional-analysis">
-                                <h7>Functional Analysis:</h7>
-                                ${analysis.functionalAnalysis.map(tip => `<div class="analysis-tip">${tip}</div>`).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                // Voice leading analysis
-                if (analysis.voiceLeadingTips.length > 0) {
-                    voiceLeadingHTML = `
-                        <div class="voice-leading-analysis">
-                            <h6>🎵 Voice Leading Analysis</h6>
-                            ${analysis.voiceLeadingTips.map(tip => `
-                                <div class="voice-leading-tip ${tip.smooth ? 'smooth' : 'rough'}">
-                                    <div class="transition">${tip.transition}</div>
-                                    <div class="smoothness">Avg movement: ${tip.avgMovement} semitones ${tip.smooth ? '✅' : '⚠️'}</div>
-                                    <div class="movements">
-                                        ${tip.analysis.map(movement => `<div class="movement">${movement}</div>`).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Chord voicings for the first chord
-        if (window.MusicTheory.generateChordVoicings && chordProgression.chords.length > 0) {
-            const firstChord = chordProgression.chords[0];
-            const voicings = window.MusicTheory.generateChordVoicings(firstChord);
-            if (voicings.length > 0) {
-                chordVoicingsHTML = `
-                    <div class="chord-voicings">
-                        <h6>🎹 Chord Voicing Options (${firstChord})</h6>
-                        <div class="voicing-options">
-                            ${voicings.map(voicing => `
-                                <div class="voicing-option" data-voicing='${JSON.stringify(voicing)}'>
-                                    <div class="voicing-name">${voicing.name}</div>
-                                    <div class="voicing-notes">${voicing.notes.join(' - ')}</div>
-                                    <div class="voicing-description">${voicing.description}</div>
-                                    <button class="play-voicing-btn" onclick="playVoicing('${JSON.stringify(voicing.midiNotes).replace(/"/g, '&quot;')}')">
-                                        ▶️ Play
-                                    </button>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-    }
 
     // Generate chord diagrams for each chord in the progression
     let chordDiagramsHTML = '';
@@ -292,9 +216,11 @@ export function displayChords(chordProgression, key) {
                     ${chordProgression.chords.map(chord => `
                         <div class="chord-diagrams-single">
                             <div class="chord-label">${chord}</div>
-                            ${window.generateGuitarDiagram ? window.generateGuitarDiagram(chord) : ''}
-                            ${window.generatePianoDiagram ? window.generatePianoDiagram(chord) : ''}
-                            ${window.generateBassDiagram ? window.generateBassDiagram(chord) : ''}
+                            <div class="chord-diagrams-row">
+                                ${window.generateGuitarDiagram ? window.generateGuitarDiagram(chord) : ''}
+                                ${window.generatePianoDiagram ? window.generatePianoDiagram(chord) : ''}
+                                ${window.generateBassDiagram ? window.generateBassDiagram(chord) : ''}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -315,40 +241,9 @@ export function displayChords(chordProgression, key) {
                     ⏹️ Stop
                 </button>
             </div>
-            ${advancedAnalysisHTML}
-            ${voiceLeadingHTML}
-            ${chordVoicingsHTML}
             ${chordDiagramsHTML}
-            <button class="theory-toggle" onclick="toggleTheoryExplanation('chord-theory')">
-                🎓 Learn the Theory
-            </button>
-            <div id="chord-theory" class="theory-explanation" style="display: none;">
-                <div class="loading">Loading theory explanation...</div>
-            </div>
         </div>
     `;
-
-    // Load theory explanation asynchronously
-    if (key && window.MusicTheory && window.MusicTheory.explainChordProgression) {
-        setTimeout(() => {
-            try {
-                console.log('Explaining chord progression:', chordProgression.name, 'in key:', key);
-                const explanation = window.MusicTheory.explainChordProgression(chordProgression, key);
-                console.log('Generated explanation:', explanation);
-                if (explanation) {
-                    renderChordTheoryExplanation(explanation, 'chord-theory');
-                } else {
-                    document.getElementById('chord-theory').innerHTML = '<p>Could not generate theory explanation.</p>';
-                }
-            } catch (error) {
-                console.error('Error generating chord theory:', error);
-                document.getElementById('chord-theory').innerHTML = '<p>Error loading theory explanation.</p>';
-            }
-        }, 100);
-    } else {
-        console.log('Theory explanation not available:', { key, MusicTheory: !!window.MusicTheory, func: !!window.MusicTheory?.explainChordProgression });
-        document.getElementById('chord-theory').innerHTML = '<p>Theory explanation not available.</p>';
-    }
 }
 
 export function renderDrumPatterns(patterns, container) {
@@ -439,24 +334,57 @@ export function displayDrumPattern(drumPattern) {
 export function renderBassOptions(bassLines, container) {
     const bassContainer = document.getElementById(container);
     if (!bassContainer) return;
-    
+
     bassContainer.innerHTML = '';
-    
-    const complexityOptions = ['Simple', 'Walking'];
-    
-    complexityOptions.forEach(complexity => {
+
+    // Get all available bass patterns from music theory
+    const bassPatterns = window.MusicTheory?.getAvailableBassPatterns?.() || [
+        { id: 'simple', name: 'Simple Root', description: 'Root notes following chord changes' },
+        { id: 'walking', name: 'Walking Bass', description: 'Jazz-style walking bass with passing tones' },
+        { id: 'octave', name: 'Octave Bass', description: 'Root note played in different octaves' },
+        { id: 'fifths', name: 'Root-Fifth', description: 'Alternating between root and fifth' },
+        { id: 'triads', name: 'Triad Arpeggios', description: 'Playing through chord tones (1-3-5)' },
+        { id: 'syncopated', name: 'Syncopated Funk', description: 'Funky syncopated bass rhythm' },
+        { id: 'pedal', name: 'Pedal Tone', description: 'Sustained root note throughout' },
+        { id: 'chromatic', name: 'Chromatic Walk', description: 'Chromatic passing tones between chords' },
+        { id: 'reggae', name: 'Reggae One-Drop', description: 'Reggae-style bass with emphasis on off-beats' },
+        { id: 'latin', name: 'Latin Montuno', description: 'Latin-style bass pattern with syncopation' }
+    ];
+
+    bassPatterns.forEach(pattern => {
         const bassCard = document.createElement('div');
         bassCard.className = 'bass-card';
-        bassCard.dataset.complexity = complexity.toLowerCase();
-        
+        bassCard.dataset.patternId = pattern.id;
+
         bassCard.innerHTML = `
-            <h4>${complexity} Bass</h4>
-            <p>${complexity === 'Simple' ? 'Root notes following chord changes' : 'Walking bass line with passing tones'}</p>
+            <h4>${pattern.name}</h4>
+            <p>${pattern.description}</p>
         `;
-        
-        bassCard.addEventListener('click', () => selectOption(bassCard, 'bass-complexity'));
+
+        bassCard.addEventListener('click', () => {
+            selectOption(bassCard, 'bass-pattern');
+            // Generate and display the bass line preview
+            generateBassPreview(pattern.id);
+        });
         bassContainer.appendChild(bassCard);
     });
+}
+
+// Generate a preview of the bass pattern
+function generateBassPreview(patternId) {
+    if (!window.appState?.songData?.chordProgression) return;
+
+    try {
+        const bassLine = window.MusicTheory.generateBassLine(
+            window.appState.songData.chordProgression,
+            patternId
+        );
+        window.appState.songData.bassLine = bassLine;
+        window.appState.songData.bassPattern = patternId;
+        displayBassLine(bassLine);
+    } catch (error) {
+        console.error('Error generating bass preview:', error);
+    }
 }
 
 export function displayBassLine(bassLine) {
@@ -531,11 +459,19 @@ export function renderMelodyIdeas(melodyIdeas, container) {
         melodyCard.className = 'melody-card';
         melodyCard.dataset.melodyIndex = index;
 
+        // Add genre and difficulty classes for styling
+        if (idea.genre) melodyCard.classList.add(`genre-${idea.genre}`);
+        if (idea.difficulty) melodyCard.classList.add(`difficulty-${idea.difficulty}`);
+
         melodyCard.innerHTML = `
             <h4>${idea.name}</h4>
             <p>${idea.description}</p>
             <div class="melody-preview">${idea.pattern.join(' - ')}</div>
-            <span class="difficulty-badge difficulty-${idea.difficulty}">${idea.difficulty}</span>
+            <div class="melody-tags">
+                ${idea.genre ? `<span class="genre-badge genre-${idea.genre}">${idea.genre}</span>` : ''}
+                ${idea.difficulty ? `<span class="difficulty-badge difficulty-${idea.difficulty}">${idea.difficulty}</span>` : ''}
+                ${idea.rhythm ? `<span class="rhythm-badge">${idea.rhythm}</span>` : ''}
+            </div>
         `;
 
         melodyCard.addEventListener('click', () => {
@@ -665,6 +601,142 @@ function addWordToLyrics(word) {
     }
 }
 
+function generateBassLineForSection(chordProgression, bassBassLine, bassPattern) {
+    if (!chordProgression) return '';
+
+    // Parse the chord progression (e.g., "C - Am - F - G")
+    const chords = chordProgression.split(' - ').map(chord => chord.trim());
+
+    // Generate bass notes based on the selected bass pattern
+    let bassNotes = [];
+
+    if (bassPattern?.name === 'Octave Emphasis') {
+        // Root + octave pattern
+        bassNotes = chords.flatMap(chord => {
+            const root = getChordRoot(chord);
+            return [root, root.toLowerCase()]; // Root and octave (using lowercase to indicate higher octave)
+        });
+    } else if (bassPattern?.name === 'Fifth Movement') {
+        // Root + fifth pattern
+        bassNotes = chords.flatMap(chord => {
+            const root = getChordRoot(chord);
+            const fifth = getFifth(chord);
+            return [root, fifth];
+        });
+    } else if (bassPattern?.name === 'Triad Arpeggio') {
+        // Root + third + fifth pattern
+        bassNotes = chords.flatMap(chord => {
+            const root = getChordRoot(chord);
+            const third = getThird(chord);
+            const fifth = getFifth(chord);
+            return [root, third, fifth];
+        });
+    } else if (bassPattern?.name === 'Walking Bass') {
+        // Chromatic walking between roots
+        bassNotes = [];
+        for (let i = 0; i < chords.length; i++) {
+            const currentRoot = getChordRoot(chords[i]);
+            bassNotes.push(currentRoot);
+
+            if (i < chords.length - 1) {
+                const nextRoot = getChordRoot(chords[i + 1]);
+                // Add a passing tone between roots
+                bassNotes.push(getPassingTone(currentRoot, nextRoot));
+            }
+        }
+    } else {
+        // Default: just root notes
+        bassNotes = chords.map(chord => getChordRoot(chord));
+    }
+
+    const bassLineText = bassNotes.join(' - ');
+    const patternName = bassPattern?.name || 'Root Notes';
+
+    return `<div class="bass-line"><strong>Bass (${patternName}):</strong> ${bassLineText}</div>`;
+}
+
+// Helper functions for bass note generation
+function getChordRoot(chord) {
+    // Extract root note from chord (handles things like Cm, C7, etc.)
+    return chord.charAt(0).toUpperCase();
+}
+
+function getFifth(chord) {
+    const root = getChordRoot(chord);
+    const fifths = {
+        'C': 'G', 'D': 'A', 'E': 'B', 'F': 'C', 'G': 'D', 'A': 'E', 'B': 'F#',
+        'C#': 'G#', 'D#': 'A#', 'F#': 'C#', 'G#': 'D#', 'A#': 'F'
+    };
+    return fifths[root] || root;
+}
+
+function getThird(chord) {
+    const root = getChordRoot(chord);
+    const isMinor = chord.includes('m') && !chord.includes('maj');
+
+    const majorThirds = {
+        'C': 'E', 'D': 'F#', 'E': 'G#', 'F': 'A', 'G': 'B', 'A': 'C#', 'B': 'D#',
+        'C#': 'F', 'D#': 'G', 'F#': 'A#', 'G#': 'C', 'A#': 'D'
+    };
+
+    const minorThirds = {
+        'C': 'Eb', 'D': 'F', 'E': 'G', 'F': 'Ab', 'G': 'Bb', 'A': 'C', 'B': 'D',
+        'C#': 'E', 'D#': 'F#', 'F#': 'A', 'G#': 'B', 'A#': 'C#'
+    };
+
+    return isMinor ? (minorThirds[root] || root) : (majorThirds[root] || root);
+}
+
+function getPassingTone(fromNote, toNote) {
+    // Simple chromatic passing tone logic
+    const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const fromIndex = noteOrder.indexOf(fromNote);
+    const toIndex = noteOrder.indexOf(toNote);
+
+    if (fromIndex === -1 || toIndex === -1) return fromNote;
+
+    // Find a note between them
+    if (fromIndex < toIndex) {
+        return noteOrder[(fromIndex + 1) % 12];
+    } else {
+        return noteOrder[(fromIndex - 1 + 12) % 12];
+    }
+}
+
+function renderSongStructureSummary(songSections) {
+    if (!songSections || songSections.length === 0) {
+        return '';
+    }
+
+    // Get bass line info from app state
+    const songData = window.appState?.songData;
+    const bassLine = songData?.bassLine;
+    const bassPattern = songData?.bassPattern;
+
+    return `
+        <div class="song-structure-summary">
+            <h3>Song Structure</h3>
+            <div class="sections-preview">
+                ${songSections.map((section, index) => `
+                    <div class="section-preview">
+                        <div class="section-preview-header">
+                            <span class="section-number">${index + 1}</span>
+                            <span class="section-preview-type">${section.type}</span>
+                        </div>
+                        ${section.chords ? `
+                            <div class="section-chords">
+                                <div class="chord-line"><strong>Chords:</strong> ${section.chords}</div>
+                                ${generateBassLineForSection(section.chords, bassLine, bassPattern)}
+                            </div>
+                        ` : ''}
+                        ${section.lyrics ? `<div class="section-lyrics">${section.lyrics.split('\n').slice(0, 2).join('\n')}${section.lyrics.split('\n').length > 2 ? '...' : ''}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
 export function renderSongSummary(songData, container) {
     const summaryContainer = document.getElementById(container);
     if (!summaryContainer) return;
@@ -687,26 +759,13 @@ export function renderSongSummary(songData, container) {
                 <p><strong>Bass Line:</strong> ${songData.bassLine?.map(note => note.note).join(' - ') || 'Not set'}</p>
             </div>
             <div class="summary-section">
-                <h4>Structure</h4>
-                <p><strong>Song Structure:</strong> ${songData.songStructure?.join(' → ') || 'Not set'}</p>
+                <h4>Creative Elements</h4>
                 <p><strong>Melody:</strong> ${songData.melodyIdea?.name || 'Not set'}</p>
+                <p><strong>Song Sections:</strong> ${songData.songSections?.length || 0} sections created</p>
             </div>
         </div>
 
-        <div class="full-song-playback">
-            <h4>🎵 Preview Your Song</h4>
-            <div class="audio-controls large-controls">
-                <button class="play-btn large-play-btn" onclick="playFullArrangement()">
-                    ▶️ Play Full Song Preview
-                </button>
-                <button class="stop-btn" onclick="stopAudio()">
-                    ⏹️ Stop
-                </button>
-            </div>
-            <p class="playback-info">This will play all your musical elements together: chords, drums, bass, and melody.</p>
-        </div>
-
-        ${songData.lyrics ? `<div class="lyrics-summary"><h4>Lyrics</h4><pre>${songData.lyrics}</pre></div>` : ''}
+        ${renderSongStructureSummary(songData.songSections)}
     `;
 }
 
@@ -1059,21 +1118,21 @@ window.updateScaleTheoryButton = function() {
 };
 
 // Global audio control functions
-window.playChordProgression = function(progressionName) {
+
+window.playChordProgression = async function(progressionName) {
     const appState = window.appState;
-    if (!appState || !appState.songData.chordProgression) {
-        console.warn('No chord progression available to play');
+
+    if (!appState || !appState.songData || !appState.songData.chordProgression) {
+        showMessage('No chord progression selected. Please select a chord progression first.', 'warning');
         return;
     }
 
     const tempo = appState.songData.tempo || 120;
     const key = appState.songData.key || 'C';
 
-    console.log('Playing chord progression:', progressionName, 'at tempo:', tempo, 'in key:', key);
-
     if (window.audioEngine) {
         try {
-            window.audioEngine.playChordProgression(appState.songData.chordProgression, tempo, key);
+            await window.audioEngine.playChordProgression(appState.songData.chordProgression, tempo, key);
             showMessage('Playing chord progression...', 'info');
         } catch (error) {
             console.error('Error playing chord progression:', error);
@@ -1181,16 +1240,28 @@ window.stopAudio = function() {
 };
 
 export function enableButton(buttonId) {
+    // Enable both bottom and top versions of the button
     const button = document.getElementById(buttonId);
+    const topButton = document.getElementById(buttonId + '-top');
+
     if (button) {
         button.disabled = false;
+    }
+    if (topButton) {
+        topButton.disabled = false;
     }
 }
 
 export function disableButton(buttonId) {
+    // Disable both bottom and top versions of the button
     const button = document.getElementById(buttonId);
+    const topButton = document.getElementById(buttonId + '-top');
+
     if (button) {
         button.disabled = true;
+    }
+    if (topButton) {
+        topButton.disabled = true;
     }
 }
 
@@ -1224,3 +1295,312 @@ export function showMessage(message, type = 'info') {
         messageDiv.remove();
     }, 3000);
 }
+
+// =====================================
+// SONGCRAFT WORKSPACE FUNCTIONS
+// =====================================
+
+export function initializeSongcraftWorkspace(songData) {
+    // Initialize template listeners
+    setupTemplateListeners();
+
+    // Initialize section management
+    setupSectionManagement();
+
+    // Initialize thematic words
+    renderThematicWords(songData.mood?.themes || [], 'thematic-words');
+
+    // Set up generate words button
+    const generateWordsBtn = document.getElementById('generate-words');
+    if (generateWordsBtn) {
+        generateWordsBtn.addEventListener('click', () => {
+            if (songData.mood?.themes) {
+                const shuffledWords = [...songData.mood.themes].sort(() => Math.random() - 0.5).slice(0, 8);
+                renderThematicWords(shuffledWords, 'thematic-words');
+            }
+        });
+    }
+}
+
+function setupTemplateListeners() {
+    const templateCards = document.querySelectorAll('.template-card');
+
+    templateCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Remove selected class from all cards
+            templateCards.forEach(c => c.classList.remove('selected'));
+
+            // Add selected class to clicked card
+            card.classList.add('selected');
+
+            // Apply template structure
+            const template = card.getAttribute('data-template');
+            applyTemplate(template);
+        });
+    });
+}
+
+function setupSectionManagement() {
+    const addSectionBtn = document.getElementById('add-section');
+    const clearBtn = document.getElementById('clear-structure');
+
+    if (addSectionBtn) {
+        addSectionBtn.addEventListener('click', () => {
+            addSongSection();
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            clearAllSections();
+        });
+    }
+}
+
+function generateSectionChords(sectionType, baseChords, songData) {
+    if (!baseChords || !songData?.key) return baseChords;
+
+    const key = songData.key;
+    const genre = songData.genre?.name || 'pop';
+
+    // Common chord progressions by section type and key
+    const chordVariations = {
+        'Intro': {
+            'C': ['C - Am - F - C', 'C - F - G - C', 'Am - F - C - G'],
+            'G': ['G - Em - C - G', 'G - C - D - G', 'Em - C - G - D'],
+            'D': ['D - Bm - G - D', 'D - G - A - D', 'Bm - G - D - A'],
+            'A': ['A - F#m - D - A', 'A - D - E - A', 'F#m - D - A - E'],
+            'E': ['E - C#m - A - E', 'E - A - B - E', 'C#m - A - E - B'],
+            'F': ['F - Dm - Bb - F', 'F - Bb - C - F', 'Dm - Bb - F - C']
+        },
+        'Chorus': {
+            'C': ['F - G - Am - F', 'Am - F - C - G', 'F - Am - G - C'],
+            'G': ['C - D - Em - C', 'Em - C - G - D', 'C - Em - D - G'],
+            'D': ['G - A - Bm - G', 'Bm - G - D - A', 'G - Bm - A - D'],
+            'A': ['D - E - F#m - D', 'F#m - D - A - E', 'D - F#m - E - A'],
+            'E': ['A - B - C#m - A', 'C#m - A - E - B', 'A - C#m - B - E'],
+            'F': ['Bb - C - Dm - Bb', 'Dm - Bb - F - C', 'Bb - Dm - C - F']
+        },
+        'Bridge': {
+            'C': ['Am - Em - F - G', 'Dm - G - Em - Am', 'F - Em - Dm - G'],
+            'G': ['Em - Bm - C - D', 'Am - D - Bm - Em', 'C - Bm - Am - D'],
+            'D': ['Bm - F#m - G - A', 'Em - A - F#m - Bm', 'G - F#m - Em - A'],
+            'A': ['F#m - C#m - D - E', 'Bm - E - C#m - F#m', 'D - C#m - Bm - E'],
+            'E': ['C#m - G#m - A - B', 'F#m - B - G#m - C#m', 'A - G#m - F#m - B'],
+            'F': ['Dm - Am - Bb - C', 'Gm - C - Am - Dm', 'Bb - Am - Gm - C']
+        },
+        'Pre-Chorus': {
+            'C': ['Am - F - G - G', 'Dm - G - C - C', 'F - G - Am - Am'],
+            'G': ['Em - C - D - D', 'Am - D - G - G', 'C - D - Em - Em'],
+            'D': ['Bm - G - A - A', 'Em - A - D - D', 'G - A - Bm - Bm'],
+            'A': ['F#m - D - E - E', 'Bm - E - A - A', 'D - E - F#m - F#m'],
+            'E': ['C#m - A - B - B', 'F#m - B - E - E', 'A - B - C#m - C#m'],
+            'F': ['Dm - Bb - C - C', 'Gm - C - F - F', 'Bb - C - Dm - Dm']
+        },
+        'Outro': {
+            'C': ['F - G - C - C', 'Am - F - G - C', 'F - C - G - C'],
+            'G': ['C - D - G - G', 'Em - C - D - G', 'C - G - D - G'],
+            'D': ['G - A - D - D', 'Bm - G - A - D', 'G - D - A - D'],
+            'A': ['D - E - A - A', 'F#m - D - E - A', 'D - A - E - A'],
+            'E': ['A - B - E - E', 'C#m - A - B - E', 'A - E - B - E'],
+            'F': ['Bb - C - F - F', 'Dm - Bb - C - F', 'Bb - F - C - F']
+        }
+    };
+
+    // Get variations for this section type and key
+    const variations = chordVariations[sectionType]?.[key];
+    if (!variations || variations.length === 0) {
+        return baseChords; // Fallback to base progression
+    }
+
+    // Return a random variation
+    return variations[Math.floor(Math.random() * variations.length)];
+}
+
+function applyTemplate(templateType) {
+    const songData = window.appState?.songData;
+    const baseChords = songData?.chordProgression?.chords?.join(' - ') || '';
+
+    const templatesMap = {
+        'verse-chorus': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' }
+        ],
+        'aaba': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' }
+        ],
+        'pop': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
+            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData), lyrics: '' }
+        ],
+        'custom': []
+    };
+
+    const sectionsContainer = document.getElementById('song-sections');
+    if (!sectionsContainer) return;
+
+    // Clear existing sections
+    sectionsContainer.innerHTML = '';
+
+    // Add template sections
+    const template = templatesMap[templateType] || [];
+    template.forEach(section => {
+        createSongSection(section.type, section.chords, section.lyrics);
+    });
+}
+
+function addSongSection(type = 'Verse', chords = '', lyrics = '') {
+    // Auto-populate with base chord progression if no chords provided
+    if (!chords) {
+        const songData = window.appState?.songData;
+        const baseChords = songData?.chordProgression?.chords?.join(' - ') || '';
+
+        if (type === 'Verse') {
+            chords = baseChords;
+        } else {
+            chords = generateSectionChords(type, baseChords, songData);
+        }
+    }
+
+    createSongSection(type, chords, lyrics);
+}
+
+function createSongSection(type, chords, lyrics) {
+    const sectionsContainer = document.getElementById('song-sections');
+    if (!sectionsContainer) return;
+
+    const sectionId = `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'song-section';
+    sectionDiv.id = sectionId;
+
+    sectionDiv.innerHTML = `
+        <div class="section-header">
+            <div class="section-title">
+                <select class="section-type" onchange="updateSectionType('${sectionId}', this.value)">
+                    <option value="Intro" ${type === 'Intro' ? 'selected' : ''}>Intro</option>
+                    <option value="Verse" ${type === 'Verse' ? 'selected' : ''}>Verse</option>
+                    <option value="Pre-Chorus" ${type === 'Pre-Chorus' ? 'selected' : ''}>Pre-Chorus</option>
+                    <option value="Chorus" ${type === 'Chorus' ? 'selected' : ''}>Chorus</option>
+                    <option value="Bridge" ${type === 'Bridge' ? 'selected' : ''}>Bridge</option>
+                    <option value="Outro" ${type === 'Outro' ? 'selected' : ''}>Outro</option>
+                </select>
+            </div>
+            <div class="section-controls">
+                <button class="refresh-chords-btn" onclick="refreshSectionChords('${sectionId}')" title="Get New Chord Suggestions">🔄</button>
+                <button class="move-up-btn" onclick="moveSectionUp('${sectionId}')" title="Move Up">↑</button>
+                <button class="move-down-btn" onclick="moveSectionDown('${sectionId}')" title="Move Down">↓</button>
+                <button class="delete-section-btn" onclick="deleteSection('${sectionId}')" title="Delete">×</button>
+            </div>
+        </div>
+        <div class="chord-input-container">
+            <textarea class="chord-progression-input" placeholder="Enter chord progression (e.g., C - Am - F - G)" rows="2">${chords}</textarea>
+            <div class="chord-suggestions" id="suggestions-${sectionId}"></div>
+        </div>
+        <textarea class="lyrics-input" placeholder="Write your lyrics here..." rows="4">${lyrics}</textarea>
+    `;
+
+    sectionsContainer.appendChild(sectionDiv);
+}
+
+function clearAllSections() {
+    const sectionsContainer = document.getElementById('song-sections');
+    if (sectionsContainer) {
+        sectionsContainer.innerHTML = '';
+    }
+}
+
+// Global functions for section management (called from HTML)
+window.updateSectionType = function(sectionId, newType) {
+    // Auto-update chord progression when section type changes
+    refreshSectionChords(sectionId);
+};
+
+window.refreshSectionChords = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const sectionTypeSelect = section.querySelector('.section-type');
+    const chordInput = section.querySelector('.chord-progression-input');
+    const suggestionsDiv = section.querySelector('.chord-suggestions');
+
+    if (!sectionTypeSelect || !chordInput) return;
+
+    const sectionType = sectionTypeSelect.value;
+    const songData = window.appState?.songData;
+    const baseChords = songData?.chordProgression?.chords?.join(' - ') || '';
+
+    // Generate multiple suggestions for this section type
+    const suggestions = [];
+
+    if (sectionType === 'Verse') {
+        suggestions.push(baseChords);
+    } else {
+        // Generate 3 different variations
+        for (let i = 0; i < 3; i++) {
+            const variation = generateSectionChords(sectionType, baseChords, songData);
+            if (variation && !suggestions.includes(variation)) {
+                suggestions.push(variation);
+            }
+        }
+    }
+
+    // Update the input with the first suggestion
+    if (suggestions.length > 0) {
+        chordInput.value = suggestions[0];
+    }
+
+    // Display clickable suggestions
+    if (suggestionsDiv) {
+        suggestionsDiv.innerHTML = suggestions.map(suggestion =>
+            `<span class="chord-suggestion" onclick="applySuggestion('${sectionId}', '${suggestion}')">${suggestion}</span>`
+        ).join('');
+    }
+};
+
+window.moveSectionUp = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section && section.previousElementSibling) {
+        section.parentNode.insertBefore(section, section.previousElementSibling);
+    }
+};
+
+window.moveSectionDown = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section && section.nextElementSibling) {
+        section.parentNode.insertBefore(section.nextElementSibling, section);
+    }
+};
+
+window.deleteSection = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.remove();
+    }
+};
+
+window.applySuggestion = function(sectionId, chordProgression) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const chordInput = section.querySelector('.chord-progression-input');
+    if (chordInput) {
+        chordInput.value = chordProgression;
+    }
+};

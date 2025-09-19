@@ -21,7 +21,7 @@ class AudioEngine {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             this.masterGain = this.audioContext.createGain();
             this.masterGain.connect(this.audioContext.destination);
-            this.masterGain.gain.value = 0.7; // Master volume
+            this.masterGain.gain.value = 1.0; // Master volume - increased for testing
         } catch (error) {
             console.error('Failed to initialize audio context:', error);
         }
@@ -29,7 +29,147 @@ class AudioEngine {
 
     async resumeAudioContext() {
         if (this.audioContext && this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+            try {
+                await this.audioContext.resume();
+            } catch (error) {
+                console.error('Failed to resume audio context:', error);
+            }
+        }
+    }
+
+    // Test audio functionality
+    async testAudio() {
+        console.log('Testing audio...');
+        await this.resumeAudioContext();
+
+        if (!this.audioContext) {
+            console.error('No audio context available for test');
+            return false;
+        }
+
+        console.log('Audio context state:', this.audioContext.state);
+
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination); // Connect directly to speakers
+
+            oscillator.frequency.value = 440; // A4
+            oscillator.type = 'sine';
+
+            gainNode.gain.value = 0.5; // Set volume directly
+
+            const now = this.audioContext.currentTime;
+            console.log('Starting test beep at:', now);
+
+            oscillator.start(now);
+            oscillator.stop(now + 1.0); // Play for 1 second
+
+            console.log('Test beep scheduled for 1 second');
+            return true;
+        } catch (error) {
+            console.error('Audio test failed:', error);
+            return false;
+        }
+    }
+
+    // Immediate audio test - plays right now
+    async testImmediateAudio() {
+        console.log('Testing immediate audio...');
+        await this.resumeAudioContext();
+
+        if (!this.audioContext) {
+            console.error('No audio context available');
+            return false;
+        }
+
+        try {
+            // Create a simple beep that plays immediately
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            // Connect directly to destination, bypassing master gain
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            // Set frequency and type
+            oscillator.frequency.value = 880; // High A
+            oscillator.type = 'square';
+            gainNode.gain.value = 0.3;
+
+            console.log('Playing immediate beep at 880Hz');
+            console.log('Audio context current time:', this.audioContext.currentTime);
+
+            // Start immediately
+            oscillator.start();
+
+            // Stop after 0.3 seconds
+            setTimeout(() => {
+                oscillator.stop();
+                console.log('Stopped immediate beep');
+            }, 300);
+
+            return true;
+        } catch (error) {
+            console.error('Immediate audio test failed:', error);
+            return false;
+        }
+    }
+
+    // Simple chord progression test using immediate playback
+    async testSimpleChord() {
+        console.log('Testing simple chord...');
+        await this.resumeAudioContext();
+
+        if (!this.audioContext) {
+            console.error('No audio context available');
+            return false;
+        }
+
+        try {
+            // Play a simple C major chord (C, E, G) immediately
+            const notes = ['C', 'E', 'G'];
+            const frequencies = [
+                this.noteToFrequency('C', 4),
+                this.noteToFrequency('E', 4),
+                this.noteToFrequency('G', 4)
+            ];
+
+            console.log('Playing C major chord with frequencies:', frequencies);
+
+            const oscillators = [];
+
+            frequencies.forEach((freq, index) => {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+                gainNode.gain.value = 0.2; // Lower volume for chord
+
+                oscillator.start();
+                oscillators.push(oscillator);
+
+                console.log(`Started oscillator ${index + 1}: ${freq}Hz`);
+            });
+
+            // Stop all oscillators after 2 seconds
+            setTimeout(() => {
+                oscillators.forEach((osc, index) => {
+                    osc.stop();
+                    console.log(`Stopped oscillator ${index + 1}`);
+                });
+            }, 2000);
+
+            return true;
+        } catch (error) {
+            console.error('Simple chord test failed:', error);
+            return false;
         }
     }
 
@@ -38,6 +178,12 @@ class AudioEngine {
     // =====================================
 
     noteToFrequency(note, octave = 4) {
+        // Handle undefined or invalid notes
+        if (!note || typeof note !== 'string') {
+            console.warn('Invalid note provided to noteToFrequency:', note);
+            return 261.63; // Return C4 as fallback
+        }
+
         const noteFreqs = {
             'C': 261.63, 'C#': 277.18, 'Db': 277.18,
             'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
@@ -77,13 +223,13 @@ class AudioEngine {
             const frequency = this.noteToFrequency(note, octave);
 
             oscillator.frequency.setValueAtTime(frequency, when);
-            oscillator.type = 'sawtooth'; // Rich harmonic content
+            oscillator.type = 'sine';
 
-            // Envelope for chord
+            // Volume envelope for chord
             gainNode.gain.setValueAtTime(0, when);
-            gainNode.gain.linearRampToValueAtTime(0.15, when + 0.05); // Attack
-            gainNode.gain.exponentialRampToValueAtTime(0.1, when + duration * 0.3); // Sustain
-            gainNode.gain.exponentialRampToValueAtTime(0.01, when + duration); // Release
+            gainNode.gain.linearRampToValueAtTime(0.3, when + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.2, when + duration * 0.3);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, when + duration);
 
             oscillator.connect(gainNode);
             gainNode.connect(this.masterGain);
@@ -223,17 +369,34 @@ class AudioEngine {
     // PATTERN PLAYBACK
     // =====================================
 
-    playChordProgression(chordProgression, tempo = 120, key = 'C') {
-        if (!chordProgression || !chordProgression.chords) return;
+    async playChordProgression(chordProgression, tempo = 120, key = 'C') {
+        if (!chordProgression) {
+            console.error('No chord progression provided');
+            return;
+        }
 
-        this.resumeAudioContext();
+        if (!chordProgression.chords) {
+            console.error('Chord progression has no chords property:', chordProgression);
+            return;
+        }
+
+        await this.resumeAudioContext();
         this.tempo = tempo;
 
-        const chordDuration = 60 / tempo * 2; // Half notes
-        let currentTime = this.audioContext.currentTime + 0.1;
+        const chordDuration = (60 / tempo) * 2; // Half notes in seconds
 
-        chordProgression.chords.forEach((chord, index) => {
-            try {
+        // Use immediate playback approach like the working tests
+        this.playChordProgressionImmediate(chordProgression.chords, chordDuration, key);
+
+        return chordProgression.chords.length * chordDuration;
+    }
+
+    // New immediate playback approach
+    async playChordProgressionImmediate(chords, chordDuration, key = 'C') {
+        let currentDelay = 0;
+
+        chords.forEach((chord, index) => {
+            setTimeout(() => {
                 // Get chord notes using Tonal.js if available
                 let chordNotes = [];
                 if (window.Tonal && window.Tonal.Chord) {
@@ -244,14 +407,36 @@ class AudioEngine {
                     chordNotes = this.getBasicTriad(chord, key);
                 }
 
-                this.playChord(chordNotes, chordDuration, currentTime);
-                currentTime += chordDuration;
-            } catch (error) {
-                console.warn('Error playing chord:', chord, error);
-            }
-        });
+                // Play chord immediately using the same approach as testSimpleChord
+                const frequencies = chordNotes.map(note => this.noteToFrequency(note, 4));
+                const oscillators = [];
 
-        return currentTime - this.audioContext.currentTime;
+                frequencies.forEach((freq, noteIndex) => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    gainNode.gain.value = 0.15; // Lower volume for chord
+
+                    oscillator.start();
+                    oscillators.push(oscillator);
+                });
+
+                // Stop all oscillators after chord duration
+                setTimeout(() => {
+                    oscillators.forEach((osc, noteIndex) => {
+                        osc.stop();
+                    });
+                }, chordDuration * 1000);
+
+            }, currentDelay);
+
+            currentDelay += chordDuration * 1000; // Convert to milliseconds
+        });
     }
 
     getBasicTriad(chord, key) {
@@ -389,7 +574,8 @@ class AudioEngine {
         const noteDuration = this.getNoteDuration(melodyIdea.rhythm, tempo);
         let currentTime = this.audioContext.currentTime + 0.1;
 
-        melodyIdea.pattern.forEach(note => {
+        // Filter out undefined notes and play the melody
+        melodyIdea.pattern.filter(note => note && typeof note === 'string').forEach(note => {
             const frequency = this.noteToFrequency(note, 5); // Higher octave for melody
             this.playMelodyNote(frequency, noteDuration, currentTime);
             currentTime += noteDuration;

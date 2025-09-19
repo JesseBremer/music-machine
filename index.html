@@ -22,15 +22,17 @@
             <div class="progress-step" data-step="4">Drums</div>
             <div class="progress-step" data-step="5">Bass</div>
             <div class="progress-step" data-step="6">Melody</div>
-            <div class="progress-step" data-step="7">Structure</div>
-            <div class="progress-step" data-step="8">Arrangement</div>
-            <div class="progress-step" data-step="9">Lyrics</div>
-            <div class="progress-step" data-step="10">Export</div>
+            <div class="progress-step" data-step="7">Lyrics</div>
+            <div class="progress-step" data-step="8">Export</div>
         </div>
 
         <section id="step-mood" class="step-section active">
             <h2>Step 1: Choose Your Mood & Genre</h2>
             <p>Start your musical journey by selecting the mood and genre that inspire you.</p>
+
+            <div class="top-navigation">
+                <button id="mood-next-top" class="next-button" disabled>Next: Key & Tempo</button>
+            </div>
             
             <div class="selection-group">
                 <h3>Mood</h3>
@@ -48,6 +50,11 @@
         <section id="step-key-tempo" class="step-section">
             <h2>Step 2: Key & Tempo</h2>
             <p>Based on your mood and genre, here are suggested musical foundations.</p>
+
+            <div class="top-navigation">
+                <button id="key-tempo-back-top" class="back-button">Back</button>
+                <button id="key-tempo-next-top" class="next-button" disabled>Next: Chords</button>
+            </div>
             
             <div class="selection-group">
                 <h3>Musical Key</h3>
@@ -76,6 +83,11 @@
         <section id="step-chords" class="step-section">
             <h2>Step 3: Chord Progression</h2>
             <p>Choose a chord progression that fits your genre and key.</p>
+
+            <div class="top-navigation">
+                <button id="chords-back-top" class="back-button">Back</button>
+                <button id="chords-next-top" class="next-button" disabled>Next: Drum Pattern</button>
+            </div>
             
             <div id="chord-progressions" class="chord-grid"></div>
             <div id="chord-display" class="chord-display"></div>
@@ -89,6 +101,11 @@
         <section id="step-drums" class="step-section">
             <h2>Step 4: Drum Pattern</h2>
             <p>Select a rhythmic foundation for your song.</p>
+
+            <div class="top-navigation">
+                <button id="drums-back-top" class="back-button">Back</button>
+                <button id="drums-next-top" class="next-button" disabled>Next: Bass Line</button>
+            </div>
             
             <div id="drum-patterns" class="drum-grid"></div>
             <div id="drum-display" class="drum-display"></div>
@@ -102,6 +119,11 @@
         <section id="step-bass" class="step-section">
             <h2>Step 5: Bass Line</h2>
             <p>Create a bass line that follows your chord progression.</p>
+
+            <div class="top-navigation">
+                <button id="bass-back-top" class="back-button">Back</button>
+                <button id="bass-next-top" class="next-button" disabled>Next: Melody Ideas</button>
+            </div>
             
             <div id="bass-options" class="bass-grid"></div>
             <div id="bass-display" class="bass-display"></div>
@@ -115,67 +137,85 @@
         <section id="step-melody" class="step-section">
             <h2>Step 6: Melody Ideas</h2>
             <p>Explore melodic patterns that work with your chord progression.</p>
+
+            <div class="top-navigation">
+                <button id="melody-back-top" class="back-button">Back</button>
+                <button id="melody-next-top" class="next-button" disabled>Next: Lyrics</button>
+            </div>
             
             <div id="melody-suggestions" class="melody-grid"></div>
             <div id="melody-display" class="melody-display"></div>
 
             <div class="navigation">
                 <button id="melody-back" class="back-button">Back</button>
-                <button id="melody-next" class="next-button" disabled>Next: Song Structure</button>
+                <button id="melody-next" class="next-button" disabled>Next: Lyrics</button>
             </div>
         </section>
 
-        <section id="step-structure" class="step-section">
-            <h2>Step 7: Song Structure</h2>
-            <p>Build your complete song structure by assigning sections.</p>
-            
-            <div id="structure-builder" class="structure-builder">
-                <div class="structure-templates"></div>
-                <div class="structure-editor"></div>
+        <section id="step-songcraft" class="step-section">
+            <h2>Step 7: Lyrics & Structure</h2>
+            <p>Create your complete song structure with chord progressions and lyrics in one place.</p>
+
+            <div class="top-navigation">
+                <button id="songcraft-back-top" class="back-button">Back</button>
+                <button id="songcraft-next-top" class="next-button" disabled>Next: Export & Summary</button>
             </div>
 
-            <div class="navigation">
-                <button id="structure-back" class="back-button">Back</button>
-                <button id="structure-next" class="next-button" disabled>Next: Arrangement</button>
-            </div>
-        </section>
+            <div class="songcraft-workspace">
+                <!-- Structure Templates -->
+                <div class="structure-templates">
+                    <h3>Song Templates</h3>
+                    <div class="template-grid">
+                        <div class="template-card" data-template="verse-chorus">
+                            <h4>Verse-Chorus</h4>
+                            <p>Verse → Chorus → Verse → Chorus → Bridge → Chorus</p>
+                        </div>
+                        <div class="template-card" data-template="aaba">
+                            <h4>AABA</h4>
+                            <p>Verse → Verse → Bridge → Verse</p>
+                        </div>
+                        <div class="template-card" data-template="pop">
+                            <h4>Pop Structure</h4>
+                            <p>Intro → Verse → Pre-Chorus → Chorus → Verse → Pre-Chorus → Chorus → Bridge → Chorus → Outro</p>
+                        </div>
+                        <div class="template-card" data-template="custom">
+                            <h4>Custom</h4>
+                            <p>Build your own structure</p>
+                        </div>
+                    </div>
+                </div>
 
-        <section id="step-arrangement" class="step-section">
-            <h2>Step 8: Arrangement & Layering</h2>
-            <p>Add dynamics and instrumentation to different sections.</p>
-            
-            <div id="arrangement-tips" class="arrangement-panel"></div>
+                <!-- Song Builder -->
+                <div class="song-builder">
+                    <div class="builder-header">
+                        <h3>Song Structure</h3>
+                        <div class="builder-controls">
+                            <button id="add-section" class="add-section-btn">+ Add Section</button>
+                            <button id="clear-structure" class="clear-btn">Clear All</button>
+                        </div>
+                    </div>
 
-            <div class="navigation">
-                <button id="arrangement-back" class="back-button">Back</button>
-                <button id="arrangement-next" class="next-button" disabled>Next: Lyrics</button>
-            </div>
-        </section>
+                    <div id="song-sections" class="song-sections">
+                        <!-- Dynamic sections will be added here -->
+                    </div>
+                </div>
 
-        <section id="step-lyrics" class="step-section">
-            <h2>Step 9: Lyric Helper</h2>
-            <p>Write your lyrics with thematic suggestions based on your mood.</p>
-            
-            <div class="lyrics-container">
-                <div class="lyrics-tools">
+                <!-- Lyrics Helper -->
+                <div class="lyrics-helper">
                     <h3>Thematic Words</h3>
                     <div id="thematic-words" class="word-suggestions"></div>
-                    <button id="generate-words" class="generate-button">Generate More Words</button>
-                </div>
-                <div class="lyrics-editor">
-                    <h3>Your Lyrics</h3>
-                    <textarea id="lyrics-text" placeholder="Write your lyrics here..."></textarea>
+                    <button id="generate-words" class="generate-button">Generate Words</button>
                 </div>
             </div>
 
             <div class="navigation">
-                <button id="lyrics-back" class="back-button">Back</button>
-                <button id="lyrics-next" class="next-button">Next: Export & Summary</button>
+                <button id="songcraft-back" class="back-button">Back</button>
+                <button id="songcraft-next" class="next-button" disabled>Next: Export & Summary</button>
             </div>
         </section>
 
         <section id="step-export" class="step-section">
-            <h2>Step 10: Export & Summary</h2>
+            <h2>Step 8: Export & Summary</h2>
             <p>Your complete song plan is ready! Review and export your creation.</p>
             
             <div id="song-summary" class="song-summary"></div>

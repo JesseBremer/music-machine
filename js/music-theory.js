@@ -422,46 +422,21 @@ function buildChord(rootNote, quality, extension, scaleNotes, degree, isMinorKey
 }
 
 export function getDrumPatternsForGenre(genre, patternsData) {
-    // Map genres to drum pattern categories
-    const genreMapping = {
-        'grunge': ['rock', 'punk', 'metal'],
-        'indie': ['rock', 'folk', 'pop'],
-        'alternative': ['rock', 'punk'],
-        'emo': ['rock', 'punk'],
-        'post-rock': ['rock', 'ambient'],
-        'shoegaze': ['rock', 'ambient'],
-        'garage': ['rock', 'punk'],
-        'noise': ['punk', 'metal'],
-        'progressive': ['rock', 'metal'],
-        'stoner': ['rock', 'metal'],
-        'psychedelic': ['rock', 'ambient']
-    };
-    
+    // No genre filtering - show ALL available drum patterns for maximum creativity!
+    console.log('getDrumPatternsForGenre called with:', genre, 'patternsData keys:', Object.keys(patternsData));
+
     let allPatterns = [];
-    
-    // First, try to get patterns for the exact genre
-    const directPatterns = patternsData[genre.id] || {};
-    Object.keys(directPatterns).forEach(patternId => {
-        const pattern = directPatterns[patternId];
-        allPatterns.push({
-            id: `${genre.id}-${patternId}`,
-            name: pattern.name,
-            description: pattern.description,
-            pattern: pattern.pattern,
-            grid: pattern.grid,
-            tempo: pattern.tempo
-        });
-    });
-    
-    // Then, add patterns from mapped genres
-    const mappedGenres = genreMapping[genre.id] || [];
-    mappedGenres.forEach(mappedGenre => {
-        const mappedPatterns = patternsData[mappedGenre] || {};
-        Object.keys(mappedPatterns).forEach(patternId => {
-            const pattern = mappedPatterns[patternId];
+
+    // Add ALL patterns from every genre category
+    Object.keys(patternsData).forEach(genreKey => {
+        const genrePatterns = patternsData[genreKey] || {};
+        console.log(`Processing genre: ${genreKey}, patterns:`, Object.keys(genrePatterns));
+
+        Object.keys(genrePatterns).forEach(patternId => {
+            const pattern = genrePatterns[patternId];
             allPatterns.push({
-                id: `${mappedGenre}-${patternId}`,
-                name: `${pattern.name} (${mappedGenre})`,
+                id: `${genreKey}-${patternId}`,
+                name: `${pattern.name} (${genreKey})`,
                 description: pattern.description,
                 pattern: pattern.pattern,
                 grid: pattern.grid,
@@ -469,6 +444,8 @@ export function getDrumPatternsForGenre(genre, patternsData) {
             });
         });
     });
+
+    console.log(`Total patterns found: ${allPatterns.length}`);
     
     // Remove duplicates based on pattern content
     const uniquePatterns = [];
@@ -529,41 +506,46 @@ export function getDrumPatternsForGenre(genre, patternsData) {
         }
     }
     
-    return uniquePatterns.slice(0, 8); // Limit to 8 patterns for UI
+    console.log(`Returning ${uniquePatterns.length} unique patterns`);
+    return uniquePatterns; // Show ALL patterns for maximum creativity!
 }
 
-export function generateBassLine(chordProgression, complexity = 'simple') {
-    if (!chordProgression || !chordProgression.chords) {
-        return [];
-    }
-    
-    const chords = chordProgression.chords;
-    const bassLine = [];
-    
-    chords.forEach((chord, index) => {
-        try {
-            // Get root note using Tonal.js
-            const chordInfo = Tonal.Chord.get(chord);
-            const rootNote = chordInfo.tonic || chord.replace(/[^A-G#b]/g, '');
-            
-            if (complexity === 'simple') {
+// Bass pattern definitions for different styles
+const bassPatterns = {
+    'simple': {
+        name: 'Simple Root',
+        description: 'Root notes following chord changes',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
                 bassLine.push({
                     note: rootNote,
                     rhythm: 'whole',
-                    measure: index + 1
+                    measure: index + 1,
+                    beat: 1
                 });
-            } else if (complexity === 'walking') {
+            });
+            return bassLine;
+        }
+    },
+    'walking': {
+        name: 'Walking Bass',
+        description: 'Jazz-style walking bass with passing tones',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
                 bassLine.push({
                     note: rootNote,
                     rhythm: 'quarter',
                     measure: index + 1,
                     beat: 1
                 });
-                
-                // Add walking notes
+
                 const nextChord = chords[index + 1];
                 if (nextChord) {
-                    const nextRoot = Tonal.Chord.get(nextChord).tonic || nextChord.replace(/[^A-G#b]/g, '');
+                    const nextRoot = getChordRoot(nextChord);
                     const walkingNote = getWalkingNote(rootNote, nextRoot);
                     bassLine.push({
                         note: walkingNote,
@@ -572,18 +554,287 @@ export function generateBassLine(chordProgression, complexity = 'simple') {
                         beat: 3
                     });
                 }
-            }
-        } catch (error) {
-            console.warn(`Error processing chord ${chord}:`, error);
-            bassLine.push({
-                note: chord.charAt(0),
-                rhythm: 'whole',
-                measure: index + 1
             });
+            return bassLine;
         }
-    });
-    
-    return bassLine;
+    },
+    'octave': {
+        name: 'Octave Bass',
+        description: 'Root note played in different octaves',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 1
+                });
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 3,
+                    octave: 'high'
+                });
+            });
+            return bassLine;
+        }
+    },
+    'fifths': {
+        name: 'Root-Fifth',
+        description: 'Alternating between root and fifth',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const fifthNote = getChordFifth(chord);
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 1
+                });
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 3
+                });
+            });
+            return bassLine;
+        }
+    },
+    'triads': {
+        name: 'Triad Arpeggios',
+        description: 'Playing through chord tones (1-3-5)',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const chordTones = getChordTones(chord);
+                chordTones.slice(0, 3).forEach((note, toneIndex) => {
+                    bassLine.push({
+                        note: note,
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 1 + (toneIndex * 0.5)
+                    });
+                });
+            });
+            return bassLine;
+        }
+    },
+    'syncopated': {
+        name: 'Syncopated Funk',
+        description: 'Funky syncopated bass rhythm',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const chordTones = getChordTones(chord);
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1
+                });
+                bassLine.push({
+                    note: chordTones[2] || rootNote, // Fifth or root
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1.5
+                });
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 2.5
+                });
+            });
+            return bassLine;
+        }
+    },
+    'pedal': {
+        name: 'Pedal Tone',
+        description: 'Sustained root note throughout',
+        generate: (chords) => {
+            const bassLine = [];
+            const firstRoot = getChordRoot(chords[0]);
+            chords.forEach((chord, index) => {
+                bassLine.push({
+                    note: firstRoot,
+                    rhythm: 'whole',
+                    measure: index + 1,
+                    beat: 1
+                });
+            });
+            return bassLine;
+        }
+    },
+    'chromatic': {
+        name: 'Chromatic Walk',
+        description: 'Chromatic passing tones between chords',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 1
+                });
+
+                const nextChord = chords[index + 1];
+                if (nextChord) {
+                    const nextRoot = getChordRoot(nextChord);
+                    const chromaticNote = getChromaticPassingTone(rootNote, nextRoot);
+                    bassLine.push({
+                        note: chromaticNote,
+                        rhythm: 'quarter',
+                        measure: index + 1,
+                        beat: 3
+                    });
+                }
+            });
+            return bassLine;
+        }
+    },
+    'reggae': {
+        name: 'Reggae One-Drop',
+        description: 'Reggae-style bass with emphasis on off-beats',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 2
+                });
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'quarter',
+                    measure: index + 1,
+                    beat: 4
+                });
+            });
+            return bassLine;
+        }
+    },
+    'latin': {
+        name: 'Latin Montuno',
+        description: 'Latin-style bass pattern with syncopation',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const fifthNote = getChordFifth(chord);
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1
+                });
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2.5
+                });
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 4
+                });
+            });
+            return bassLine;
+        }
+    }
+};
+
+export function generateBassLine(chordProgression, patternType = 'simple') {
+    if (!chordProgression || !chordProgression.chords) {
+        return [];
+    }
+
+    const pattern = bassPatterns[patternType];
+    if (!pattern) {
+        console.warn(`Unknown bass pattern: ${patternType}, using simple`);
+        return bassPatterns.simple.generate(chordProgression.chords);
+    }
+
+    try {
+        return pattern.generate(chordProgression.chords);
+    } catch (error) {
+        console.error(`Error generating ${patternType} bass line:`, error);
+        return bassPatterns.simple.generate(chordProgression.chords);
+    }
+}
+
+// Get all available bass patterns for the UI
+export function getAvailableBassPatterns() {
+    return Object.keys(bassPatterns).map(key => ({
+        id: key,
+        name: bassPatterns[key].name,
+        description: bassPatterns[key].description
+    }));
+}
+
+// Helper functions for bass line generation
+function getChordRoot(chord) {
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        return chordInfo.tonic || chord.replace(/[^A-G#b]/g, '');
+    } catch (error) {
+        return chord.charAt(0);
+    }
+}
+
+function getChordFifth(chord) {
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        const notes = chordInfo.notes;
+        return notes[2] || notes[0]; // Fifth or fallback to root
+    } catch (error) {
+        return getChordRoot(chord);
+    }
+}
+
+function getChordTones(chord) {
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        return chordInfo.notes || [getChordRoot(chord)];
+    } catch (error) {
+        return [getChordRoot(chord)];
+    }
+}
+
+function getChromaticPassingTone(currentRoot, nextRoot) {
+    try {
+        const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const currentIndex = noteOrder.indexOf(currentRoot);
+        const nextIndex = noteOrder.indexOf(nextRoot);
+
+        if (currentIndex === -1 || nextIndex === -1) return currentRoot;
+
+        // Find chromatic note between current and next
+        let passingIndex;
+        if (nextIndex > currentIndex) {
+            passingIndex = (currentIndex + 1) % 12;
+        } else {
+            passingIndex = (currentIndex - 1 + 12) % 12;
+        }
+
+        return noteOrder[passingIndex];
+    } catch (error) {
+        return currentRoot;
+    }
 }
 
 function getWalkingNote(currentRoot, nextRoot) {
@@ -608,58 +859,253 @@ export function generateMelodyIdeas(key, chordProgression, scale = 'major') {
     try {
         const scaleNotes = getScaleNotesForKey(key, scale);
         const melodyIdeas = [];
-        
-        // Generate different melody patterns based on music theory
+
+        // Comprehensive melody patterns inspired by real songs and genres
         const patterns = [
+            // Classic/Pop Patterns
             {
-                name: 'Ascending Scale Run',
-                description: 'Start low and climb up the scale',
-                pattern: scaleNotes.slice(0, 5),
-                rhythm: 'eighth',
-                difficulty: 'easy'
-            },
-            {
-                name: 'Chord Tone Melody',
-                description: 'Focus on chord tones for strong harmonic connection',
-                pattern: getChordTones(chordProgression, scaleNotes),
+                name: 'Hook Line',
+                description: 'Catchy repetitive phrase perfect for pop hooks',
+                pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[4], scaleNotes[2], scaleNotes[0]],
                 rhythm: 'quarter',
-                difficulty: 'medium'
+                difficulty: 'easy',
+                genre: 'pop'
             },
             {
-                name: 'Pentatonic Melody',
-                description: 'Use pentatonic scale for universal appeal',
+                name: 'Call and Response',
+                description: 'Question-answer melodic phrases',
+                pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[4], scaleNotes[7], scaleNotes[4], scaleNotes[2], scaleNotes[0]],
+                rhythm: 'eighth',
+                difficulty: 'medium',
+                genre: 'pop'
+            },
+            {
+                name: 'Stepwise Motion',
+                description: 'Smooth melodic line moving by steps',
+                pattern: scaleNotes.slice(0, 6),
+                rhythm: 'quarter',
+                difficulty: 'easy',
+                genre: 'ballad'
+            },
+
+            // Rock/Aggressive Patterns
+            {
+                name: 'Power Melody',
+                description: 'Strong, angular melody for rock vocals',
+                pattern: [scaleNotes[0], scaleNotes[4], scaleNotes[7], scaleNotes[4], scaleNotes[0]],
+                rhythm: 'quarter',
+                difficulty: 'easy',
+                genre: 'rock'
+            },
+            {
+                name: 'Octave Jumps',
+                description: 'Dynamic leaps for dramatic effect',
+                pattern: [scaleNotes[0], scaleNotes[7], scaleNotes[2], scaleNotes[4]],
+                rhythm: 'quarter',
+                difficulty: 'hard',
+                genre: 'rock'
+            },
+
+            // Jazz/Blues Patterns
+            {
+                name: 'Blue Note Melody',
+                description: 'Incorporates blue notes for soulful feel',
+                pattern: getPentatonicBluesNotes(key, scale),
+                rhythm: 'swung-eighth',
+                difficulty: 'medium',
+                genre: 'blues'
+            },
+            {
+                name: 'Chord Tone Outline',
+                description: 'Follows chord changes with strong harmonic connection',
+                pattern: getMelodyChordTones(chordProgression, scaleNotes),
+                rhythm: 'quarter',
+                difficulty: 'medium',
+                genre: 'jazz'
+            },
+            {
+                name: 'Bebop Line',
+                description: 'Fast-moving jazz-style melodic line',
+                pattern: getBebopScaleNotes(key, scale),
+                rhythm: 'eighth',
+                difficulty: 'hard',
+                genre: 'jazz'
+            },
+
+            // World/Ethnic Patterns
+            {
+                name: 'Pentatonic Flow',
+                description: 'Universal pentatonic scale for world appeal',
                 pattern: getPentatonicNotes(key, scale),
                 rhythm: 'quarter',
-                difficulty: 'easy'
+                difficulty: 'easy',
+                genre: 'world'
             },
             {
-                name: 'Arpeggiated Melody',
-                description: 'Follow chord arpeggios for harmonic strength',
+                name: 'Modal Melody',
+                description: 'Exotic modal scales for unique character',
+                pattern: getModalNotes(key, 'dorian'),
+                rhythm: 'quarter',
+                difficulty: 'medium',
+                genre: 'world'
+            },
+
+            // R&B/Soul Patterns
+            {
+                name: 'Melismatic Run',
+                description: 'Flowing runs typical of R&B vocals',
+                pattern: [...scaleNotes.slice(0, 5), ...scaleNotes.slice(2, 7).reverse()],
+                rhythm: 'sixteenth',
+                difficulty: 'hard',
+                genre: 'rnb'
+            },
+            {
+                name: 'Gospel Phrases',
+                description: 'Soulful phrases with tension and release',
+                pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[3], scaleNotes[4], scaleNotes[2], scaleNotes[0]],
+                rhythm: 'syncopated',
+                difficulty: 'medium',
+                genre: 'gospel'
+            },
+
+            // Electronic/Modern Patterns
+            {
+                name: 'Synth Arp Pattern',
+                description: 'Arpeggiated pattern perfect for electronic music',
                 pattern: getArpeggioNotes(chordProgression),
-                rhythm: 'eighth',
-                difficulty: 'medium'
+                rhythm: 'sixteenth',
+                difficulty: 'medium',
+                genre: 'electronic'
             },
             {
-                name: 'Scale Fragment',
-                description: 'Short melodic motif for development',
+                name: 'Vocal Chop Style',
+                description: 'Short, choppy phrases typical of modern production',
+                pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[4]],
+                rhythm: 'staccato',
+                difficulty: 'easy',
+                genre: 'electronic'
+            },
+
+            // Country/Folk Patterns
+            {
+                name: 'Country Storytelling',
+                description: 'Simple, narrative-friendly melody',
+                pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[4], scaleNotes[2], scaleNotes[0]],
+                rhythm: 'quarter',
+                difficulty: 'easy',
+                genre: 'country'
+            },
+            {
+                name: 'Folk Motif',
+                description: 'Traditional folk-style melodic fragment',
+                pattern: [scaleNotes[0], scaleNotes[1], scaleNotes[2], scaleNotes[0]],
+                rhythm: 'quarter',
+                difficulty: 'easy',
+                genre: 'folk'
+            },
+
+            // Experimental/Advanced
+            {
+                name: 'Chromatic Approach',
+                description: 'Uses chromatic notes for sophisticated harmony',
+                pattern: getChromaticMelodyNotes(scaleNotes),
+                rhythm: 'eighth',
+                difficulty: 'hard',
+                genre: 'jazz'
+            },
+            {
+                name: 'Motivic Development',
+                description: 'Short motif that can be developed and varied',
                 pattern: [scaleNotes[0], scaleNotes[2], scaleNotes[4], scaleNotes[1]],
                 rhythm: 'quarter',
-                difficulty: 'easy'
+                difficulty: 'easy',
+                genre: 'classical'
             },
             {
                 name: 'Interval Leaps',
-                description: 'Dramatic melodic leaps for excitement',
-                pattern: [scaleNotes[0], scaleNotes[4], scaleNotes[1], scaleNotes[5]],
-                rhythm: 'half',
-                difficulty: 'hard'
+                description: 'Large interval jumps for dramatic effect',
+                pattern: [scaleNotes[0], scaleNotes[4], scaleNotes[1], scaleNotes[6]],
+                rhythm: 'quarter',
+                difficulty: 'hard',
+                genre: 'contemporary'
             }
         ];
-        
-        return patterns.filter(pattern => pattern.pattern.length > 0);
-        
+
+        // Filter out any patterns with undefined notes and return
+        return patterns.map(pattern => ({
+            ...pattern,
+            pattern: pattern.pattern.filter(note => note && typeof note === 'string')
+        })).filter(pattern => pattern.pattern.length > 0);
     } catch (error) {
         console.error('Error generating melody ideas:', error);
         return [];
+    }
+}
+
+// Helper functions for the new melody patterns
+function getPentatonicBluesNotes(key, scale) {
+    try {
+        const scaleNotes = getScaleNotesForKey(key, scale);
+        if (!scaleNotes || scaleNotes.length < 7) {
+            return ['C', 'E', 'F', 'G', 'B']; // Fallback C pentatonic
+        }
+        // Pentatonic with blue notes (b3, b5, b7)
+        return [scaleNotes[0], scaleNotes[2], scaleNotes[3], scaleNotes[4], scaleNotes[6]].filter(note => note);
+    } catch (error) {
+        return ['C', 'E', 'F', 'G', 'B']; // Fallback C pentatonic
+    }
+}
+
+function getBebopScaleNotes(key, scale) {
+    try {
+        const scaleNotes = getScaleNotesForKey(key, scale);
+        if (!scaleNotes || scaleNotes.length < 7) {
+            return ['C', 'D', 'E', 'F', 'G', 'A', 'B']; // Fallback C major
+        }
+        // Bebop scale adds chromatic passing tones
+        return [...scaleNotes.slice(0, 4), ...scaleNotes.slice(2, 6)].filter(note => note);
+    } catch (error) {
+        return ['C', 'D', 'E', 'F', 'G', 'A', 'B']; // Fallback C major
+    }
+}
+
+function getModalNotes(key, mode = 'dorian') {
+    try {
+        // Simple modal implementation - could be expanded
+        const scaleNotes = getScaleNotesForKey(key, 'major');
+        if (!scaleNotes || scaleNotes.length < 7) {
+            return ['C', 'D', 'E', 'F', 'G', 'A', 'B']; // Fallback C major
+        }
+        switch (mode) {
+            case 'dorian':
+                return [scaleNotes[1], scaleNotes[2], scaleNotes[3], scaleNotes[4], scaleNotes[5], scaleNotes[6], scaleNotes[0]].filter(note => note);
+            case 'mixolydian':
+                return [scaleNotes[4], scaleNotes[5], scaleNotes[6], scaleNotes[0], scaleNotes[1], scaleNotes[2], scaleNotes[3]].filter(note => note);
+            default:
+                return scaleNotes.filter(note => note);
+        }
+    } catch (error) {
+        return ['C', 'D', 'E', 'F', 'G', 'A', 'B']; // Fallback C major
+    }
+}
+
+function getChromaticMelodyNotes(scaleNotes) {
+    try {
+        if (!scaleNotes || scaleNotes.length === 0) {
+            return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G']; // Fallback chromatic
+        }
+        // Add chromatic passing tones between scale degrees
+        const chromatic = [];
+        for (let i = 0; i < Math.min(scaleNotes.length - 1, 4); i++) {
+            if (scaleNotes[i]) {
+                chromatic.push(scaleNotes[i]);
+                // Add chromatic note between current and next scale degree (simplified)
+                chromatic.push(`${scaleNotes[i]}#`);
+            }
+        }
+        return chromatic.filter(note => note).slice(0, 8); // Limit length and filter out undefined
+    } catch (error) {
+        return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G']; // Fallback chromatic
     }
 }
 
@@ -703,11 +1149,11 @@ function getPentatonicNotes(key, scale) {
     }
 }
 
-function getChordTones(chordProgression, scaleNotes) {
+function getMelodyChordTones(chordProgression, scaleNotes) {
     if (!chordProgression || !chordProgression.chords || chordProgression.chords.length === 0) {
         return scaleNotes.slice(0, 4);
     }
-    
+
     try {
         const firstChord = chordProgression.chords[0];
         const chordInfo = Tonal.Chord.get(firstChord);

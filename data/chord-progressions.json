@@ -2,13 +2,13 @@
   "progressions": {
     "major": {
       "I-V-vi-IV": {
-        "name": "Pop Progression",
+        "name": "Classic Progression",
         "description": "Most popular in modern music - uplifting and familiar",
         "numerals": ["I", "V", "vi", "IV"],
         "function": "Tonic-Dominant-Relative Minor-Subdominant"
       },
       "vi-IV-I-V": {
-        "name": "Pop Progression (vi start)",
+        "name": "Emotional Progression",
         "description": "Same progression starting on vi - more emotional",
         "numerals": ["vi", "IV", "I", "V"],
         "function": "Relative Minor-Subdominant-Tonic-Dominant"
@@ -94,7 +94,7 @@
         "function": "Tonic-Subdominant-Dominant"
       },
       "i-VI-III-VII": {
-        "name": "Minor Pop",
+        "name": "Modern Minor",
         "description": "Modern minor progression, very popular",
         "numerals": ["i", "♭VI", "♭III", "♭VII"],
         "function": "Tonic-Submediant-Mediant-Subtonic"
