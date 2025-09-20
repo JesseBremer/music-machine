@@ -206,33 +206,134 @@ export function displayChords(chordProgression, key) {
     if (!chordDisplay || !chordProgression) return;
 
 
-    // Generate chord diagrams for each chord in the progression
+    // Generate chord diagrams grouped by instrument
     let chordDiagramsHTML = '';
     if (chordProgression.chords && chordProgression.chords.length > 0) {
+        // Generate diagrams for all chords
+        const allDiagrams = chordProgression.chords.map(chord => {
+            if (window.generateChordDiagrams) {
+                try {
+                    const diagrams = window.generateChordDiagrams(chord);
+                    return {
+                        chord: chord,
+                        diagrams: diagrams
+                    };
+                } catch (error) {
+                    console.error(`Error generating diagrams for ${chord}:`, error);
+                    return {
+                        chord: chord,
+                        diagrams: {
+                            guitar: `<div class="diagram-error">Cannot display ${chord}</div>`,
+                            piano: `<div class="diagram-error">Cannot display ${chord}</div>`,
+                            bass: `<div class="diagram-error">Cannot display ${chord}</div>`
+                        }
+                    };
+                }
+            }
+            return {
+                chord: chord,
+                diagrams: { guitar: '', piano: '', bass: '' }
+            };
+        });
+
         chordDiagramsHTML = `
             <div class="chord-diagrams">
                 <h6>🎸 Visual Chord Guide</h6>
-                <div class="chord-diagrams-container">
-                    ${chordProgression.chords.map(chord => `
-                        <div class="chord-diagrams-single">
-                            <div class="chord-label">${chord}</div>
-                            <div class="chord-diagrams-row">
-                                ${window.generateGuitarDiagram ? window.generateGuitarDiagram(chord) : ''}
-                                ${window.generatePianoDiagram ? window.generatePianoDiagram(chord) : ''}
-                                ${window.generateBassDiagram ? window.generateBassDiagram(chord) : ''}
+
+                <!-- Guitar Row -->
+                <div class="instrument-section">
+                    <h7 class="instrument-title">🎸 Guitar</h7>
+                    <div class="instrument-diagrams-row">
+                        ${allDiagrams.map(({ chord, diagrams }) => `
+                            <div class="instrument-chord-diagram">
+                                <div class="chord-name">${chord}</div>
+                                <div class="svg-guitar-container">${diagrams.guitar}</div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Piano Row -->
+                <div class="instrument-section">
+                    <h7 class="instrument-title">🎹 Piano</h7>
+                    <div class="instrument-diagrams-row">
+                        ${allDiagrams.map(({ chord, diagrams }) => `
+                            <div class="instrument-chord-diagram">
+                                <div class="chord-name">${chord}</div>
+                                <div class="svg-piano-container">${diagrams.piano}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Bass Row -->
+                <div class="instrument-section">
+                    <h7 class="instrument-title">🎸 Bass</h7>
+                    <div class="instrument-diagrams-row">
+                        ${allDiagrams.map(({ chord, diagrams }) => `
+                            <div class="instrument-chord-diagram">
+                                <div class="chord-name">${chord}</div>
+                                <div class="svg-bass-container">${diagrams.bass}</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
     }
 
+    // Create individual chord enhancement interface
+    const individualChordsHTML = chordProgression.chords.map((chord, index) => `
+        <div class="individual-chord" data-chord-index="${index}">
+            <div class="chord-header" onclick="playIndividualChord('${chord}')" title="Click to play chord">
+                <span class="chord-name">${chord}</span>
+                <span class="chord-numeral">${chordProgression.numerals[index]}</span>
+            </div>
+            <div class="chord-enhancement-options">
+                <button class="mini-enhancement-btn" onclick="showChordOptions(${index}, 'inversions')" title="Inversions">
+                    🔄
+                </button>
+                <button class="mini-enhancement-btn" onclick="showChordOptions(${index}, 'extensions')" title="Extensions">
+                    ➕
+                </button>
+                <button class="mini-enhancement-btn" onclick="showChordOptions(${index}, 'substitutions')" title="Substitutions">
+                    🔀
+                </button>
+                <button class="mini-enhancement-btn" onclick="showChordOptions(${index}, 'voicings')" title="Voicings">
+                    🎹
+                </button>
+            </div>
+        </div>
+    `).join('');
+
     chordDisplay.innerHTML = `
         <div class="chord-progression">
             <h5>${chordProgression.name}</h5>
-            <div class="chords">${chordProgression.chords.join(' - ')}</div>
-            <div class="numerals">${chordProgression.numerals.join(' - ')}</div>
+
+            <!-- Individual Chord Controls -->
+            <div class="chord-enhancement-section">
+                <h6>🎼 Individual Chord Enhancements</h6>
+                <p class="enhancement-tip">Click icons below each chord to customize individually:</p>
+                <div class="individual-chords-grid">
+                    ${individualChordsHTML}
+                </div>
+            </div>
+
+            <!-- Chord Options Panel -->
+            <div id="chord-options-panel" class="chord-options-panel" style="display: none;">
+                <div class="panel-header">
+                    <h6 id="panel-title">Enhance Chord</h6>
+                    <button class="close-panel-btn" onclick="closeChordOptionsPanel()">×</button>
+                </div>
+                <div id="panel-content" class="panel-content"></div>
+            </div>
+
+            <!-- Original Display -->
+            <div class="progression-summary">
+                <div class="chords" id="current-chords">${chordProgression.chords.join(' - ')}</div>
+                <div class="numerals">${chordProgression.numerals.join(' - ')}</div>
+            </div>
+
             <div class="audio-controls">
                 <button class="play-btn" onclick="playChordProgression('${chordProgression.name}')">
                     ▶️ Play Progression
@@ -240,10 +341,22 @@ export function displayChords(chordProgression, key) {
                 <button class="stop-btn" onclick="stopAudio()">
                     ⏹️ Stop
                 </button>
+                <button class="reset-btn" onclick="resetProgression()">
+                    🔄 Reset All
+                </button>
             </div>
             ${chordDiagramsHTML}
         </div>
     `;
+
+    // Store the original progression for reset functionality
+    if (!window.originalProgression) {
+        window.originalProgression = {
+            name: chordProgression.name,
+            chords: [...chordProgression.chords],
+            numerals: [...chordProgression.numerals]
+        };
+    }
 }
 
 export function renderDrumPatterns(patterns, container) {
@@ -1143,6 +1256,24 @@ window.playChordProgression = async function(progressionName) {
     }
 };
 
+window.playIndividualChord = async function(chordName) {
+    const appState = window.appState;
+    const key = appState?.songData?.key || 'C';
+
+    if (window.audioEngine) {
+        try {
+            // Play the individual chord for 2 seconds
+            await window.audioEngine.playChordProgressionImmediate([chordName], 2000, key);
+            showMessage(`Playing ${chordName}...`, 'info');
+        } catch (error) {
+            console.error('Error playing chord:', error);
+            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+        }
+    } else {
+        showMessage('Audio engine not available', 'error');
+    }
+};
+
 window.playDrumPattern = function(patternName) {
     const appState = window.appState;
     if (!appState || !appState.songData.drumPattern) {
@@ -1272,20 +1403,30 @@ export function showMessage(message, type = 'info') {
     messageDiv.textContent = message;
     
     let backgroundColor = 'var(--primary-color)';
-    if (type === 'error') backgroundColor = 'var(--error-color)';
-    else if (type === 'success') backgroundColor = 'var(--success-color)';
-    else if (type === 'warning') backgroundColor = 'var(--warning-color)';
-    
+    let textColor = 'white';
+
+    if (type === 'error') {
+        backgroundColor = 'var(--error-color)';
+        textColor = 'white';
+    } else if (type === 'success') {
+        backgroundColor = 'var(--success-color)';
+        textColor = 'white';
+    } else if (type === 'warning') {
+        backgroundColor = 'var(--warning-color)';
+        textColor = 'var(--background-color)'; // Use dark text on warning background
+    }
+
     messageDiv.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
         padding: 12px 24px;
         background: ${backgroundColor};
-        color: white;
+        color: ${textColor};
         border-radius: var(--border-radius);
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        font-weight: 600;
         box-shadow: var(--box-shadow-lg);
     `;
     
@@ -1604,3 +1745,513 @@ window.applySuggestion = function(sectionId, chordProgression) {
         chordInput.value = chordProgression;
     }
 };
+
+// Individual Chord Enhancement Functions
+
+window.showChordOptions = function(chordIndex, enhancementType) {
+    const currentProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+    if (!currentProgression || !currentProgression.chords) {
+        showMessage('No chord progression selected', 'warning');
+        return;
+    }
+
+    const chord = currentProgression.chords[chordIndex];
+    const numeral = currentProgression.numerals[chordIndex];
+    const panel = document.getElementById('chord-options-panel');
+    const panelTitle = document.getElementById('panel-title');
+    const panelContent = document.getElementById('panel-content');
+
+    if (!panel || !panelTitle || !panelContent) return;
+
+    // Set panel title
+    const typeNames = {
+        'inversions': '🔄 Inversions',
+        'extensions': '➕ Extensions',
+        'substitutions': '🔀 Substitutions',
+        'voicings': '🎹 Voicings'
+    };
+
+    panelTitle.textContent = `${typeNames[enhancementType]} for ${chord} (${numeral})`;
+
+    // Generate options based on type
+    let options = [];
+    let description = '';
+
+    switch (enhancementType) {
+        case 'inversions':
+            options = generateSingleChordInversions(chord);
+            description = 'Smooth bass movement by changing which note is in the bass:';
+            break;
+        case 'extensions':
+            options = generateSingleChordExtensions(chord);
+            description = 'Add color and sophistication:';
+            break;
+        case 'substitutions':
+            options = generateSingleChordSubstitutions(chord, numeral);
+            description = 'Alternative chords with similar function:';
+            break;
+        case 'voicings':
+            options = generateSingleChordVoicings(chord);
+            description = 'Different arrangements and textures:';
+            break;
+    }
+
+    panelContent.innerHTML = `
+        <p class="panel-description">${description}</p>
+        <div class="chord-options-list">
+            ${options.map(option => `
+                <div class="chord-option" data-chord-index="${chordIndex}">
+                    <div class="option-info">
+                        <div class="option-chord">${option.chord}</div>
+                        <div class="option-name">${option.name}</div>
+                        <div class="option-description">${option.description}</div>
+                    </div>
+                    <button class="apply-option-btn" onclick="applyChordOption(${chordIndex}, '${option.chord}')">
+                        Apply
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
+window.applyChordOption = function(chordIndex, newChord) {
+    console.log('applyChordOption called:', { chordIndex, newChord });
+
+    const currentProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+    if (!currentProgression || !currentProgression.chords) {
+        console.error('No current progression found in applyChordOption');
+        return;
+    }
+
+    console.log('Before update:', currentProgression.chords);
+
+    // Update the specific chord
+    currentProgression.chords[chordIndex] = newChord;
+
+    // Update both possible locations in app state
+    if (window.appState.songData?.chordProgression) {
+        window.appState.songData.chordProgression.chords[chordIndex] = newChord;
+    }
+    if (window.appState.selectedChordProgression) {
+        window.appState.selectedChordProgression.chords[chordIndex] = newChord;
+    }
+
+    // Update the display
+    updateProgressionDisplay(currentProgression.chords);
+
+    // Update the individual chord display
+    const chordElement = document.querySelector(`[data-chord-index="${chordIndex}"] .chord-name`);
+    if (chordElement) {
+        chordElement.textContent = newChord;
+    }
+
+    // Regenerate chord diagrams for the updated progression
+    console.log('About to call updateChordDiagrams with:', {
+        currentProgression: currentProgression,
+        hasChords: currentProgression?.chords,
+        chordCount: currentProgression?.chords?.length
+    });
+    updateChordDiagrams(currentProgression);
+
+    // Log for debugging
+    console.log('Updated chord diagrams after applying enhancement:', {
+        chordIndex,
+        newChord,
+        fullProgression: currentProgression.chords
+    });
+
+    closeChordOptionsPanel();
+    showMessage(`Chord ${chordIndex + 1} updated to ${newChord}`, 'success');
+};
+
+window.closeChordOptionsPanel = function() {
+    const panel = document.getElementById('chord-options-panel');
+    if (panel) {
+        panel.style.display = 'none';
+    }
+};
+
+window.resetProgression = function() {
+    if (!window.originalProgression) return;
+
+    const currentProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+    if (!currentProgression) return;
+
+    // Reset to original chords
+    currentProgression.chords = [...window.originalProgression.chords];
+
+    // Update both possible locations in app state
+    if (window.appState.songData?.chordProgression) {
+        window.appState.songData.chordProgression.chords = [...window.originalProgression.chords];
+    }
+    if (window.appState.selectedChordProgression) {
+        window.appState.selectedChordProgression.chords = [...window.originalProgression.chords];
+    }
+
+    // Update displays
+    updateProgressionDisplay(window.originalProgression.chords);
+
+    // Update individual chord displays
+    window.originalProgression.chords.forEach((chord, index) => {
+        const chordElement = document.querySelector(`[data-chord-index="${index}"] .chord-name`);
+        if (chordElement) {
+            chordElement.textContent = chord;
+        }
+    });
+
+    // Regenerate chord diagrams for the original progression
+    const originalProgression = {
+        name: window.originalProgression.name,
+        chords: window.originalProgression.chords,
+        numerals: window.originalProgression.numerals
+    };
+    updateChordDiagrams(originalProgression);
+
+    closeChordOptionsPanel();
+    showMessage('Progression reset to original', 'success');
+};
+
+function updateProgressionDisplay(chords) {
+    const currentChordsElement = document.getElementById('current-chords');
+    if (currentChordsElement) {
+        currentChordsElement.textContent = chords.join(' - ');
+    }
+}
+
+function updateChordDiagrams(chordProgression) {
+    if (!chordProgression || !chordProgression.chords) {
+        console.warn('No chord progression or chords provided to updateChordDiagrams');
+        return;
+    }
+
+    console.log('Updating chord diagrams for:', chordProgression.chords);
+    console.log('generateChordDiagrams available:', !!window.generateChordDiagrams);
+
+    // Instead of trying to selectively update the diagrams, let's regenerate the entire chord display
+    // This ensures consistency with how displayChords() works
+    console.log('Regenerating entire chord display with updated progression');
+    displayChords(chordProgression);
+}
+
+// Helper functions for individual chord variations
+
+function generateSingleChordInversions(chord) {
+    const inversions = [];
+
+    // Parse the chord to get the root and remove any existing bass notes
+    const baseChord = chord.replace(/\/.*$/, ''); // Remove existing /bass notation
+    const rootNote = baseChord.match(/^([A-G][#b]?)/)?.[1];
+    if (!rootNote) return inversions;
+
+    // Original position (for context)
+    inversions.push({
+        chord: baseChord,
+        name: 'Root Position',
+        description: 'Original chord with root in bass'
+    });
+
+    // Get third and fifth notes
+    const thirdNote = getChordThird(rootNote, baseChord.includes('m') && !baseChord.includes('maj'));
+    const fifthNote = getChordFifth(rootNote);
+
+    // First inversion
+    if (thirdNote) {
+        inversions.push({
+            chord: `${baseChord}/${thirdNote}`,
+            name: 'First Inversion',
+            description: `${thirdNote} in bass - smooth voice leading`
+        });
+    }
+
+    // Second inversion
+    if (fifthNote) {
+        inversions.push({
+            chord: `${baseChord}/${fifthNote}`,
+            name: 'Second Inversion',
+            description: `${fifthNote} in bass - strong, stable sound`
+        });
+    }
+
+    return inversions;
+}
+
+// Helper function to get the third of a chord
+function getChordThird(rootNote, isMinor) {
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const rootIndex = notes.indexOf(rootNote);
+    if (rootIndex === -1) return null;
+
+    const thirdInterval = isMinor ? 3 : 4; // Minor 3rd = 3 semitones, Major 3rd = 4 semitones
+    const thirdIndex = (rootIndex + thirdInterval) % 12;
+    return notes[thirdIndex];
+}
+
+// Helper function to get the fifth of a chord
+function getChordFifth(rootNote) {
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const rootIndex = notes.indexOf(rootNote);
+    if (rootIndex === -1) return null;
+
+    const fifthIndex = (rootIndex + 7) % 12; // Perfect 5th = 7 semitones
+    return notes[fifthIndex];
+}
+
+function generateSingleChordExtensions(chord) {
+    const extensions = [];
+    const baseChord = chord.replace(/\/.*$/, ''); // Remove any existing bass notes
+    const root = baseChord.match(/^([A-G][#b]?)/)?.[1];
+
+    if (!root) return extensions;
+
+    // 7th extensions using proper Tonal.js notation
+    if (baseChord.includes('m') && !baseChord.includes('maj')) {
+        // Minor chord extensions
+        extensions.push({
+            chord: `${baseChord}7`,
+            name: 'Minor 7th',
+            description: 'Adds smooth, jazzy quality'
+        });
+        extensions.push({
+            chord: `${baseChord}9`,
+            name: 'Minor 9th',
+            description: 'Rich, sophisticated color'
+        });
+        extensions.push({
+            chord: `${baseChord}11`,
+            name: 'Minor 11th',
+            description: 'Complex, modern harmony'
+        });
+        extensions.push({
+            chord: `${baseChord}6`,
+            name: 'Minor 6th',
+            description: 'Sophisticated minor color'
+        });
+    } else {
+        // Major chord extensions
+        extensions.push({
+            chord: `${root}7`,
+            name: 'Dominant 7th',
+            description: 'Blues, jazz standard'
+        });
+        extensions.push({
+            chord: `${root}maj7`,
+            name: 'Major 7th',
+            description: 'Dreamy, lush sound'
+        });
+        extensions.push({
+            chord: `${root}9`,
+            name: 'Dominant 9th',
+            description: 'Funky, soulful'
+        });
+        extensions.push({
+            chord: `${root}maj9`,
+            name: 'Major 9th',
+            description: 'Open, spacious feel'
+        });
+        extensions.push({
+            chord: `${root}add9`,
+            name: 'Add 9th',
+            description: 'Bright, modern sound'
+        });
+        extensions.push({
+            chord: `${root}6`,
+            name: 'Major 6th',
+            description: 'Vintage, nostalgic quality'
+        });
+        extensions.push({
+            chord: `${root}maj13`,
+            name: 'Major 13th',
+            description: 'Very lush, sophisticated'
+        });
+    }
+
+    // Sus chords (work with any root)
+    extensions.push({
+        chord: `${root}sus2`,
+        name: 'Sus2',
+        description: 'Floaty, unresolved feeling'
+    });
+    extensions.push({
+        chord: `${root}sus4`,
+        name: 'Sus4',
+        description: 'Tension that wants to resolve'
+    });
+    extensions.push({
+        chord: `${root}7sus4`,
+        name: '7sus4',
+        description: 'Suspended dominant - wants resolution'
+    });
+
+    // Altered chords
+    extensions.push({
+        chord: `${root}aug`,
+        name: 'Augmented',
+        description: 'Mysterious, unstable sound'
+    });
+    extensions.push({
+        chord: `${root}o`,
+        name: 'Diminished',
+        description: 'Dark, tense atmosphere'
+    });
+    extensions.push({
+        chord: `${root}o7`,
+        name: 'Diminished 7th',
+        description: 'Very tense, transitional'
+    });
+
+    return extensions;
+}
+
+function generateSingleChordSubstitutions(chord, numeral) {
+    const substitutions = [];
+    const baseChord = chord.replace(/\/.*$/, ''); // Remove bass notes
+
+    // Relative major/minor
+    if (baseChord.includes('m') && !baseChord.includes('maj')) {
+        const relativeMajor = baseChord.replace(/m/, '');
+        substitutions.push({
+            chord: relativeMajor,
+            name: 'Relative Major',
+            description: 'Brighter, more uplifting version'
+        });
+    } else {
+        const relativeMinor = baseChord + 'm';
+        substitutions.push({
+            chord: relativeMinor,
+            name: 'Relative Minor',
+            description: 'Darker, more emotional version'
+        });
+    }
+
+    // Function-based substitutions
+    switch (numeral) {
+        case 'I':
+            substitutions.push({
+                chord: baseChord.replace(/[A-G]/, match => getRelativeMinor(match)),
+                name: 'vi substitute',
+                description: 'Classic relative minor substitution'
+            });
+            break;
+        case 'V':
+            const root = baseChord.charAt(0);
+            substitutions.push({
+                chord: `${getTritoneSubstitute(root)}7`,
+                name: 'Tritone Sub',
+                description: 'Jazz substitution with chromatic bass movement'
+            });
+            break;
+        case 'IV':
+            substitutions.push({
+                chord: baseChord.replace(/[A-G]/, match => match + 'm'),
+                name: 'Minor iv',
+                description: 'Modal interchange - adds melancholy'
+            });
+            break;
+    }
+
+    // Diminished passing chords
+    if (numeral === 'V') {
+        const root = baseChord.charAt(0);
+        substitutions.push({
+            chord: `${root}o7`,
+            name: 'Diminished 7th',
+            description: 'Creates strong pull to next chord'
+        });
+    }
+
+    return substitutions;
+}
+
+function generateSingleChordVoicings(chord) {
+    const voicings = [];
+    const baseChord = chord.replace(/\/.*$/, '');
+    const root = baseChord.match(/^([A-G][#b]?)/)?.[1];
+
+    if (!root) return voicings;
+
+    // Use alternative chord voicings that Tonal.js can understand
+    voicings.push({
+        chord: baseChord,
+        name: 'Root Position',
+        description: 'Standard chord arrangement'
+    });
+
+    // If it's a major chord, offer different inversions and related chords
+    if (!baseChord.includes('m')) {
+        // Use actual chord variations instead of voicing descriptions
+        voicings.push({
+            chord: `${root}6/9`,
+            name: '6/9 Voicing',
+            description: 'Jazz voicing - rich and colorful'
+        });
+
+        if (baseChord.includes('maj7') || baseChord.includes('7')) {
+            voicings.push({
+                chord: `${root}maj7#11`,
+                name: 'Lydian Voicing',
+                description: 'Bright, sophisticated color'
+            });
+        } else {
+            voicings.push({
+                chord: `${root}maj7`,
+                name: 'Major 7th Voicing',
+                description: 'Smooth, jazzy alternative'
+            });
+        }
+
+        voicings.push({
+            chord: `${root}add2`,
+            name: 'Add2 Voicing',
+            description: 'Open, contemporary sound'
+        });
+    } else {
+        // Minor chord voicings
+        voicings.push({
+            chord: `${baseChord}add9`,
+            name: 'Minor Add9',
+            description: 'Rich minor color'
+        });
+
+        voicings.push({
+            chord: `${baseChord}maj7`,
+            name: 'Minor/Major 7',
+            description: 'Dreamy, ethereal quality'
+        });
+
+        voicings.push({
+            chord: `${baseChord}6`,
+            name: 'Minor 6th',
+            description: 'Sophisticated minor voicing'
+        });
+    }
+
+    // Power chord (for any chord type)
+    voicings.push({
+        chord: `${root}5`,
+        name: 'Power Chord',
+        description: 'Strong, guitar-friendly voicing'
+    });
+
+    return voicings;
+}
+
+function getTritoneSubstitute(note) {
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const index = notes.indexOf(note);
+    if (index === -1) return note;
+
+    const tritoneIndex = (index + 6) % 12;
+    return notes[tritoneIndex];
+}
+
+function getRelativeMinor(majorNote) {
+    const majorToMinor = {
+        'C': 'Am', 'C#': 'A#m', 'D': 'Bm', 'D#': 'Cm', 'E': 'C#m', 'F': 'Dm',
+        'F#': 'D#m', 'G': 'Em', 'G#': 'Fm', 'A': 'F#m', 'A#': 'Gm', 'B': 'G#m'
+    };
+    return majorToMinor[majorNote] || majorNote + 'm';
+}

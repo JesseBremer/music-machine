@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guitar Chords Reference - Music Machine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
+    <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+    <style>
+        .chords-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-sm);
+            text-shadow: var(--glow-accent);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .navigation {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--surface-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin: 0 var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--secondary-color);
+            color: var(--background-color);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .chord-section {
+            margin-bottom: var(--spacing-2xl);
+            background: var(--surface-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .chord-section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .chord-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chord-card {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .chord-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .chord-card .chord-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-sm);
+            text-align: center;
+        }
+
+        .chord-card .svg-guitar-container {
+            min-width: 200px;
+            max-width: 250px;
+            margin: 0 auto;
+        }
+
+        .chord-card .chord-info {
+            margin-top: var(--spacing-sm);
+        }
+
+        .stats-section {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: var(--spacing-md);
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: var(--spacing-xs);
+        }
+
+        .missing-chords {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .missing-chords h4 {
+            color: var(--error-color);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .missing-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .missing-chord {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--error-color);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-family: var(--font-family-mono);
+        }
+
+        @media (max-width: 768px) {
+            .chord-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chords-page">
+        <div class="page-header">
+            <h1 class="page-title">🎸 Guitar Chords Reference</h1>
+            <p class="page-subtitle">Complete database of guitar chord diagrams organized by root note</p>
+        </div>
+
+        <div class="navigation">
+            <a href="index.html" class="nav-link">← Back to Music Machine</a>
+            <a href="#stats" class="nav-link">📊 Statistics</a>
+            <a href="#missing" class="nav-link">⚠️ Missing Chords</a>
+        </div>
+
+        <div id="stats" class="stats-section">
+            <h2>📊 Chord Database Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-chords">0</span>
+                    <div class="stat-label">Total Chords</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="basic-chords">0</span>
+                    <div class="stat-label">Basic Major/Minor</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="seventh-chords">0</span>
+                    <div class="stat-label">7th Chords</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="sus-chords">0</span>
+                    <div class="stat-label">Sus Chords</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="extended-chords">0</span>
+                    <div class="stat-label">Extended Chords</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="inversion-chords">0</span>
+                    <div class="stat-label">Inversions</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chords-container">
+            <!-- Chord sections will be generated here -->
+        </div>
+
+        <div id="missing" class="missing-chords">
+            <h4>⚠️ Missing or Problematic Chords</h4>
+            <p>These chord types are commonly used but not found in the database:</p>
+            <div class="missing-list" id="missing-list">
+                <!-- Missing chords will be listed here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { generateChordDiagrams } from './js/chord-diagrams.js';
+
+        // Chromatic note order
+        const chromaticNotes = ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'];
+
+        // Common chord types to check for completeness
+        const commonChordTypes = [
+            '', 'm', '7', 'maj7', 'm7', 'sus2', 'sus4', '6', 'm6',
+            'add9', '9', 'maj9', 'm9', '11', '13', 'aug', 'o', 'o7', '5'
+        ];
+
+        // Import the guitarChords object from the module
+        import { guitarChords } from './js/chord-diagrams.js';
+
+        // Get all available chords from the guitar chords object
+        function getAllChords() {
+            const chords = {};
+            Object.keys(guitarChords).forEach(chordName => {
+                chords[chordName] = true;
+            });
+            return chords;
+        }
+
+        // Group chords by root note
+        function groupChordsByRoot(chords) {
+            const grouped = {};
+
+            Object.keys(chords).forEach(chordName => {
+                let root = 'Other';
+
+                // Extract root note
+                const match = chordName.match(/^([A-G][#b]?)/);
+                if (match) {
+                    root = match[1];
+                    // Normalize sharp/flat equivalents
+                    const rootMap = {
+                        'C#': 'C#/Db', 'Db': 'C#/Db',
+                        'D#': 'D#/Eb', 'Eb': 'D#/Eb',
+                        'F#': 'F#/Gb', 'Gb': 'F#/Gb',
+                        'G#': 'G#/Ab', 'Ab': 'G#/Ab',
+                        'A#': 'A#/Bb', 'Bb': 'A#/Bb'
+                    };
+                    root = rootMap[root] || root;
+                }
+
+                if (!grouped[root]) {
+                    grouped[root] = [];
+                }
+                grouped[root].push(chordName);
+            });
+
+            // Sort chords within each group
+            Object.keys(grouped).forEach(root => {
+                grouped[root].sort((a, b) => {
+                    // Sort by chord complexity: basic, m, 7, maj7, etc.
+                    const getComplexity = (chord) => {
+                        if (chord.match(/^[A-G][#b]?$/)) return 0; // Basic major
+                        if (chord.match(/^[A-G][#b]?m$/)) return 1; // Basic minor
+                        if (chord.includes('7')) return 2; // 7th chords
+                        if (chord.includes('sus')) return 3; // Sus chords
+                        if (chord.includes('/')) return 4; // Inversions
+                        return 5; // Others
+                    };
+                    return getComplexity(a) - getComplexity(b);
+                });
+            });
+
+            return grouped;
+        }
+
+        // Calculate statistics
+        function calculateStats(chords) {
+            const chordNames = Object.keys(chords);
+            const stats = {
+                total: chordNames.length,
+                basic: chordNames.filter(c => c.match(/^[A-G][#b]?m?$/)).length,
+                seventh: chordNames.filter(c => c.includes('7')).length,
+                sus: chordNames.filter(c => c.includes('sus')).length,
+                extended: chordNames.filter(c => c.match(/add|9|11|13|aug|o/)).length,
+                inversions: chordNames.filter(c => c.includes('/')).length
+            };
+            return stats;
+        }
+
+        // Find missing common chords
+        function findMissingChords(chords) {
+            const missing = [];
+            const roots = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+
+            roots.forEach(root => {
+                commonChordTypes.forEach(type => {
+                    const chordName = root + type;
+                    if (!chords[chordName]) {
+                        missing.push(chordName);
+                    }
+                });
+            });
+
+            return missing;
+        }
+
+        // Render chord section
+        function renderChordSection(root, chordList) {
+            const chordsHtml = chordList.map(chordName => {
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+                return `
+                    <div class="chord-card">
+                        <div class="chord-name">${chordName}</div>
+                        <div id="${chordId}" class="svg-guitar-container"></div>
+                        <div class="chord-info">
+                            <span class="chord-notes">Loading...</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="chord-section">
+                    <h2 class="chord-section-title">
+                        <span>🎵</span>
+                        ${root} Chords (${chordList.length})
+                    </h2>
+                    <div class="chord-grid">
+                        ${chordsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate chord diagrams
+        function generateDiagrams(chordList) {
+            console.log('Generating diagrams for:', chordList);
+            chordList.forEach(chordName => {
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+                console.log(`Processing chord: ${chordName}, ID: ${chordId}`);
+
+                setTimeout(() => {
+                    try {
+                        const element = document.getElementById(chordId);
+                        // Check if diagram already exists to prevent double generation
+                        if (element && element.innerHTML.includes('svg-guitar-container') && element.innerHTML.length > 100) {
+                            console.log(`Skipping ${chordName} - already has diagram`);
+                            return;
+                        }
+
+                        const diagrams = generateChordDiagrams(chordName);
+                        if (element && diagrams && diagrams.guitar) {
+                            element.innerHTML = diagrams.guitar;
+
+                            // Update chord info
+                            const infoElement = element.nextElementSibling?.querySelector('.chord-notes');
+                            if (infoElement) {
+                                // Get chord info from database
+                                const chordData = guitarChords[chordName];
+                                console.log(`Chord: ${chordName}, Data:`, chordData);
+                                if (chordData) {
+                                    infoElement.textContent = `${chordData.name}`;
+                                } else {
+                                    infoElement.textContent = `Chord: ${chordName}`;
+                                }
+                            }
+                        } else {
+                            if (element) {
+                                element.innerHTML = '<div class="diagram-placeholder">Diagram not available</div>';
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error generating diagram for ${chordName}:`, error);
+                        const element = document.getElementById(chordId);
+                        if (element) {
+                            element.innerHTML = '<div class="diagram-placeholder">Error loading diagram</div>';
+                        }
+                    }
+                }, 100);
+            });
+        }
+
+        // Main initialization
+        function init() {
+            try {
+                const chords = getAllChords();
+                const groupedChords = groupChordsByRoot(chords);
+                const stats = calculateStats(chords);
+                const missingChords = findMissingChords(chords);
+
+                // Update statistics
+                document.getElementById('total-chords').textContent = stats.total;
+                document.getElementById('basic-chords').textContent = stats.basic;
+                document.getElementById('seventh-chords').textContent = stats.seventh;
+                document.getElementById('sus-chords').textContent = stats.sus;
+                document.getElementById('extended-chords').textContent = stats.extended;
+                document.getElementById('inversion-chords').textContent = stats.inversions;
+
+                // Render chord sections in chromatic order
+                const container = document.getElementById('chords-container');
+                chromaticNotes.forEach(root => {
+                    if (groupedChords[root]) {
+                        container.innerHTML += renderChordSection(root, groupedChords[root]);
+                    }
+                });
+
+                // Add any remaining groups not in chromatic order
+                Object.keys(groupedChords).forEach(root => {
+                    if (!chromaticNotes.includes(root)) {
+                        container.innerHTML += renderChordSection(root, groupedChords[root]);
+                    }
+                });
+
+                // Generate all diagrams
+                Object.values(groupedChords).forEach(chordList => {
+                    if (Array.isArray(chordList)) {
+                        generateDiagrams(chordList);
+                    }
+                });
+
+                // Show missing chords (first 50 to avoid overwhelming)
+                const missingList = document.getElementById('missing-list');
+                missingChords.slice(0, 50).forEach(chordName => {
+                    const span = document.createElement('span');
+                    span.className = 'missing-chord';
+                    span.textContent = chordName;
+                    missingList.appendChild(span);
+                });
+
+                if (missingChords.length > 50) {
+                    const span = document.createElement('span');
+                    span.className = 'missing-chord';
+                    span.textContent = `... and ${missingChords.length - 50} more`;
+                    missingList.appendChild(span);
+                }
+
+            } catch (error) {
+                console.error('Error initializing chords page:', error);
+                document.getElementById('chords-container').innerHTML =
+                    '<div class="error">Error loading chord database</div>';
+            }
+        }
+
+        // Initialize when page loads
+        init();
+    </script>
+</body>
+</html>

@@ -21,7 +21,9 @@ const appState = {
         songStructure: [],
         songSections: [],
         lyrics: '',
-        title: 'My Song'
+        title: 'My Song',
+        lastSaved: null,
+        id: null
     },
     loadedData: {
         moods: [],
@@ -785,4 +787,290 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Expose library check function to global scope for debugging
+window.checkLibraries = checkLibraries;
+
+// Song Management Functions
+function saveSong() {
+    try {
+        const songTitle = document.getElementById('song-title').value.trim() || 'My Song';
+        const songData = {
+            title: songTitle,
+            timestamp: Date.now(),
+            version: '2.0',
+            mood: appState.selectedMood,
+            genre: appState.selectedGenre,
+            key: appState.selectedKey,
+            scale: appState.selectedScale,
+            tempo: appState.selectedTempo,
+            chordProgression: appState.selectedChordProgression,
+            drumPattern: appState.selectedDrumPattern,
+            bassPattern: appState.selectedBassPattern,
+            melody: appState.selectedMelody,
+            songSections: appState.songSections || []
+        };
+
+        // Get existing songs
+        const savedSongs = JSON.parse(localStorage.getItem('musicMachineSongs') || '{}');
+
+        // Save song with title as key
+        savedSongs[songTitle] = songData;
+        localStorage.setItem('musicMachineSongs', JSON.stringify(savedSongs));
+
+        // Update save status
+        updateSaveStatus('Saved');
+        console.log('Song saved successfully:', songTitle);
+
+        return true;
+    } catch (error) {
+        console.error('Error saving song:', error);
+        updateSaveStatus('Save failed');
+        return false;
+    }
+}
+
+function loadSong(songTitle) {
+    try {
+        const savedSongs = JSON.parse(localStorage.getItem('musicMachineSongs') || '{}');
+        const songData = savedSongs[songTitle];
+
+        if (!songData) {
+            console.error('Song not found:', songTitle);
+            return false;
+        }
+
+        // Load all song data into appState
+        appState.selectedMood = songData.mood;
+        appState.selectedGenre = songData.genre;
+        appState.selectedKey = songData.key;
+        appState.selectedScale = songData.scale;
+        appState.selectedTempo = songData.tempo;
+        appState.selectedChordProgression = songData.chordProgression;
+        appState.selectedDrumPattern = songData.drumPattern;
+        appState.selectedBassPattern = songData.bassPattern;
+        appState.selectedMelody = songData.melody;
+        appState.songSections = songData.songSections || [];
+
+        // Update UI to reflect loaded data
+        document.getElementById('song-title').value = songData.title;
+
+        // Refresh all UI sections
+        refreshAllSections();
+
+        // Close load modal
+        closeLoadModal();
+
+        updateSaveStatus('Loaded');
+        console.log('Song loaded successfully:', songTitle);
+
+        return true;
+    } catch (error) {
+        console.error('Error loading song:', error);
+        return false;
+    }
+}
+
+function createNewSong() {
+    if (confirm('Create a new song? All unsaved changes will be lost.')) {
+        // Reset app state
+        Object.keys(appState).forEach(key => {
+            if (key.startsWith('selected')) {
+                appState[key] = null;
+            }
+        });
+        appState.songSections = [];
+
+        // Reset UI
+        document.getElementById('song-title').value = 'My Song';
+        refreshAllSections();
+
+        // Go to first step
+        showStep(1);
+
+        updateSaveStatus('New song');
+        console.log('New song created');
+    }
+}
+
+function duplicateSong() {
+    const currentTitle = document.getElementById('song-title').value.trim() || 'My Song';
+    const newTitle = prompt('Enter name for the copy:', currentTitle + ' (Copy)');
+
+    if (newTitle && newTitle.trim()) {
+        document.getElementById('song-title').value = newTitle.trim();
+        saveSong();
+        updateSaveStatus('Duplicated');
+    }
+}
+
+function autoSave() {
+    if (appState.selectedMood || appState.selectedGenre) {
+        saveSong();
+        updateSaveStatus('Auto-saved');
+    }
+}
+
+function updateSaveStatus(message) {
+    const statusElement = document.getElementById('save-status');
+    if (statusElement) {
+        statusElement.textContent = message;
+        statusElement.style.opacity = '1';
+
+        // Fade out after 2 seconds
+        setTimeout(() => {
+            statusElement.style.opacity = '0.6';
+        }, 2000);
+    }
+}
+
+function showLoadModal() {
+    const modal = document.getElementById('load-song-modal');
+    const songsList = document.getElementById('saved-songs-list');
+
+    try {
+        const savedSongs = JSON.parse(localStorage.getItem('musicMachineSongs') || '{}');
+        const songTitles = Object.keys(savedSongs);
+
+        if (songTitles.length === 0) {
+            songsList.innerHTML = '<p class="no-songs">No saved songs found. Create and save a song first!</p>';
+        } else {
+            songsList.innerHTML = songTitles.map(title => {
+                const song = savedSongs[title];
+                const date = new Date(song.timestamp).toLocaleDateString();
+                return `
+                    <div class="saved-song-item" onclick="loadSong('${title}')">
+                        <div class="song-info">
+                            <h4>${title}</h4>
+                            <p>${song.mood || 'Unknown'} • ${song.genre || 'Unknown'} • ${song.key || 'Unknown'}</p>
+                            <small>Saved: ${date}</small>
+                        </div>
+                        <button class="delete-song-btn" onclick="event.stopPropagation(); deleteSong('${title}')" title="Delete song">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading saved songs:', error);
+        songsList.innerHTML = '<p class="no-songs">Error loading saved songs.</p>';
+        modal.style.display = 'block';
+    }
+}
+
+function closeLoadModal() {
+    const modal = document.getElementById('load-song-modal');
+    modal.style.display = 'none';
+}
+
+function deleteSong(songTitle) {
+    if (confirm(`Delete "${songTitle}"? This cannot be undone.`)) {
+        try {
+            const savedSongs = JSON.parse(localStorage.getItem('musicMachineSongs') || '{}');
+            delete savedSongs[songTitle];
+            localStorage.setItem('musicMachineSongs', JSON.stringify(savedSongs));
+            showLoadModal(); // Refresh the modal
+            console.log('Song deleted:', songTitle);
+        } catch (error) {
+            console.error('Error deleting song:', error);
+        }
+    }
+}
+
+function refreshAllSections() {
+    // Refresh mood/genre options
+    if (appState.selectedMood) {
+        const moodOption = document.querySelector(`[data-mood="${appState.selectedMood}"]`);
+        if (moodOption) moodOption.click();
+    }
+    if (appState.selectedGenre) {
+        const genreOption = document.querySelector(`[data-genre="${appState.selectedGenre}"]`);
+        if (genreOption) genreOption.click();
+    }
+
+    // Refresh key/tempo options
+    if (appState.selectedKey) {
+        const keyOption = document.querySelector(`[data-key="${appState.selectedKey}"]`);
+        if (keyOption) keyOption.click();
+    }
+    if (appState.selectedScale) {
+        const scaleOption = document.querySelector(`[data-scale="${appState.selectedScale}"]`);
+        if (scaleOption) scaleOption.click();
+    }
+    if (appState.selectedTempo) {
+        const tempoOption = document.querySelector(`[data-tempo="${appState.selectedTempo}"]`);
+        if (tempoOption) tempoOption.click();
+    }
+
+    // Refresh chord progression
+    if (appState.selectedChordProgression) {
+        const chordOption = document.querySelector(`[data-progression="${appState.selectedChordProgression.name}"]`);
+        if (chordOption) chordOption.click();
+    }
+
+    // Refresh drum pattern
+    if (appState.selectedDrumPattern) {
+        const drumOption = document.querySelector(`[data-pattern="${appState.selectedDrumPattern.name}"]`);
+        if (drumOption) drumOption.click();
+    }
+
+    // Refresh bass pattern
+    if (appState.selectedBassPattern) {
+        const bassOption = document.querySelector(`[data-bass="${appState.selectedBassPattern.name}"]`);
+        if (bassOption) bassOption.click();
+    }
+
+    // Refresh melody
+    if (appState.selectedMelody) {
+        const melodyOption = document.querySelector(`[data-melody="${appState.selectedMelody.name}"]`);
+        if (melodyOption) melodyOption.click();
+    }
+
+    // Refresh song sections
+    if (appState.songSections && appState.songSections.length > 0) {
+        // This would need to be implemented in ui.js to rebuild the songcraft sections
+        console.log('Song sections to restore:', appState.songSections);
+    }
+}
+
+// Auto-save timer
+let autoSaveTimer;
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSave, 5000); // Auto-save after 5 seconds of inactivity
+}
+
+// Set up event listeners for song management
+document.addEventListener('DOMContentLoaded', () => {
+    // Song management buttons
+    const newSongBtn = document.getElementById('new-song');
+    const saveSongBtn = document.getElementById('save-song');
+    const loadSongBtn = document.getElementById('load-song');
+    const duplicateSongBtn = document.getElementById('duplicate-song');
+
+    if (newSongBtn) newSongBtn.addEventListener('click', createNewSong);
+    if (saveSongBtn) saveSongBtn.addEventListener('click', saveSong);
+    if (loadSongBtn) loadSongBtn.addEventListener('click', showLoadModal);
+    if (duplicateSongBtn) duplicateSongBtn.addEventListener('click', duplicateSong);
+
+    // Auto-save on song title change
+    const songTitleInput = document.getElementById('song-title');
+    if (songTitleInput) {
+        songTitleInput.addEventListener('input', scheduleAutoSave);
+    }
+
+    // Close modal when clicking outside
+    const modal = document.getElementById('load-song-modal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeLoadModal();
+            }
+        });
+    }
+});
+
+// Expose functions to global scope for onclick handlers
+window.loadSong = loadSong;
+window.deleteSong = deleteSong;
+window.closeLoadModal = closeLoadModal;
 window.checkLibraries = checkLibraries;

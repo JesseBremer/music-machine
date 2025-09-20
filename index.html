@@ -13,6 +13,24 @@
         <header class="app-header">
             <h1>Music Machine</h1>
             <p>Your guided journey from mood to complete song</p>
+
+            <nav class="main-nav">
+                <a href="chords.html" class="nav-link">🎸 Chords</a>
+                <a href="scales.html" class="nav-link">🎵 Scales</a>
+            </nav>
+
+            <div class="song-management">
+                <div class="song-info">
+                    <input type="text" id="song-title" placeholder="My Song" class="song-title-input" maxlength="50">
+                    <span class="save-status" id="save-status">Auto-saved</span>
+                </div>
+                <div class="song-controls">
+                    <button id="new-song" class="song-btn" title="New Song">📄 New</button>
+                    <button id="save-song" class="song-btn" title="Save Song">💾 Save</button>
+                    <button id="load-song" class="song-btn" title="Load Song">📂 Load</button>
+                    <button id="duplicate-song" class="song-btn" title="Duplicate Song">📋 Copy</button>
+                </div>
+            </div>
         </header>
 
         <div class="progress-bar">
@@ -258,6 +276,21 @@
                 <button id="export-back" class="back-button">Back</button>
             </div>
         </section>
+
+        <!-- Load Song Modal -->
+        <div id="load-song-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Load Song</h3>
+                    <button class="modal-close" onclick="closeLoadModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="saved-songs-list" id="saved-songs-list">
+                        <p class="no-songs">No saved songs found. Create and save a song first!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script type="module" src="js/audio-engine.js"></script>
