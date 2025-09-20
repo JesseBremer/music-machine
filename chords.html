@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <script src="js/chord-diagrams.js"></script>
+    <script src="js/guitar-audio.js"></script>
     <style>
         .chords-page {
             max-width: 1400px;
@@ -147,6 +149,22 @@
         .chord-card:hover {
             border-color: var(--secondary-color);
             box-shadow: var(--glow-secondary);
+        }
+
+        .clickable-chord {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clickable-chord:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+            box-shadow: var(--glow-accent);
+        }
+
+        .clickable-chord:active {
+            transform: translateY(0);
+            border-color: var(--primary-color);
         }
 
         .chord-card .chord-name {
@@ -422,12 +440,13 @@
         function renderChordSection(root, chordList) {
             const chordsHtml = chordList.map(chordName => {
                 const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '').replace(/[#]/g, 'sharp').replace(/[b]/g, 'flat')}`;
+                const escapedChordName = chordName.replace(/'/g, "\\'");
                 return `
-                    <div class="chord-card">
-                        <div class="chord-name">${chordName}</div>
+                    <div class="chord-card clickable-chord" onclick="playChordDiagram('${escapedChordName}')" title="Click to play ${chordName}">
+                        <div class="chord-name">${chordName} <span style="font-size: 0.8em; color: var(--text-secondary);">🔊</span></div>
                         <div id="${chordId}" class="svg-guitar-container"></div>
                         <div class="chord-info">
-                            <span class="chord-notes">Loading...</span>
+                            <span class="chord-notes">Click to play • Loading...</span>
                         </div>
                     </div>
                 `;
@@ -650,6 +669,23 @@
                     '<div class="error">Error loading chord database</div>';
             }
         }
+
+        // Play chord diagram audio using the new guitar audio system
+        window.playChordDiagram = async function(chordName) {
+            console.log(`Playing chord diagram: ${chordName}`);
+
+            // Use the guitar audio system if available
+            if (window.playGuitarChord) {
+                try {
+                    await window.playGuitarChord(chordName, 2.0);
+                    console.log(`✓ Played ${chordName} with guitar audio`);
+                } catch (error) {
+                    console.error(`Error playing ${chordName} with guitar audio:`, error);
+                }
+            } else {
+                console.warn('Guitar audio system not available');
+            }
+        };
 
         // Initialize when page loads
         init();

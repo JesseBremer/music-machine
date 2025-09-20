@@ -399,13 +399,22 @@ class AudioEngine {
             setTimeout(() => {
                 // Get chord notes using Tonal.js if available
                 let chordNotes = [];
+                console.log(`Processing chord: ${chord}`);
+
                 if (window.Tonal && window.Tonal.Chord) {
                     const chordInfo = window.Tonal.Chord.get(chord);
+                    console.log(`Tonal.js chord info for '${chord}':`, chordInfo);
+                    console.log(`Chord notes:`, chordInfo.notes);
+                    console.log(`Is valid chord:`, chordInfo.notes && chordInfo.notes.length > 0);
+
                     chordNotes = chordInfo.notes || [chord.charAt(0)];
                 } else {
+                    console.log('Tonal.js not available, using fallback');
                     // Fallback to basic triads
                     chordNotes = this.getBasicTriad(chord, key);
                 }
+
+                console.log(`Final chord notes for playback:`, chordNotes);
 
                 // Play chord immediately using the same approach as testSimpleChord
                 const frequencies = chordNotes.map(note => this.noteToFrequency(note, 4));

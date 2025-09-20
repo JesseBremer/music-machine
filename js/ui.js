@@ -1257,13 +1257,26 @@ window.playChordProgression = async function(progressionName) {
 };
 
 window.playIndividualChord = async function(chordName) {
+    console.log(`Playing chord: ${chordName}`);
+
+    // Try the new guitar audio first (sounds much better)
+    if (window.playGuitarChord) {
+        try {
+            await window.playGuitarChord(chordName, 2.0);
+            showMessage(`Playing ${chordName} on guitar...`, 'info');
+            return;
+        } catch (error) {
+            console.warn('Guitar audio failed, falling back to basic audio:', error);
+        }
+    }
+
+    // Fallback to the old audio engine if guitar audio fails
     const appState = window.appState;
     const key = appState?.songData?.key || 'C';
 
     if (window.audioEngine) {
         try {
-            // Play the individual chord for 2 seconds
-            await window.audioEngine.playChordProgressionImmediate([chordName], 2000, key);
+            await window.audioEngine.playChordProgressionImmediate([chordName], 2.0, key);
             showMessage(`Playing ${chordName}...`, 'info');
         } catch (error) {
             console.error('Error playing chord:', error);
@@ -1847,6 +1860,27 @@ window.applyChordOption = function(chordIndex, newChord) {
     const chordElement = document.querySelector(`[data-chord-index="${chordIndex}"] .chord-name`);
     if (chordElement) {
         chordElement.textContent = newChord;
+    }
+
+    // Update the onclick handler for the chord header to use the new chord name
+    const chordHeader = document.querySelector(`[data-chord-index="${chordIndex}"] .chord-header`);
+    if (chordHeader) {
+        // Remove the old onclick attribute
+        chordHeader.removeAttribute('onclick');
+
+        // Add a new event listener instead of using onclick attribute
+        // First, remove any existing listeners by cloning the element
+        const newChordHeader = chordHeader.cloneNode(true);
+        chordHeader.parentNode.replaceChild(newChordHeader, chordHeader);
+
+        // Add the new event listener with the updated chord name
+        newChordHeader.addEventListener('click', () => {
+            console.log(`Chord header clicked: ${newChord}`);
+            window.playIndividualChord(newChord);
+        });
+
+        newChordHeader.setAttribute('title', `Click to play ${newChord}`);
+        console.log(`Updated click handler for chord ${chordIndex} to play: ${newChord}`);
     }
 
     // Regenerate chord diagrams for the updated progression

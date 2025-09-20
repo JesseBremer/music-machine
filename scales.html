@@ -6,6 +6,8 @@
     <title>Musical Scales Reference - Music Machine</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+    <script src="js/guitar-audio.js"></script>
     <style>
         .scales-page {
             max-width: 1400px;
@@ -423,6 +425,54 @@
             50% { box-shadow: 0 2px 20px rgba(255, 217, 61, 0.8); }
         }
 
+        .note-marker.playing {
+            animation: notePlaying 0.6s ease-in-out;
+            transform: translate(-50%, -50%) scale(1.3);
+            z-index: 10;
+        }
+
+        @keyframes notePlaying {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 2px 12px rgba(255, 255, 255, 0.6);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.4);
+                box-shadow: 0 4px 20px rgba(255, 255, 255, 0.9);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.3);
+                box-shadow: 0 2px 16px rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        .note-marker.clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .note-marker.clickable:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 2px 16px rgba(255, 255, 255, 0.5);
+        }
+
+        .play-scale-btn {
+            font-weight: 600;
+            background: var(--accent-color) !important;
+            color: var(--background-color) !important;
+            border-color: var(--accent-color) !important;
+        }
+
+        .play-scale-btn:hover {
+            background: var(--secondary-color) !important;
+            border-color: var(--secondary-color) !important;
+        }
+
+        .play-scale-btn.playing {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
         .fretboard-legend {
             display: flex;
             justify-content: center;
@@ -622,6 +672,7 @@
                 <button class="fretboard-btn" onclick="setFretboardRange(0, 24)">Extended View (0-24)</button>
                 <button class="fretboard-btn" onclick="setFretboardRange(3, 15)">Upper Register (3-15)</button>
                 <button class="fretboard-btn" onclick="toggleNoteLabels()">Toggle Note Names</button>
+                <button class="fretboard-btn play-scale-btn" onclick="playScale()" id="play-scale-btn">▶️ Play Scale</button>
             </div>
 
             <div class="fretboard-container">
@@ -987,12 +1038,14 @@
                             fretPosition = (fret - currentFretRange.start) * fretSpacing + (fretSpacing / 2);
                         }
 
-                        const cssClass = isRoot ? 'note-marker root-note' : 'note-marker scale-note';
+                        const cssClass = isRoot ? 'note-marker root-note clickable' : 'note-marker scale-note clickable';
                         const noteDisplay = isRoot ? 'R' : (showNoteLabels ? note : '●');
 
                         html += `<div class="${cssClass}"
                             style="left: ${fretPosition}px; top: ${stringPositions[stringIndex]}px;"
-                            data-note="${note}" data-string="${stringIndex}" data-fret="${fret}">
+                            data-note="${note}" data-string="${stringIndex}" data-fret="${fret}"
+                            onclick="playNote('${note}', ${stringIndex}, ${fret})"
+                            title="Click to play ${note}">
                             ${noteDisplay}
                         </div>`;
                     }
@@ -1093,6 +1146,13 @@
             const allScales = generateAllScales();
             const scaleData = allScales[root][scaleName];
 
+            // Store selected scale globally for playback
+            window.selectedScale = {
+                root: root,
+                scaleName: scaleName,
+                scaleData: scaleData
+            };
+
             // Show fretboard
             showScaleFretboard(root, scaleName, scaleData);
         };
@@ -1117,11 +1177,77 @@
             `;
         }
 
-        // Placeholder for scale playback
-        window.playScale = function(root, scaleName) {
-            console.log(`Playing ${root} ${scaleName} scale...`);
-            // This would integrate with the audio engine
-            alert(`Playing ${root} ${scaleName} scale (audio playback not implemented yet)`);
+        // Play individual note function
+        window.playNote = async function(note, stringIndex, fret) {
+            if (typeof window.playGuitarNote === 'function') {
+                // Add visual feedback
+                const noteMarkers = document.querySelectorAll(`[data-note="${note}"][data-string="${stringIndex}"][data-fret="${fret}"]`);
+                noteMarkers.forEach(marker => {
+                    marker.classList.add('playing');
+                    setTimeout(() => marker.classList.remove('playing'), 800);
+                });
+
+                // Play the note using guitar audio
+                await window.playGuitarNote(note, 1.0);
+            } else {
+                console.log(`Playing note: ${note} (string ${stringIndex}, fret ${fret})`);
+            }
+        };
+
+        // Play full scale with highlighting
+        window.playScale = async function() {
+            const scaleData = window.selectedScale;
+            if (!scaleData) {
+                alert('Please select a scale first');
+                return;
+            }
+
+            const playButton = document.getElementById('play-scale-btn');
+            playButton.disabled = true;
+            playButton.textContent = '🔄 Playing...';
+
+            try {
+                // Get the scale notes in order
+                const scaleNotes = scaleData.scaleData.notes;
+                const rootNote = scaleData.root;
+
+                // Play each note with a delay
+                for (let i = 0; i < scaleNotes.length; i++) {
+                    const note = scaleNotes[i];
+
+                    // Highlight all instances of this note on the fretboard
+                    const noteMarkers = document.querySelectorAll(`[data-note="${note}"]`);
+                    noteMarkers.forEach(marker => marker.classList.add('playing'));
+
+                    // Play the note
+                    if (typeof window.playGuitarNote === 'function') {
+                        await window.playGuitarNote(note, 0.8);
+                    }
+
+                    // Wait before next note
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // Remove highlighting
+                    noteMarkers.forEach(marker => marker.classList.remove('playing'));
+                }
+
+                // Play the root note again to complete the scale
+                const rootMarkers = document.querySelectorAll(`[data-note="${rootNote}"]`);
+                rootMarkers.forEach(marker => marker.classList.add('playing'));
+
+                if (typeof window.playGuitarNote === 'function') {
+                    await window.playGuitarNote(rootNote, 1.0);
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                rootMarkers.forEach(marker => marker.classList.remove('playing'));
+
+            } catch (error) {
+                console.error('Error playing scale:', error);
+            } finally {
+                playButton.disabled = false;
+                playButton.textContent = '▶️ Play Scale';
+            }
         };
 
         // Update display based on filters
