@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+    <script src="js/chord-diagrams.js"></script>
     <style>
         .chords-page {
             max-width: 1400px;
@@ -57,6 +58,55 @@
             background: var(--secondary-color);
             color: var(--background-color);
             box-shadow: var(--glow-secondary);
+        }
+
+        .note-filter {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .note-filter h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.2rem;
+        }
+
+        .note-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .note-btn {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            min-width: 70px;
+        }
+
+        .note-btn:hover {
+            background: var(--secondary-color);
+            color: var(--background-color);
+            box-shadow: var(--glow-secondary);
+            transform: translateY(-1px);
+        }
+
+        .note-btn.active {
+            background: var(--primary-color);
+            color: var(--background-color);
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
         }
 
         .chord-section {
@@ -201,6 +251,25 @@
             <a href="#missing" class="nav-link">⚠️ Missing Chords</a>
         </div>
 
+        <div class="note-filter">
+            <h3>🎵 Filter by Note</h3>
+            <div class="note-selector">
+                <button class="note-btn active" data-note="all">All Notes</button>
+                <button class="note-btn" data-note="C">C</button>
+                <button class="note-btn" data-note="C#/Db">C#/Db</button>
+                <button class="note-btn" data-note="D">D</button>
+                <button class="note-btn" data-note="D#/Eb">D#/Eb</button>
+                <button class="note-btn" data-note="E">E</button>
+                <button class="note-btn" data-note="F">F</button>
+                <button class="note-btn" data-note="F#/Gb">F#/Gb</button>
+                <button class="note-btn" data-note="G">G</button>
+                <button class="note-btn" data-note="G#/Ab">G#/Ab</button>
+                <button class="note-btn" data-note="A">A</button>
+                <button class="note-btn" data-note="A#/Bb">A#/Bb</button>
+                <button class="note-btn" data-note="B">B</button>
+            </div>
+        </div>
+
         <div id="stats" class="stats-section">
             <h2>📊 Chord Database Statistics</h2>
             <div class="stats-grid">
@@ -244,8 +313,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import { generateChordDiagrams } from './js/chord-diagrams.js';
+    <script>
+        // generateChordDiagrams will be available globally from the script tag
 
         // Chromatic note order
         const chromaticNotes = ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'];
@@ -257,7 +326,10 @@
         ];
 
         // Import the guitarChords object from the module
-        import { guitarChords } from './js/chord-diagrams.js';
+        // import { guitarChords } from './js/chord-diagrams.js';
+
+        // Temporary: Load via script tag to debug import issues
+        // guitarChords will be available globally from the script tag
 
         // Get all available chords from the guitar chords object
         function getAllChords() {
@@ -349,7 +421,7 @@
         // Render chord section
         function renderChordSection(root, chordList) {
             const chordsHtml = chordList.map(chordName => {
-                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '').replace(/[#]/g, 'sharp').replace(/[b]/g, 'flat')}`;
                 return `
                     <div class="chord-card">
                         <div class="chord-name">${chordName}</div>
@@ -378,7 +450,7 @@
         function generateDiagrams(chordList) {
             console.log('Generating diagrams for:', chordList);
             chordList.forEach(chordName => {
-                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '').replace(/[#]/g, 'sharp').replace(/[b]/g, 'flat')}`;
                 console.log(`Processing chord: ${chordName}, ID: ${chordId}`);
 
                 setTimeout(() => {
@@ -422,6 +494,86 @@
             });
         }
 
+        // Global variable to track current filter
+        let currentNoteFilter = 'all';
+
+        // Filter and display chords based on selected note
+        function filterChordsByNote(selectedNote) {
+            currentNoteFilter = selectedNote;
+
+            const allSections = document.querySelectorAll('.chord-section');
+
+            allSections.forEach(section => {
+                if (selectedNote === 'all') {
+                    section.style.display = 'block';
+                } else {
+                    const sectionTitle = section.querySelector('.chord-section-title');
+                    const noteText = sectionTitle.textContent;
+
+                    // Extract the root note from the title (e.g., "🎵 C Chords (5)" -> "C")
+                    const match = noteText.match(/🎵\s+([^\s]+)\s+Chords/);
+                    if (match) {
+                        const sectionNote = match[1];
+
+                        // Handle compound note filters (e.g., "C#/Db" should match both "C#" and "Db" sections)
+                        let shouldShow = false;
+                        if (selectedNote.includes('/')) {
+                            const [sharp, flat] = selectedNote.split('/');
+                            shouldShow = sectionNote === sharp || sectionNote === flat;
+                        } else {
+                            shouldShow = sectionNote === selectedNote;
+                        }
+
+                        section.style.display = shouldShow ? 'block' : 'none';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                }
+            });
+
+            // Update statistics based on visible chords
+            updateFilteredStats(selectedNote);
+        }
+
+        // Update statistics for filtered view
+        function updateFilteredStats(selectedNote) {
+            const chords = getAllChords();
+            let filteredChords = chords;
+
+            if (selectedNote !== 'all') {
+                filteredChords = {};
+                Object.keys(chords).forEach(chordName => {
+                    const match = chordName.match(/^([A-G][#b]?)/);
+                    if (match) {
+                        let root = match[1];
+                        // Normalize sharp/flat equivalents
+                        const rootMap = {
+                            'C#': 'C#/Db', 'Db': 'C#/Db',
+                            'D#': 'D#/Eb', 'Eb': 'D#/Eb',
+                            'F#': 'F#/Gb', 'Gb': 'F#/Gb',
+                            'G#': 'G#/Ab', 'Ab': 'G#/Ab',
+                            'A#': 'A#/Bb', 'Bb': 'A#/Bb'
+                        };
+                        root = rootMap[root] || root;
+
+                        if (root === selectedNote) {
+                            filteredChords[chordName] = true;
+                        }
+                    }
+                });
+            }
+
+            const stats = calculateStats(filteredChords);
+
+            // Update the display
+            document.getElementById('total-chords').textContent = stats.total;
+            document.getElementById('basic-chords').textContent = stats.basic;
+            document.getElementById('seventh-chords').textContent = stats.seventh;
+            document.getElementById('sus-chords').textContent = stats.sus;
+            document.getElementById('extended-chords').textContent = stats.extended;
+            document.getElementById('inversion-chords').textContent = stats.inversions;
+        }
+
         // Main initialization
         function init() {
             try {
@@ -429,6 +581,7 @@
                 const groupedChords = groupChordsByRoot(chords);
                 const stats = calculateStats(chords);
                 const missingChords = findMissingChords(chords);
+
 
                 // Update statistics
                 document.getElementById('total-chords').textContent = stats.total;
@@ -475,6 +628,21 @@
                     span.textContent = `... and ${missingChords.length - 50} more`;
                     missingList.appendChild(span);
                 }
+
+                // Set up note filter event listeners
+                document.querySelectorAll('.note-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Remove active class from all buttons
+                        document.querySelectorAll('.note-btn').forEach(b => b.classList.remove('active'));
+
+                        // Add active class to clicked button
+                        btn.classList.add('active');
+
+                        // Filter chords by selected note
+                        const selectedNote = btn.getAttribute('data-note');
+                        filterChordsByNote(selectedNote);
+                    });
+                });
 
             } catch (error) {
                 console.error('Error initializing chords page:', error);
