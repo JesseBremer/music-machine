@@ -18,6 +18,10 @@
             <nav class="main-nav">
                 <a href="chords.html" class="nav-link">🎸 Chords</a>
                 <a href="scales.html" class="nav-link">🎵 Scales</a>
+                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+                <button class="nav-link tool-btn" onclick="toggleTuner()">🎛️ Tuner</button>
+                <button class="nav-link tool-btn" onclick="toggleMetronome()">🥁 Metronome</button>
             </nav>
 
             <div class="song-management">
@@ -38,11 +42,10 @@
             <div class="progress-step active" data-step="1">Mood</div>
             <div class="progress-step" data-step="2">Key & Tempo</div>
             <div class="progress-step" data-step="3">Chords</div>
-            <div class="progress-step" data-step="4">Drums</div>
-            <div class="progress-step" data-step="5">Bass</div>
-            <div class="progress-step" data-step="6">Melody</div>
-            <div class="progress-step" data-step="7">Lyrics</div>
-            <div class="progress-step" data-step="8">Export</div>
+            <div class="progress-step" data-step="4">Rhythm</div>
+            <div class="progress-step" data-step="5">Melody</div>
+            <div class="progress-step" data-step="6">Lyrics</div>
+            <div class="progress-step" data-step="7">Export</div>
         </div>
 
         <section id="step-mood" class="step-section active">
@@ -63,7 +66,6 @@
                 <div id="genre-options" class="option-grid"></div>
             </div>
 
-            <button id="mood-next" class="next-button" disabled>Next: Key & Tempo</button>
         </section>
 
         <section id="step-key-tempo" class="step-section">
@@ -93,86 +95,136 @@
                 <div id="tempo-options" class="option-grid"></div>
             </div>
 
-            <div class="navigation">
-                <button id="key-tempo-back" class="back-button">Back</button>
-                <button id="key-tempo-next" class="next-button" disabled>Next: Chord Progression</button>
-            </div>
         </section>
 
         <section id="step-chords" class="step-section">
-            <h2>Step 3: Chord Progression</h2>
-            <p>Choose a chord progression that fits your genre and key.</p>
+            <h2>Step 3: Chord Progression & Strumming</h2>
+            <p>Choose a chord progression that fits your genre and key, plus a strumming pattern to bring it to life.</p>
 
             <div class="top-navigation">
                 <button id="chords-back-top" class="back-button">Back</button>
                 <button id="chords-next-top" class="next-button" disabled>Next: Drum Pattern</button>
             </div>
-            
-            <div id="chord-progressions" class="chord-grid"></div>
-            <div id="chord-display" class="chord-display"></div>
 
-            <div class="navigation">
-                <button id="chords-back" class="back-button">Back</button>
-                <button id="chords-next" class="next-button" disabled>Next: Drum Pattern</button>
+            <div class="chord-section">
+                <h3>Chord Progression</h3>
+                <div id="chord-progressions" class="chord-grid"></div>
+                <div id="chord-display" class="chord-display"></div>
+
+                <div class="visual-chord-guide-toggle">
+                    <button id="toggle-chord-guide" class="chord-guide-toggle-btn">
+                        <span id="chord-guide-toggle-text">👁️ Show Visual Chord Guide</span>
+                    </button>
+                </div>
             </div>
+
+            <div class="strumming-section">
+                <h3>Strumming Pattern</h3>
+                <div class="strumming-filters">
+                    <select id="strumming-category-filter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Folk/Pop">Folk/Pop</option>
+                        <option value="Rock">Rock</option>
+                        <option value="Country">Country</option>
+                        <option value="Reggae/Ska">Reggae/Ska</option>
+                        <option value="Funk/R&B">Funk/R&B</option>
+                        <option value="Latin">Latin</option>
+                        <option value="Jazz">Jazz</option>
+                        <option value="World">World</option>
+                        <option value="Specialty">Specialty</option>
+                    </select>
+                    <select id="strumming-difficulty-filter" class="filter-select">
+                        <option value="all">All Levels</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div id="strumming-patterns-grid" class="strumming-patterns-grid"></div>
+                <div id="strumming-pattern-display" class="strumming-pattern-display">
+                    <p>🎸 Select a strumming pattern above to see details and hear a preview</p>
+                </div>
+            </div>
+
         </section>
 
-        <section id="step-drums" class="step-section">
-            <h2>Step 4: Drum Pattern</h2>
-            <p>Select a rhythmic foundation for your song.</p>
+        <section id="step-rhythm" class="step-section">
+            <h2>Step 4: Rhythm Section</h2>
+            <p>Create a complete rhythm foundation with drums and bass that complement your strumming pattern.</p>
 
             <div class="top-navigation">
-                <button id="drums-back-top" class="back-button">Back</button>
-                <button id="drums-next-top" class="next-button" disabled>Next: Bass Line</button>
+                <button id="rhythm-back-top" class="back-button">Back</button>
+                <button id="rhythm-next-top" class="next-button" disabled>Next: Melody Ideas</button>
             </div>
-            
-            <div id="drum-patterns" class="drum-grid"></div>
-            <div id="drum-display" class="drum-display"></div>
 
-            <div class="navigation">
-                <button id="drums-back" class="back-button">Back</button>
-                <button id="drums-next" class="next-button" disabled>Next: Bass Line</button>
+            <div class="rhythm-context">
+                <h3>Your Current Foundation</h3>
+                <div class="rhythm-foundation-summary">
+                    <div class="foundation-item">
+                        <span class="foundation-label">Genre:</span>
+                        <span id="rhythm-genre-display" class="foundation-value">-</span>
+                    </div>
+                    <div class="foundation-item">
+                        <span class="foundation-label">Time:</span>
+                        <span id="rhythm-time-display" class="foundation-value">-</span>
+                    </div>
+                    <div class="foundation-item">
+                        <span class="foundation-label">Tempo:</span>
+                        <span id="rhythm-tempo-display" class="foundation-value">-</span>
+                    </div>
+                    <div class="foundation-item">
+                        <span class="foundation-label">Strumming:</span>
+                        <span id="rhythm-strum-display" class="foundation-value">-</span>
+                    </div>
+                </div>
             </div>
-        </section>
 
-        <section id="step-bass" class="step-section">
-            <h2>Step 5: Bass Line</h2>
-            <p>Create a bass line that follows your chord progression.</p>
-
-            <div class="top-navigation">
-                <button id="bass-back-top" class="back-button">Back</button>
-                <button id="bass-next-top" class="next-button" disabled>Next: Melody Ideas</button>
+            <div class="rhythm-templates">
+                <h3>Rhythm Templates</h3>
+                <p>Choose a rhythm combination that matches your song's style:</p>
+                <div id="rhythm-templates-grid" class="rhythm-templates-grid"></div>
             </div>
-            
-            <div id="bass-options" class="bass-grid"></div>
-            <div id="bass-display" class="bass-display"></div>
 
-            <div class="navigation">
-                <button id="bass-back" class="back-button">Back</button>
-                <button id="bass-next" class="next-button" disabled>Next: Melody Ideas</button>
+            <div class="rhythm-preview">
+                <h3>Rhythm Preview</h3>
+                <div id="rhythm-preview-display" class="rhythm-preview-display">
+                    <p>🎵 Select a rhythm template above to see how all elements work together</p>
+                </div>
             </div>
+
+            <div class="custom-rhythm">
+                <h3>Custom Rhythm (Advanced)</h3>
+                <div class="rhythm-components">
+                    <div class="component-section">
+                        <h4>Drum Pattern</h4>
+                        <div id="drum-patterns-custom" class="component-grid"></div>
+                    </div>
+                    <div class="component-section">
+                        <h4>Bass Style</h4>
+                        <div id="bass-styles-custom" class="component-grid"></div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <section id="step-melody" class="step-section">
-            <h2>Step 6: Melody Ideas</h2>
+            <h2>Step 5: Melody Ideas</h2>
             <p>Explore melodic patterns that work with your chord progression.</p>
 
             <div class="top-navigation">
                 <button id="melody-back-top" class="back-button">Back</button>
                 <button id="melody-next-top" class="next-button" disabled>Next: Lyrics</button>
             </div>
-            
+
             <div id="melody-suggestions" class="melody-grid"></div>
             <div id="melody-display" class="melody-display"></div>
 
-            <div class="navigation">
-                <button id="melody-back" class="back-button">Back</button>
-                <button id="melody-next" class="next-button" disabled>Next: Lyrics</button>
-            </div>
         </section>
 
         <section id="step-songcraft" class="step-section">
-            <h2>Step 7: Lyrics & Structure</h2>
+            <h2>Step 6: Lyrics & Structure</h2>
             <p>Create your complete song structure with chord progressions and lyrics in one place.</p>
 
             <div class="top-navigation">
@@ -227,55 +279,33 @@
                 </div>
             </div>
 
-            <div class="navigation">
-                <button id="songcraft-back" class="back-button">Back</button>
-                <button id="songcraft-next" class="next-button" disabled>Next: Export & Summary</button>
-            </div>
         </section>
 
         <section id="step-export" class="step-section">
-            <h2>Step 8: Export & Summary</h2>
-            <p>Your complete song plan is ready! Review and export your creation.</p>
+            <h2>Step 7: Export & Summary</h2>
+            <p>Your complete song plan is ready! Export your creation in different formats to take your music into any recording environment.</p>
             
             <div id="song-summary" class="song-summary"></div>
             
             <div class="export-options">
-                <button id="export-text" class="export-button">Export as Text</button>
-                <button id="export-json" class="export-button">Export as JSON</button>
-                <button id="export-midi" class="export-button">Export MIDI Files</button>
-                <button id="export-ableton" class="export-button">Download Ableton Template</button>
-                <button id="start-over" class="start-over-button">Start New Song</button>
-            </div>
-            
-            <div id="midi-export-options" class="midi-export-panel" style="display: none;">
-                <h3>MIDI Export Options</h3>
-                <div class="track-options">
-                    <label><input type="checkbox" id="export-chords" checked> Chord Progression</label>
-                    <label><input type="checkbox" id="export-bass" checked> Bass Line</label>
-                    <label><input type="checkbox" id="export-melody" checked> Melody</label>
-                    <label><input type="checkbox" id="export-drums" checked> Drum Pattern</label>
-                    <label><input type="checkbox" id="export-harmony" checked> Harmony Parts</label>
-                    <label><input type="checkbox" id="export-pads" checked> Background Pads</label>
+                <h3>Export Options</h3>
+                <div class="export-grid">
+                    <div class="export-card">
+                        <button id="export-text" class="export-button">📄 Complete Song Plan</button>
+                        <p class="export-description">Full text export with lyrics, chord progressions, structure, and all musical elements for easy sharing or printing.</p>
+                    </div>
+                    <div class="export-card">
+                        <button id="export-chord-chart" class="export-button">🎸 Chord Chart</button>
+                        <p class="export-description">Clean, formatted chord chart with strumming patterns - perfect for musicians and band practice.</p>
+                    </div>
+                    <div class="export-card">
+                        <button id="export-json" class="export-button">📊 Data Export</button>
+                        <p class="export-description">Technical JSON format for developers or importing into other music software applications.</p>
+                    </div>
                 </div>
-                <div class="arrangement-options">
-                    <h4>Arrangement Settings</h4>
-                    <label>Song Length: <select id="song-length">
-                        <option value="short">Short (2-3 minutes)</option>
-                        <option value="medium" selected>Medium (3-4 minutes)</option>
-                        <option value="long">Long (4-5 minutes)</option>
-                    </select></label>
-                    <label>Variations: <select id="midi-variations">
-                        <option value="1">Single version</option>
-                        <option value="2" selected>2 variations per track</option>
-                        <option value="3">3 variations per track</option>
-                    </select></label>
-                </div>
-                <button id="generate-midi" class="export-button">Generate MIDI Files</button>
+                <button id="start-over" class="start-over-button">🆕 Start New Song</button>
             </div>
 
-            <div class="navigation">
-                <button id="export-back" class="back-button">Back</button>
-            </div>
         </section>
 
         <!-- Load Song Modal -->
@@ -292,12 +322,239 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tuner Tool Overlay -->
+        <div id="tuner-overlay" class="tool-overlay" style="display: none;">
+            <div class="tool-content">
+                <div class="tool-header">
+                    <h3>🎛️ Guitar Tuner</h3>
+                    <button class="tool-close" onclick="toggleTuner()">&times;</button>
+                </div>
+                <div class="tool-body">
+                    <div id="tuner-display" class="tuner-display">
+                        <div class="tuner-instructions">
+                            <p>🎸 Play a string to start tuning</p>
+                            <p>Allow microphone access when prompted</p>
+                        </div>
+                    </div>
+                    <div class="reference-notes">
+                        <h4>Reference Notes</h4>
+                        <div class="note-buttons">
+                            <button onclick="window.guitarTuner.playReferenceNote('E2')" class="ref-note-btn">E2 (6th)</button>
+                            <button onclick="window.guitarTuner.playReferenceNote('A2')" class="ref-note-btn">A2 (5th)</button>
+                            <button onclick="window.guitarTuner.playReferenceNote('D3')" class="ref-note-btn">D3 (4th)</button>
+                            <button onclick="window.guitarTuner.playReferenceNote('G3')" class="ref-note-btn">G3 (3rd)</button>
+                            <button onclick="window.guitarTuner.playReferenceNote('B3')" class="ref-note-btn">B3 (2nd)</button>
+                            <button onclick="window.guitarTuner.playReferenceNote('E4')" class="ref-note-btn">E4 (1st)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metronome Tool Overlay -->
+        <div id="metronome-overlay" class="tool-overlay" style="display: none;">
+            <div class="tool-content">
+                <div class="tool-header">
+                    <h3>🥁 Metronome</h3>
+                    <button class="tool-close" onclick="toggleMetronome()">&times;</button>
+                </div>
+                <div class="tool-body">
+                    <div id="metronome-display" class="metronome-display">
+                        <div class="metronome-instructions">
+                            <p>🎵 Professional metronome with precise timing</p>
+                            <p>Click Start to begin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strumming Patterns Tool Overlay -->
+        <div id="strumming-overlay" class="tool-overlay" style="display: none;">
+            <div class="tool-content strumming-content">
+                <div class="tool-header">
+                    <h3>🎼 Strumming Patterns</h3>
+                    <button class="tool-close" onclick="toggleStrummingPatterns()">&times;</button>
+                </div>
+                <div class="tool-body">
+                    <div class="strumming-main">
+                        <div class="pattern-library">
+                            <h4>Pattern Library</h4>
+                            <div id="pattern-library-content">
+                                <!-- Pattern categories and cards will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="pattern-player">
+                            <div id="strumming-display" class="strumming-display">
+                                <div class="strumming-instructions">
+                                    <p>🎸 Select a strumming pattern to get started</p>
+                                    <p>Choose from beginner to advanced patterns</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script type="module" src="js/audio-engine.js"></script>
     <script type="module" src="js/midi-generator.js"></script>
     <script type="module" src="js/chord-diagrams.js"></script>
     <script src="js/guitar-audio.js"></script>
+    <script src="js/tuner.js"></script>
+    <script src="js/metronome.js"></script>
+    <script src="js/strumming-patterns.js"></script>
     <script type="module" src="js/main.js"></script>
+
+    <script>
+        // Tool overlay functions
+        async function toggleTuner() {
+            const overlay = document.getElementById('tuner-overlay');
+            const isVisible = overlay.style.display !== 'none';
+
+            if (!isVisible) {
+                overlay.style.display = 'block';
+                const success = await window.guitarTuner.toggle();
+                if (success) {
+                    console.log('Tuner activated');
+                } else {
+                    overlay.style.display = 'none';
+                }
+            } else {
+                overlay.style.display = 'none';
+                window.guitarTuner.stop();
+                console.log('Tuner deactivated');
+            }
+        }
+
+        async function toggleMetronome() {
+            const overlay = document.getElementById('metronome-overlay');
+            const isVisible = overlay.style.display !== 'none';
+
+            if (!isVisible) {
+                overlay.style.display = 'block';
+                const success = await window.metronome.initialize();
+                if (success) {
+                    window.metronome.isActive = true;
+                    window.metronome.updateDisplay();
+                    console.log('Metronome activated');
+                } else {
+                    overlay.style.display = 'none';
+                }
+            } else {
+                overlay.style.display = 'none';
+                window.metronome.dispose();
+                console.log('Metronome deactivated');
+            }
+        }
+
+        async function toggleStrummingPatterns() {
+            try {
+                console.log('toggleStrummingPatterns called');
+
+                // Check if strumming patterns is loaded
+                if (!window.strummingPatterns) {
+                    console.error('Strumming patterns not loaded!');
+                    alert('Strumming patterns feature is not loaded. Please refresh the page.');
+                    return;
+                }
+
+                const overlay = document.getElementById('strumming-overlay');
+                if (!overlay) {
+                    console.error('Strumming overlay not found!');
+                    return;
+                }
+
+                const isVisible = overlay.style.display !== 'none';
+                console.log('Overlay visible:', isVisible);
+
+                if (!isVisible) {
+                    console.log('Showing strumming overlay...');
+                    overlay.style.display = 'block';
+
+                    console.log('Initializing strumming patterns...');
+                    const success = await window.strummingPatterns.initialize();
+
+                    if (success) {
+                        window.strummingPatterns.isActive = true;
+
+                        // Populate pattern library
+                        console.log('Populating pattern library...');
+                        const libraryContent = document.getElementById('pattern-library-content');
+                        if (libraryContent) {
+                            console.log('Library content element found, rendering patterns...');
+                            const html = window.strummingPatterns.renderPatternLibrary();
+                            if (html && html.length > 0) {
+                                libraryContent.innerHTML = html;
+                                console.log('Pattern library populated successfully');
+                            } else {
+                                console.error('No HTML generated for pattern library');
+                                libraryContent.innerHTML = '<div class="error">Failed to load patterns</div>';
+                            }
+                        } else {
+                            console.error('Library content element not found!');
+                        }
+
+                        console.log('Updating display...');
+                        window.strummingPatterns.updateDisplay();
+                        console.log('Strumming patterns activated');
+                    } else {
+                        console.error('Failed to initialize strumming patterns');
+                        overlay.style.display = 'none';
+                    }
+                } else {
+                    console.log('Hiding strumming overlay...');
+                    overlay.style.display = 'none';
+                    window.strummingPatterns.dispose();
+                    console.log('Strumming patterns deactivated');
+                }
+            } catch (error) {
+                console.error('Error in toggleStrummingPatterns:', error);
+                alert('Error opening strumming patterns: ' + error.message);
+            }
+        }
+
+        // Close overlays when clicking outside
+        document.addEventListener('click', function(event) {
+            const tunerOverlay = document.getElementById('tuner-overlay');
+            const metronomeOverlay = document.getElementById('metronome-overlay');
+            const strummingOverlay = document.getElementById('strumming-overlay');
+
+            if (event.target === tunerOverlay) {
+                toggleTuner();
+            }
+
+            if (event.target === metronomeOverlay) {
+                toggleMetronome();
+            }
+
+            if (event.target === strummingOverlay) {
+                toggleStrummingPatterns();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const tunerOverlay = document.getElementById('tuner-overlay');
+                const metronomeOverlay = document.getElementById('metronome-overlay');
+                const strummingOverlay = document.getElementById('strumming-overlay');
+
+                if (tunerOverlay.style.display !== 'none') {
+                    toggleTuner();
+                }
+
+                if (metronomeOverlay.style.display !== 'none') {
+                    toggleMetronome();
+                }
+
+                if (strummingOverlay.style.display !== 'none') {
+                    toggleStrummingPatterns();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
