@@ -864,12 +864,19 @@ export function renderSongSummary(songData, container) {
                 <p><strong>Key:</strong> ${songData.key || 'Not set'}</p>
                 <p><strong>Scale:</strong> ${songData.scale || 'Not set'}</p>
                 <p><strong>Tempo:</strong> ${songData.tempo || 'Not set'} BPM</p>
+                <p><strong>Time Signature:</strong> ${songData.strummingPattern?.timeSignature || 'Not set'} ${songData.strummingPattern ? `(${songData.strummingPattern.bpm[0]}-${songData.strummingPattern.bpm[1]} BPM)` : ''}</p>
             </div>
             <div class="summary-section">
                 <h4>Musical Elements</h4>
                 <p><strong>Chords:</strong> ${songData.chordProgression?.chords.join(' - ') || 'Not set'}</p>
+                <p><strong>Strumming Pattern:</strong> ${songData.strummingPattern ? `${songData.strummingPattern.name} (${songData.strummingPattern.pattern.map(s => s === 'D' ? '↓' : s === 'U' ? '↑' : s === 'X' ? '×' : '•').join(' ')})` : 'Not set'}</p>
                 <p><strong>Drum Pattern:</strong> ${songData.drumPattern?.name || 'Not set'}</p>
-                <p><strong>Bass Line:</strong> ${songData.bassLine?.map(note => note.note).join(' - ') || 'Not set'}</p>
+                <p><strong>Bass Style:</strong> ${
+                    songData.rhythmTemplate?.bassStyle ||
+                    songData.bassLine?.style ||
+                    (songData.bassLine?.notes ? songData.bassLine.notes.map(note => note.note).join(' - ') :
+                    (songData.bassLine?.map ? songData.bassLine.map(note => note.note).join(' - ') : 'Not set'))
+                }</p>
             </div>
             <div class="summary-section">
                 <h4>Creative Elements</h4>
@@ -1241,18 +1248,42 @@ window.playChordProgression = async function(progressionName) {
     }
 
     const tempo = appState.songData.tempo || 120;
-    const key = appState.songData.key || 'C';
+    const chords = appState.songData.chordProgression.chords;
 
-    if (window.audioEngine) {
+    // Use the same guitar audio system as individual chord previews
+    if (window.playGuitarChord && chords && chords.length > 0) {
         try {
-            await window.audioEngine.playChordProgression(appState.songData.chordProgression, tempo, key);
             showMessage('Playing chord progression...', 'info');
+            console.log(`Playing progression: ${chords.join(' - ')}`);
+
+            // Calculate timing based on tempo (quarter notes)
+            const beatDuration = (60 / tempo) * 1000; // milliseconds per beat
+            const chordDuration = beatDuration * 2; // Half notes (2 beats per chord)
+
+            // Play each chord in sequence using the guitar audio
+            for (let i = 0; i < chords.length; i++) {
+                const chord = chords[i];
+                setTimeout(async () => {
+                    try {
+                        await window.playGuitarChord(chord, 2.0);
+                        console.log(`✓ Played ${chord} in progression`);
+                    } catch (error) {
+                        console.error(`Error playing ${chord} in progression:`, error);
+                    }
+                }, i * chordDuration);
+            }
+
+            // Show completion message after all chords finish
+            setTimeout(() => {
+                showMessage('Chord progression complete', 'success');
+            }, chords.length * chordDuration + 500);
+
         } catch (error) {
             console.error('Error playing chord progression:', error);
-            showMessage('Error playing audio. Please check your browser audio settings.', 'error');
+            showMessage('Error playing chord progression. Please check your browser audio settings.', 'error');
         }
     } else {
-        showMessage('Audio engine not available', 'error');
+        showMessage('Guitar audio system not available', 'error');
     }
 };
 

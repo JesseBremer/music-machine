@@ -14,6 +14,8 @@ const appState = {
         scale: null,
         tempo: null,
         chordProgression: null,
+        strummingPattern: null,
+        rhythmTemplate: null,
         drumPattern: null,
         bassLine: null,
         bassComplexity: 'simple',
@@ -202,32 +204,838 @@ async function loadChordsStep() {
         UI.showMessage('Please select key, scale, and genre first', 'error');
         return;
     }
-    
+
     const chordProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
         appState.songData.key,
         appState.songData.scale,
         appState.songData.genre,
         appState.loadedData.chordProgressions
     );
-    
+
     UI.renderChordProgressions(chordProgressions, 'chord-progressions');
+
+    // Load strumming patterns
+    loadStrummingPatterns();
+
+    // Setup chord guide toggle
+    setupChordGuideToggle();
+
     UI.showStep('step-chords');
 }
 
-// Load drum pattern step
-async function loadDrumsStep() {
-    if (!appState.songData.genre) {
-        UI.showMessage('Please select a genre first', 'error');
+// Load strumming patterns for the chord step
+function loadStrummingPatterns() {
+    try {
+        if (!window.strummingPatterns || !window.strummingPatterns.patterns) {
+            console.warn('Strumming patterns not loaded, showing placeholder');
+            // Show placeholder message instead of breaking
+            const grid = document.getElementById('strumming-patterns-grid');
+            if (grid) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: var(--spacing-lg);">Strumming patterns loading...</p>';
+            }
+            return;
+        }
+
+        const patterns = window.strummingPatterns.patterns;
+        const suggestedPatterns = getStrummingPatternsForGenre(patterns, appState.songData.genre);
+
+        renderStrummingPatternsGrid(suggestedPatterns);
+        setupStrummingPatternFilters(patterns);
+    } catch (error) {
+        console.error('Error loading strumming patterns:', error);
+        // Don't break the app - just show a message
+        const grid = document.getElementById('strumming-patterns-grid');
+        if (grid) {
+            grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: var(--spacing-lg);">Strumming patterns temporarily unavailable</p>';
+        }
+    }
+}
+
+// Get strumming patterns that match the selected genre
+function getStrummingPatternsForGenre(patterns, genre) {
+    const genreMappings = {
+        'rock': ['Basic', 'Rock'],
+        'pop': ['Basic', 'Folk/Pop'],
+        'folk': ['Basic', 'Folk/Pop'],
+        'country': ['Basic', 'Country', 'Folk/Pop'],
+        'blues': ['Basic', 'Rock', 'Country'],
+        'jazz': ['Jazz', 'Basic'],
+        'reggae': ['Reggae/Ska'],
+        'funk': ['Funk/R&B'],
+        'latin': ['Latin'],
+        'world': ['World'],
+        'acoustic': ['Basic', 'Folk/Pop'],
+        'electronic': ['Basic'],
+        'classical': ['Specialty']
+    };
+
+    const genreKey = (genre?.name || genre?.id || genre || '').toLowerCase();
+    const relevantCategories = genreMappings[genreKey] || ['Basic', 'Folk/Pop'];
+
+    return Object.entries(patterns).filter(([id, pattern]) =>
+        relevantCategories.includes(pattern.category)
+    );
+}
+
+// Render strumming patterns grid
+function renderStrummingPatternsGrid(patternEntries) {
+    const grid = document.getElementById('strumming-patterns-grid');
+    if (!grid) return;
+
+    const getStrokeSymbol = (stroke) => {
+        switch (stroke) {
+            case 'D': return '↓';
+            case 'U': return '↑';
+            case 'X': return '×';
+            case '-': return '•';
+            default: return stroke;
+        }
+    };
+
+    grid.innerHTML = patternEntries.map(([id, pattern]) => `
+        <div class="strumming-pattern-card" onclick="selectStrummingPattern('${id}')" data-pattern-id="${id}">
+            <div class="pattern-card-header">
+                <div class="pattern-card-name">${pattern.name}</div>
+                <span class="pattern-card-difficulty ${pattern.difficulty.toLowerCase()}">${pattern.difficulty}</span>
+            </div>
+            <div class="pattern-card-preview">
+                ${pattern.pattern.slice(0, 8).map(stroke => `
+                    <div class="pattern-card-stroke ${stroke === '-' ? 'rest' : stroke.toLowerCase()}">${getStrokeSymbol(stroke)}</div>
+                `).join('')}
+            </div>
+            <div class="pattern-card-meta">
+                <span>${pattern.timeSignature}</span>
+                <span>${pattern.bpm[0]}-${pattern.bpm[1]} BPM</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Setup strumming pattern filter functionality
+function setupStrummingPatternFilters(patterns) {
+    const categoryFilter = document.getElementById('strumming-category-filter');
+    const difficultyFilter = document.getElementById('strumming-difficulty-filter');
+
+    if (!categoryFilter || !difficultyFilter) return;
+
+    const filterPatterns = () => {
+        const category = categoryFilter.value;
+        const difficulty = difficultyFilter.value;
+
+        const filteredPatterns = Object.entries(patterns).filter(([id, pattern]) => {
+            const categoryMatch = category === 'all' || pattern.category === category;
+            const difficultyMatch = difficulty === 'all' || pattern.difficulty === difficulty;
+            return categoryMatch && difficultyMatch;
+        });
+
+        renderStrummingPatternsGrid(filteredPatterns);
+    };
+
+    categoryFilter.addEventListener('change', filterPatterns);
+    difficultyFilter.addEventListener('change', filterPatterns);
+}
+
+// Select a strumming pattern
+window.selectStrummingPattern = function(patternId) {
+    if (!window.strummingPatterns || !window.strummingPatterns.patterns) {
+        console.warn('Strumming patterns not loaded');
         return;
     }
-    
-    const drumPatterns = MusicTheory.getDrumPatternsForGenre(
-        appState.songData.genre,
-        appState.loadedData.drumPatterns
-    );
-    
-    UI.renderDrumPatterns(drumPatterns, 'drum-patterns');
-    UI.showStep('step-drums');
+
+    const pattern = window.strummingPatterns.patterns[patternId];
+    if (!pattern) return;
+
+    // Update app state
+    appState.songData.strummingPattern = pattern;
+
+    // Update visual selection
+    document.querySelectorAll('.strumming-pattern-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    const selectedCard = document.querySelector(`[data-pattern-id="${patternId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+
+    // Update pattern display
+    displaySelectedStrummingPattern(pattern);
+
+    // Check if we can proceed (both chord progression and strumming pattern selected)
+    checkChordsStepCompletion();
+}
+
+// Display the selected strumming pattern details
+function displaySelectedStrummingPattern(pattern) {
+    const display = document.getElementById('strumming-pattern-display');
+    if (!display) return;
+
+    const getStrokeSymbol = (stroke) => {
+        switch (stroke) {
+            case 'D': return '↓';
+            case 'U': return '↑';
+            case 'X': return '×';
+            case '-': return '•';
+            default: return stroke;
+        }
+    };
+
+    const convertTimingToCount = (timing, timeSignature) => {
+        if (timeSignature === '3/4') {
+            const countMap = {
+                1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&'
+            };
+            return countMap[timing] || timing.toString();
+        } else if (timeSignature === '6/8') {
+            const countMap = {
+                1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&',
+                4: '4', 4.5: '&', 5: '5', 5.5: '&', 6: '6', 6.5: '&'
+            };
+            return countMap[timing] || timing.toString();
+        } else {
+            const countMap = {
+                1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&', 4: '4', 4.5: '&',
+                1.25: '1e', 1.75: '1a', 2.25: '2e', 2.75: '2a',
+                3.25: '3e', 3.75: '3a', 4.25: '4e', 4.75: '4a'
+            };
+            return countMap[timing] || timing.toString();
+        }
+    };
+
+    display.innerHTML = `
+        <div class="strumming-pattern-details">
+            <div class="strumming-pattern-header">
+                <div class="strumming-pattern-name">${pattern.name}</div>
+                <div class="strumming-pattern-category">${pattern.category}</div>
+            </div>
+            <div class="strumming-pattern-visualization">
+                <div class="strumming-pattern-beats">
+                    ${pattern.timing.map((beat, index) => `
+                        <div class="strumming-beat">
+                            <div class="strumming-beat-count">${convertTimingToCount(beat, pattern.timeSignature)}</div>
+                            <div class="strumming-beat-stroke ${pattern.pattern[index] === '-' ? 'rest' : pattern.pattern[index].toLowerCase()}">
+                                ${getStrokeSymbol(pattern.pattern[index])}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); font-style: italic; margin-top: var(--spacing-sm);">
+                ${pattern.description}
+            </p>
+        </div>
+    `;
+
+    display.classList.add('has-pattern');
+}
+
+// Setup chord guide toggle functionality
+function setupChordGuideToggle() {
+    const toggleButton = document.getElementById('toggle-chord-guide');
+    const toggleText = document.getElementById('chord-guide-toggle-text');
+    const chordDisplay = document.getElementById('chord-display');
+
+    if (!toggleButton || !toggleText || !chordDisplay) return;
+
+    // Default state is hidden (only hide the chord diagrams, not the whole chord-display)
+    let isVisible = false;
+
+    // Find or create the chord diagrams container within chord-display
+    let chordDiagrams = chordDisplay.querySelector('.chord-diagrams');
+
+    const updateVisibility = () => {
+        if (chordDiagrams) {
+            if (isVisible) {
+                chordDiagrams.style.display = 'block';
+                toggleText.textContent = '🙈 Hide Visual Chord Guide';
+                toggleButton.style.background = 'var(--secondary-color)';
+            } else {
+                chordDiagrams.style.display = 'none';
+                toggleText.textContent = '👁️ Show Visual Chord Guide';
+                toggleButton.style.background = 'var(--primary-color)';
+            }
+        }
+    };
+
+    toggleButton.addEventListener('click', () => {
+        isVisible = !isVisible;
+        // Re-find chord diagrams in case chord display was updated
+        chordDiagrams = chordDisplay.querySelector('.chord-diagrams');
+        updateVisibility();
+    });
+
+    // Set initial state - hide chord diagrams by default
+    updateVisibility();
+
+    // Watch for changes in chord-display content and update accordingly
+    const observer = new MutationObserver(() => {
+        chordDiagrams = chordDisplay.querySelector('.chord-diagrams');
+        updateVisibility();
+    });
+
+    observer.observe(chordDisplay, { childList: true, subtree: true });
+}
+
+// Check if the chords step is complete
+function checkChordsStepCompletion() {
+    const nextButtons = [
+        document.getElementById('chords-next-top')
+    ];
+
+    // Chord progression is required, strumming pattern is optional (in case strumming patterns fail to load)
+    const hasRequiredData = appState.songData.chordProgression;
+    const hasStrummingPatterns = window.strummingPatterns && window.strummingPatterns.patterns;
+
+    // If strumming patterns are available, require selection. Otherwise, just chord progression is enough.
+    const isComplete = hasRequiredData && (!hasStrummingPatterns || appState.songData.strummingPattern);
+
+    nextButtons.forEach(btn => {
+        if (btn) {
+            btn.disabled = !isComplete;
+            if (isComplete) {
+                btn.textContent = btn.textContent.replace('disabled', '');
+            }
+        }
+    });
+
+    if (isComplete) {
+        UI.markStepComplete(3);
+    }
+}
+
+// Load rhythm section step
+async function loadRhythmStep() {
+    if (!appState.songData.genre || !appState.songData.strummingPattern) {
+        UI.showMessage('Please complete the previous steps first', 'error');
+        return;
+    }
+
+    // Update rhythm context display
+    updateRhythmContext();
+
+    // Generate rhythm templates based on current song data
+    const rhythmTemplates = generateRhythmTemplates();
+    renderRhythmTemplates(rhythmTemplates);
+
+    UI.showStep('step-rhythm');
+}
+
+// Generate rhythm templates based on current song context
+function generateRhythmTemplates() {
+    const genre = appState.songData.genre;
+    const strummingPattern = appState.songData.strummingPattern;
+    const tempo = appState.songData.tempo;
+
+    const templates = [
+        {
+            id: 'acoustic-classic',
+            name: 'Acoustic Classic',
+            drumPattern: 'Acoustic Kit',
+            bassStyle: 'Root Notes',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'acoustic'),
+            description: 'Traditional acoustic setup with clean drums and simple bass',
+            genreMatch: ['folk', 'pop', 'country'],
+            tempoRange: [60, 140]
+        },
+        {
+            id: 'rock-foundation',
+            name: 'Rock Foundation',
+            drumPattern: 'Rock Kit',
+            bassStyle: 'Power Bass',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'rock'),
+            description: 'Driving rock rhythm with punchy drums and strong bass',
+            genreMatch: ['rock', 'alternative', 'pop'],
+            tempoRange: [80, 160]
+        },
+        {
+            id: 'mellow-groove',
+            name: 'Mellow Groove',
+            drumPattern: 'Brushed Kit',
+            bassStyle: 'Walking Bass',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'mellow'),
+            description: 'Smooth, laid-back rhythm perfect for ballads and jazz',
+            genreMatch: ['jazz', 'blues', 'folk'],
+            tempoRange: [60, 120]
+        },
+        {
+            id: 'modern-pop',
+            name: 'Modern Pop',
+            drumPattern: 'Electronic Kit',
+            bassStyle: 'Synth Bass',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'electronic'),
+            description: 'Contemporary pop sound with electronic elements',
+            genreMatch: ['pop', 'electronic', 'indie'],
+            tempoRange: [100, 140]
+        },
+        {
+            id: 'minimal-focus',
+            name: 'Minimal Focus',
+            drumPattern: 'Light Kit',
+            bassStyle: 'Melodic Bass',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'minimal'),
+            description: 'Subtle rhythm that highlights vocals and melody',
+            genreMatch: ['folk', 'indie', 'acoustic'],
+            tempoRange: [70, 120]
+        }
+    ];
+
+    // Sort by compatibility rating
+    return templates.sort((a, b) => {
+        const ratingOrder = { 'perfect': 3, 'good': 2, 'fair': 1 };
+        return ratingOrder[b.compatibility] - ratingOrder[a.compatibility];
+    });
+}
+
+// Get compatibility rating based on genre and context
+function getCompatibilityRating(genre, strummingPattern, templateStyle) {
+    const genreName = (genre?.name || genre?.id || genre || '').toLowerCase();
+    const strummingCategory = strummingPattern?.category?.toLowerCase() || '';
+
+    const compatibilityMatrix = {
+        'acoustic': {
+            genres: ['folk', 'country', 'acoustic'],
+            categories: ['basic', 'folk/pop', 'country'],
+            perfect: ['folk', 'country'],
+            good: ['pop', 'acoustic'],
+            fair: ['rock', 'blues']
+        },
+        'rock': {
+            genres: ['rock', 'alternative', 'metal'],
+            categories: ['rock', 'basic'],
+            perfect: ['rock', 'alternative'],
+            good: ['pop', 'punk'],
+            fair: ['folk', 'country']
+        },
+        'mellow': {
+            genres: ['jazz', 'blues', 'ballad'],
+            categories: ['jazz', 'basic', 'specialty'],
+            perfect: ['jazz', 'blues'],
+            good: ['folk', 'pop'],
+            fair: ['rock', 'country']
+        },
+        'electronic': {
+            genres: ['pop', 'electronic', 'dance'],
+            categories: ['basic', 'funk/r&b'],
+            perfect: ['electronic', 'pop'],
+            good: ['funk', 'dance'],
+            fair: ['rock', 'folk']
+        },
+        'minimal': {
+            genres: ['folk', 'indie', 'acoustic'],
+            categories: ['basic', 'folk/pop', 'specialty'],
+            perfect: ['folk', 'indie'],
+            good: ['acoustic', 'pop'],
+            fair: ['rock', 'country']
+        }
+    };
+
+    const matrix = compatibilityMatrix[templateStyle];
+    if (!matrix) return 'fair';
+
+    if (matrix.perfect.includes(genreName)) return 'perfect';
+    if (matrix.good.includes(genreName)) return 'good';
+    return 'fair';
+}
+
+// Update rhythm context display
+function updateRhythmContext() {
+    document.getElementById('rhythm-genre-display').textContent =
+        appState.songData.genre?.name || 'Not set';
+    document.getElementById('rhythm-time-display').textContent =
+        appState.songData.strummingPattern?.timeSignature || 'Not set';
+    document.getElementById('rhythm-tempo-display').textContent =
+        `${appState.songData.tempo || 'Not set'} BPM`;
+    document.getElementById('rhythm-strum-display').textContent =
+        appState.songData.strummingPattern?.name || 'Not set';
+}
+
+// Render rhythm templates
+function renderRhythmTemplates(templates) {
+    const grid = document.getElementById('rhythm-templates-grid');
+    if (!grid) return;
+
+    grid.innerHTML = templates.map(template => `
+        <div class="rhythm-template-card" onclick="selectRhythmTemplate('${template.id}')" data-template-id="${template.id}">
+            <div class="template-header">
+                <div class="template-name">${template.name}</div>
+                <span class="template-compatibility ${template.compatibility}">${template.compatibility}</span>
+            </div>
+            <div class="template-components">
+                <div class="template-component">
+                    <div class="component-label">Drums</div>
+                    <div class="component-name">${template.drumPattern}</div>
+                </div>
+                <div class="template-component">
+                    <div class="component-label">Bass</div>
+                    <div class="component-name">${template.bassStyle}</div>
+                </div>
+            </div>
+            <div class="template-description">${template.description}</div>
+        </div>
+    `).join('');
+}
+
+// Select rhythm template
+window.selectRhythmTemplate = function(templateId) {
+    const templates = generateRhythmTemplates();
+    const template = templates.find(t => t.id === templateId);
+    if (!template) return;
+
+    // Update app state
+    appState.songData.rhythmTemplate = template;
+    appState.songData.drumPattern = { name: template.drumPattern };
+    appState.songData.bassLine = {
+        style: template.bassStyle,
+        notes: generateBassLine(appState.songData.chordProgression, template.bassStyle)
+    };
+
+    // Update visual selection
+    document.querySelectorAll('.rhythm-template-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    const selectedCard = document.querySelector(`[data-template-id="${templateId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+
+    // Update rhythm preview
+    displayRhythmPreview(template);
+
+    // Check completion
+    checkRhythmStepCompletion();
+}
+
+// Display rhythm preview
+function displayRhythmPreview(template) {
+    const display = document.getElementById('rhythm-preview-display');
+    if (!display) return;
+
+    const strummingPattern = appState.songData.strummingPattern;
+    if (!strummingPattern) return;
+
+    // Generate bass line for preview
+    const previewBassLine = generateBassLine(appState.songData.chordProgression, template.bassStyle);
+
+    display.innerHTML = `
+        <div class="rhythm-visualization">
+            <h4>${template.name} - Rhythm Timeline</h4>
+            <div class="rhythm-timeline">
+                ${generateRhythmTimeline(strummingPattern, template, previewBassLine)}
+            </div>
+            <div style="margin-top: var(--spacing-md); color: var(--text-secondary);">
+                <p><strong>Compatibility:</strong> ${template.compatibility} match for ${appState.songData.genre?.name}</p>
+                <p><strong>Description:</strong> ${template.description}</p>
+                <p><strong>Bass Notes:</strong> ${previewBassLine.map(note => note.note).join(' → ')}</p>
+            </div>
+        </div>
+    `;
+
+    display.classList.add('has-content');
+}
+
+// Generate rhythm timeline visualization
+function generateRhythmTimeline(strummingPattern, template, bassLine = null) {
+    const beats = ['1', '&', '2', '&', '3', '&', '4', '&'];
+
+    const getStrumSymbol = (stroke) => {
+        switch (stroke) {
+            case 'D': return '↓';
+            case 'U': return '↑';
+            case 'X': return '×';
+            case '-': return '•';
+            default: return '•';
+        }
+    };
+
+    const strumRow = beats.map((beat, index) => {
+        const stroke = strummingPattern.pattern[index] || '-';
+        const symbol = getStrumSymbol(stroke);
+        const className = stroke === '-' ? '' : 'strum-active';
+        return `<div class="timeline-beat ${className}">${symbol}</div>`;
+    }).join('');
+
+    const kickRow = beats.map((beat, index) => {
+        let hasKick = false;
+
+        if (template && template.drumPattern) {
+            switch (template.drumPattern) {
+                case 'Acoustic Kit':
+                    hasKick = (index === 0 || index === 4); // Simple 1 and 3
+                    break;
+                case 'Rock Kit':
+                    hasKick = (index === 0 || index === 2 || index === 4 || index === 6); // All beats
+                    break;
+                case 'Brushed Kit':
+                    hasKick = (index === 0 || index === 4); // Gentle 1 and 3
+                    break;
+                case 'Electronic Kit':
+                    hasKick = (index === 0 || index === 3 || index === 4 || index === 7); // Syncopated
+                    break;
+                case 'Light Kit':
+                    hasKick = (index === 0); // Just on 1
+                    break;
+                default:
+                    hasKick = (index === 0 || index === 4); // Default
+            }
+        } else {
+            hasKick = (index === 0 || index === 4); // Default
+        }
+
+        const className = hasKick ? 'active' : '';
+        const symbol = hasKick ? '●' : '•';
+        return `<div class="timeline-beat ${className}">${symbol}</div>`;
+    }).join('');
+
+    const snareRow = beats.map((beat, index) => {
+        let hasSnare = false;
+
+        if (template && template.drumPattern) {
+            switch (template.drumPattern) {
+                case 'Acoustic Kit':
+                    hasSnare = (index === 2 || index === 6); // 2 and 4
+                    break;
+                case 'Rock Kit':
+                    hasSnare = (index === 2 || index === 6); // Strong 2 and 4
+                    break;
+                case 'Brushed Kit':
+                    hasSnare = (index === 2 || index === 6); // Subtle 2 and 4
+                    break;
+                case 'Electronic Kit':
+                    hasSnare = (index === 2 || index === 5 || index === 6); // Electronic pattern
+                    break;
+                case 'Light Kit':
+                    hasSnare = (index === 2); // Just on 2
+                    break;
+                default:
+                    hasSnare = (index === 2 || index === 6); // Default
+            }
+        } else {
+            hasSnare = (index === 2 || index === 6); // Default
+        }
+
+        const className = hasSnare ? 'secondary' : '';
+        const symbol = hasSnare ? '◆' : '•';
+        return `<div class="timeline-beat ${className}">${symbol}</div>`;
+    }).join('');
+
+    const hihatRow = beats.map((beat, index) => {
+        let hasHihat = false;
+
+        if (template && template.drumPattern) {
+            switch (template.drumPattern) {
+                case 'Acoustic Kit':
+                    hasHihat = (index % 2 === 0); // On beats (1, 2, 3, 4)
+                    break;
+                case 'Rock Kit':
+                    hasHihat = true; // Eighth notes on all beats
+                    break;
+                case 'Brushed Kit':
+                    hasHihat = (index % 2 === 0); // Gentle on beats
+                    break;
+                case 'Electronic Kit':
+                    hasHihat = (index % 2 === 1); // Off-beats (syncopated)
+                    break;
+                case 'Light Kit':
+                    hasHihat = (index === 0 || index === 4); // Minimal - just 1 and 3
+                    break;
+                default:
+                    hasHihat = (index % 2 === 0); // Default on beats
+            }
+        } else {
+            hasHihat = (index % 2 === 0); // Default on beats
+        }
+
+        const className = hasHihat ? 'tertiary' : '';
+        const symbol = hasHihat ? '◇' : '•';
+        return `<div class="timeline-beat ${className}">${symbol}</div>`;
+    }).join('');
+
+    const bassRow = beats.map((beat, index) => {
+        // Use passed bassLine parameter or fall back to app state
+        const activeBassLine = bassLine || appState.songData.bassLine?.notes;
+        let className = '';
+        let symbol = '•';
+
+        // Determine if this beat should have bass based on the bass style
+        const beatIndex = index; // 0,1,2,3,4,5,6,7 for 1,&,2,&,3,&,4,&
+        let hasBass = false;
+
+        if (template && template.bassStyle) {
+            switch (template.bassStyle) {
+                case 'Root Notes':
+                    hasBass = (index === 0 || index === 2 || index === 4 || index === 6); // On beats
+                    break;
+                case 'Power Bass':
+                    hasBass = (index === 0 || index === 2 || index === 4 || index === 6); // Strong on beats
+                    break;
+                case 'Walking Bass':
+                    hasBass = (index % 2 === 0); // On every beat and off-beat
+                    break;
+                case 'Synth Bass':
+                    hasBass = (index === 0 || index === 1 || index === 4 || index === 5); // Syncopated
+                    break;
+                case 'Melodic Bass':
+                    hasBass = (index === 0 || index === 3 || index === 4 || index === 7); // Varied pattern
+                    break;
+                default:
+                    hasBass = (index === 0 || index === 2 || index === 4 || index === 6); // Default on beats
+            }
+        } else {
+            hasBass = (index === 0 || index === 2 || index === 4 || index === 6); // Default on beats
+        }
+
+        if (hasBass) {
+            className = 'bass-active';
+
+            // Try to show actual bass notes if available
+            if (activeBassLine && activeBassLine.length > 0) {
+                if (template?.bassStyle === 'Walking Bass') {
+                    // For walking bass, show notes more frequently
+                    const noteIndex = Math.floor(index / 2); // Each chord spans 2 beats
+                    const bassNote = activeBassLine[noteIndex % activeBassLine.length];
+                    symbol = bassNote ? bassNote.note[0] : '■';
+                } else {
+                    // For other styles, show root notes on main beats
+                    const chordIndex = Math.floor(index / 2);
+                    const bassNote = activeBassLine[chordIndex % activeBassLine.length];
+                    symbol = bassNote ? bassNote.note[0] : '■';
+                }
+            } else {
+                symbol = '■';
+            }
+        }
+
+        return `<div class="timeline-beat ${className}">${symbol}</div>`;
+    }).join('');
+
+    return `
+        <div class="timeline-row">
+            <div class="timeline-label">Beat:</div>
+            <div class="timeline-beats">${beats.map(b => `<div class="timeline-beat">${b}</div>`).join('')}</div>
+        </div>
+        <div class="timeline-row">
+            <div class="timeline-label">Strum:</div>
+            <div class="timeline-beats">${strumRow}</div>
+        </div>
+        <div class="timeline-row">
+            <div class="timeline-label">Kick:</div>
+            <div class="timeline-beats">${kickRow}</div>
+        </div>
+        <div class="timeline-row">
+            <div class="timeline-label">Snare:</div>
+            <div class="timeline-beats">${snareRow}</div>
+        </div>
+        <div class="timeline-row">
+            <div class="timeline-label">Hi-hat:</div>
+            <div class="timeline-beats">${hihatRow}</div>
+        </div>
+        <div class="timeline-row">
+            <div class="timeline-label">Bass:</div>
+            <div class="timeline-beats">${bassRow}</div>
+        </div>
+    `;
+}
+
+// Generate bass line based on chord progression and bass style
+function generateBassLine(chordProgression, bassStyle) {
+    if (!chordProgression || !chordProgression.chords) {
+        return [];
+    }
+
+    const chords = chordProgression.chords;
+
+    switch (bassStyle) {
+        case 'Root Notes':
+            return chords.map(chord => ({
+                note: chord.split('/')[0], // Get root note (handle slash chords)
+                duration: 'whole',
+                timing: 'downbeat'
+            }));
+
+        case 'Power Bass':
+            return chords.map(chord => ({
+                note: chord.split('/')[0],
+                duration: 'quarter',
+                timing: 'driving',
+                style: 'punchy'
+            }));
+
+        case 'Walking Bass':
+            // Create walking bass line with connecting notes
+            const walkingNotes = [];
+            chords.forEach((chord, index) => {
+                const root = chord.split('/')[0];
+                walkingNotes.push({
+                    note: root,
+                    duration: 'quarter',
+                    timing: 'downbeat'
+                });
+
+                // Add walking notes between chords
+                if (index < chords.length - 1) {
+                    walkingNotes.push({
+                        note: getConnectingNote(chord, chords[index + 1]),
+                        duration: 'quarter',
+                        timing: 'walkup'
+                    });
+                }
+            });
+            return walkingNotes;
+
+        case 'Synth Bass':
+            return chords.map(chord => ({
+                note: chord.split('/')[0],
+                duration: 'eighth',
+                timing: 'syncopated',
+                style: 'electronic'
+            }));
+
+        case 'Melodic Bass':
+            return chords.map(chord => ({
+                note: chord.split('/')[0],
+                duration: 'varied',
+                timing: 'melodic',
+                style: 'expressive'
+            }));
+
+        default:
+            return chords.map(chord => ({
+                note: chord.split('/')[0],
+                duration: 'whole',
+                timing: 'basic'
+            }));
+    }
+}
+
+// Get connecting note for walking bass
+function getConnectingNote(currentChord, nextChord) {
+    // Simplified - in a real app you'd use music theory
+    const connectingNotes = {
+        'C': 'B', 'G': 'F#', 'Am': 'G#', 'F': 'E',
+        'D': 'C#', 'Em': 'D#', 'A': 'G#', 'E': 'D#'
+    };
+
+    return connectingNotes[currentChord] || currentChord.split('/')[0];
+}
+
+// Check rhythm step completion
+function checkRhythmStepCompletion() {
+    const nextButtons = [
+        document.getElementById('rhythm-next-top')
+    ];
+
+    const isComplete = appState.songData.rhythmTemplate;
+
+    nextButtons.forEach(btn => {
+        if (btn) {
+            btn.disabled = !isComplete;
+        }
+    });
+
+    if (isComplete) {
+        UI.markStepComplete(4);
+    }
 }
 
 // Load bass line step
@@ -270,7 +1078,7 @@ async function loadSongcraftStep() {
     UI.showStep('step-songcraft');
 
     // Enable the next button since songcraft is optional
-    UI.enableButton('songcraft-next');
+    UI.enableButton('songcraft-next-top');
 }
 
 // Load export step
@@ -313,29 +1121,19 @@ function setupEventListeners() {
     // Export buttons
     const exportTextBtn = document.getElementById('export-text');
     const exportJsonBtn = document.getElementById('export-json');
-    const exportMidiBtn = document.getElementById('export-midi');
-    const exportAbletonBtn = document.getElementById('export-ableton');
-    const generateMidiBtn = document.getElementById('generate-midi');
+    const exportChordChartBtn = document.getElementById('export-chord-chart');
     const startOverBtn = document.getElementById('start-over');
-    
+
     if (exportTextBtn) {
         exportTextBtn.addEventListener('click', exportAsText);
     }
-    
+
     if (exportJsonBtn) {
         exportJsonBtn.addEventListener('click', exportAsJSON);
     }
-    
-    if (exportMidiBtn) {
-        exportMidiBtn.addEventListener('click', showMidiExportOptions);
-    }
-    
-    if (exportAbletonBtn) {
-        exportAbletonBtn.addEventListener('click', exportAbletonTemplate);
-    }
-    
-    if (generateMidiBtn) {
-        generateMidiBtn.addEventListener('click', generateMIDIFiles);
+
+    if (exportChordChartBtn) {
+        exportChordChartBtn.addEventListener('click', exportChordChart);
     }
     
     if (startOverBtn) {
@@ -344,21 +1142,13 @@ function setupEventListeners() {
 }
 
 function setupNavigationListeners() {
-    // Next buttons (both top and bottom)
+    // Next buttons (top only)
     const nextButtons = {
-        'mood-next': () => loadKeyTempoStep(),
         'mood-next-top': () => loadKeyTempoStep(),
-        'key-tempo-next': () => loadChordsStep(),
         'key-tempo-next-top': () => loadChordsStep(),
-        'chords-next': () => loadDrumsStep(),
-        'chords-next-top': () => loadDrumsStep(),
-        'drums-next': () => loadBassStep(),
-        'drums-next-top': () => loadBassStep(),
-        'bass-next': () => loadMelodyStep(),
-        'bass-next-top': () => loadMelodyStep(),
-        'melody-next': () => loadSongcraftStep(),
+        'chords-next-top': () => loadRhythmStep(),
+        'rhythm-next-top': () => loadMelodyStep(),
         'melody-next-top': () => loadSongcraftStep(),
-        'songcraft-next': () => loadExportStep(),
         'songcraft-next-top': () => loadExportStep()
     };
     
@@ -369,21 +1159,13 @@ function setupNavigationListeners() {
         }
     });
     
-    // Back buttons (both top and bottom)
+    // Back buttons (top only)
     const backButtons = {
-        'key-tempo-back': () => loadMoodStep(),
         'key-tempo-back-top': () => loadMoodStep(),
-        'chords-back': () => loadKeyTempoStep(),
         'chords-back-top': () => loadKeyTempoStep(),
-        'drums-back': () => loadChordsStep(),
-        'drums-back-top': () => loadChordsStep(),
-        'bass-back': () => loadDrumsStep(),
-        'bass-back-top': () => loadDrumsStep(),
-        'melody-back': () => loadBassStep(),
-        'melody-back-top': () => loadBassStep(),
-        'songcraft-back': () => loadMelodyStep(),
-        'songcraft-back-top': () => loadMelodyStep(),
-        'export-back': () => loadSongcraftStep()
+        'rhythm-back-top': () => loadChordsStep(),
+        'melody-back-top': () => loadRhythmStep(),
+        'songcraft-back-top': () => loadMelodyStep()
     };
     
     Object.entries(backButtons).forEach(([buttonId, handler]) => {
@@ -400,11 +1182,10 @@ function setupProgressBarListeners() {
         1: () => loadMoodStep(),
         2: () => loadKeyTempoStep(),
         3: () => loadChordsStep(),
-        4: () => loadDrumsStep(),
-        5: () => loadBassStep(),
-        6: () => loadMelodyStep(),
-        7: () => loadSongcraftStep(),
-        8: () => loadExportStep()
+        4: () => loadRhythmStep(),
+        5: () => loadMelodyStep(),
+        6: () => loadSongcraftStep(),
+        7: () => loadExportStep()
     };
     
     document.querySelectorAll('.progress-step').forEach((step, index) => {
@@ -466,7 +1247,7 @@ function handleOptionSelection(event) {
                 appState.loadedData.chordProgressions
             );
             appState.songData.chordProgression = progressions.find(p => p.id === progressionId);
-            UI.enableButton('chords-next');
+            checkChordsStepCompletion();
             break;
             
         case 'drum-pattern':
@@ -476,7 +1257,8 @@ function handleOptionSelection(event) {
                 appState.loadedData.drumPatterns
             );
             appState.songData.drumPattern = patterns.find(p => p.id === patternId);
-            UI.enableButton('drums-next');
+            // Drum pattern selection triggers rhythm step completion check
+            checkRhythmStepCompletion();
             break;
             
         case 'bass-pattern':
@@ -493,7 +1275,7 @@ function handleOptionSelection(event) {
                 appState.songData.scale
             );
             appState.songData.melodyIdea = melodyIdeas[melodyIndex];
-            UI.enableButton('melody-next');
+            UI.enableButton('melody-next-top');
             break;
             
         case 'song-structure':
@@ -507,13 +1289,13 @@ function handleOptionSelection(event) {
 
 function checkMoodGenreComplete() {
     if (appState.songData.mood && appState.songData.genre) {
-        UI.enableButton('mood-next');
+        UI.enableButton('mood-next-top');
     }
 }
 
 function checkKeyTempoComplete() {
     if (appState.songData.key && appState.songData.scale && appState.songData.tempo) {
-        UI.enableButton('key-tempo-next');
+        UI.enableButton('key-tempo-next-top');
     }
 }
 
@@ -551,6 +1333,57 @@ function exportAsJSON() {
     UI.showMessage('Song data exported as JSON file', 'success');
 }
 
+// Export chord chart
+function exportChordChart() {
+    if (!appState.songData.songSections || appState.songData.songSections.length === 0) {
+        UI.showMessage('No song sections found. Please complete the Lyrics & Structure step first.', 'warning');
+        return;
+    }
+
+    let chordChartContent = `🎸 CHORD CHART: ${appState.songData.title} 🎸\n`;
+    chordChartContent += `═══════════════════════════════════\n\n`;
+    chordChartContent += `Key: ${appState.songData.key || 'Not set'}\n`;
+    chordChartContent += `Tempo: ${appState.songData.tempo || 'Not set'} BPM\n`;
+    chordChartContent += `Time Signature: ${appState.songData.strummingPattern?.timeSignature || '4/4'}\n\n`;
+
+    appState.songData.songSections.forEach((section, index) => {
+        chordChartContent += `[${section.type.toUpperCase()}]\n`;
+        if (section.chords && section.chords.trim()) {
+            // Format chord progression with bars
+            const chords = section.chords.split(/\s+/).filter(c => c.trim());
+            const chordsPerLine = 4;
+            for (let i = 0; i < chords.length; i += chordsPerLine) {
+                const lineChords = chords.slice(i, i + chordsPerLine);
+                chordChartContent += `| ${lineChords.join(' | ')} |\n`;
+            }
+        } else {
+            chordChartContent += `| (No chords specified) |\n`;
+        }
+        chordChartContent += `\n`;
+    });
+
+    if (appState.songData.strummingPattern) {
+        chordChartContent += `═══ STRUMMING PATTERN ═══\n`;
+        chordChartContent += `${appState.songData.strummingPattern.name}\n`;
+        const strokeSymbols = appState.songData.strummingPattern.pattern.map(stroke => {
+            switch (stroke) {
+                case 'D': return '↓';
+                case 'U': return '↑';
+                case 'X': return '×';
+                case '-': return '•';
+                default: return stroke;
+            }
+        });
+        chordChartContent += `${strokeSymbols.join(' ')}\n\n`;
+    }
+
+    chordChartContent += `Generated with Music Machine\n`;
+
+    const filename = `${appState.songData.title.replace(/[^a-zA-Z0-9]/g, '_')}_chord_chart.txt`;
+    UI.downloadFile(chordChartContent, filename, 'text/plain');
+    UI.showMessage('Chord chart exported successfully', 'success');
+}
+
 function startOver() {
     // Reset app state
     appState.currentStep = 'step-mood';
@@ -582,192 +1415,16 @@ function startOver() {
     UI.showMessage('Starting new song creation', 'info');
 }
 
-// Show MIDI export options panel
-function showMidiExportOptions() {
-    const midiPanel = document.getElementById('midi-export-options');
-    if (midiPanel) {
-        midiPanel.style.display = midiPanel.style.display === 'none' ? 'block' : 'none';
-    }
-}
-
-// Generate MIDI files based on selected options
-async function generateMIDIFiles() {
-    try {
-        // Use our custom SimpleMIDI generator
-        if (!window.SimpleMIDI) {
-            UI.showMessage('MIDI generator not available. Please refresh the page and try again.', 'error');
-            return;
-        }
-        
-        // Get export options from checkboxes
-        const options = {
-            exportChords: document.getElementById('export-chords')?.checked || false,
-            exportBass: document.getElementById('export-bass')?.checked || false,
-            exportMelody: document.getElementById('export-melody')?.checked || false,
-            exportDrums: document.getElementById('export-drums')?.checked || false,
-            exportHarmony: document.getElementById('export-harmony')?.checked || false,
-            exportPads: document.getElementById('export-pads')?.checked || false,
-            songLength: document.getElementById('song-length')?.value || 'medium',
-            variations: parseInt(document.getElementById('midi-variations')?.value) || 2
-        };
-        
-        if (!Object.values(options).some(val => val === true)) {
-            UI.showMessage('Please select at least one track to export', 'warning');
-            return;
-        }
-        
-        UI.showMessage('Generating MIDI files...', 'info');
-        
-        const midiData = await MusicTheory.generateMIDITracks(appState.songData, options);
-        
-        // Generate downloadable MIDI files
-        const midiFiles = MusicTheory.exportMIDIFiles(midiData);
-        
-        if (midiFiles.length === 0) {
-            UI.showMessage('No MIDI tracks were generated. Please complete more song elements.', 'warning');
-            return;
-        }
-        
-        // Download all MIDI files
-        MusicTheory.downloadMIDIFiles(midiFiles);
-        
-        if (midiData.fallback) {
-            UI.showMessage(`✅ Exported ${midiFiles.length} MIDI instruction files! Open the text files for step-by-step DAW import instructions with exact note data.`, 'info');
-        } else {
-            UI.showMessage(`Successfully exported ${midiFiles.length} MIDI files`, 'success');
-        }
-        
-    } catch (error) {
-        console.error('MIDI export failed:', error);
-        UI.showMessage('MIDI export failed. Please try again.', 'error');
-    }
-}
 
 
-// Export Ableton Live template
-async function exportAbletonTemplate() {
-    try {
-        if (!appState.songData.genre || !appState.songData.key) {
-            UI.showMessage('Please complete the song creation process first', 'warning');
-            return;
-        }
-        
-        // Check if required libraries are available
-        if (!window.JSZip) {
-            UI.showMessage('Loading required libraries...', 'info');
-            try {
-                await loadJSZip();
-            } catch (error) {
-                UI.showMessage('Failed to load ZIP library. Please refresh the page and try again.', 'error');
-                return;
-            }
-        }
-        
-        if (!window.SimpleMIDI) {
-            UI.showMessage('MIDI generator not available. Please refresh the page and try again.', 'error');
-            return;
-        }
-        
-        UI.showMessage('Generating Ableton Live template...', 'info');
-        
-        const templateData = MusicTheory.exportAbletonTemplate(appState.songData);
-        const projectName = (appState.songData.title || 'Music Machine Song').replace(/[^a-zA-Z0-9]/g, '_');
-        
-        // Create a ZIP file structure
-        const zip = new JSZip();
-        
-        // Add files to ZIP
-        Object.entries(templateData).forEach(([filename, content]) => {
-            if (typeof content === 'string') {
-                // Regular text file
-                zip.file(filename, content);
-            } else if (typeof content === 'object' && content !== null) {
-                // Handle folders
-                Object.entries(content).forEach(([subfile, subcontent]) => {
-                    if (subcontent instanceof Uint8Array || subcontent instanceof ArrayBuffer) {
-                        // MIDI file - binary data
-                        zip.file(`${filename}${subfile}`, subcontent);
-                    } else if (typeof subcontent === 'string') {
-                        // Text file in subfolder
-                        zip.file(`${filename}${subfile}`, subcontent);
-                    } else if (typeof subcontent === 'object') {
-                        // Nested folder structure
-                        Object.entries(subcontent).forEach(([subsubfile, subsubcontent]) => {
-                            zip.file(`${filename}${subfile}${subsubfile}`, subsubcontent);
-                        });
-                    }
-                });
-            }
-        });
-        
-        // Generate and download ZIP
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        const url = URL.createObjectURL(zipBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${projectName}_Ableton_Template.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        UI.showMessage('Ableton MIDI template downloaded successfully - check Instructions.txt for setup guide', 'success');
-        
-    } catch (error) {
-        console.error('Ableton template export failed:', error);
-        UI.showMessage('Failed to generate Ableton template. JSZip library may be missing.', 'error');
-    }
-}
-
-// Load external libraries dynamically
-function loadJSZip() {
-    return new Promise((resolve, reject) => {
-        if (window.JSZip) {
-            resolve(window.JSZip);
-            return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-        script.onload = () => resolve(window.JSZip);
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
 
 
-// Initialize all external libraries
-async function initializeLibraries() {
-    const loadPromises = [
-        loadJSZip().catch(error => console.warn('Failed to load JSZip library:', error))
-    ];
-
-    try {
-        await Promise.all(loadPromises);
-        console.log('All libraries loaded successfully');
-    } catch (error) {
-        console.warn('Some libraries failed to load:', error);
-    }
-}
 
 // Check library status (for debugging)
 function checkLibraries() {
     console.log('Library Status:');
     console.log('- Tonal.js:', !!window.Tonal ? '✅ Loaded' : '❌ Not loaded');
-    console.log('- SimpleMIDI:', !!window.SimpleMIDI ? '✅ Loaded' : '❌ Not loaded');
-    console.log('- JSZip.js:', !!window.JSZip ? '✅ Loaded' : '❌ Not loaded');
 
-    // Update MIDI export button text based on library availability
-    const midiButton = document.getElementById('export-midi');
-    if (midiButton) {
-        if (!window.SimpleMIDI) {
-            midiButton.textContent = 'Export MIDI Instructions';
-            midiButton.title = 'MIDI generator unavailable - will export text instructions instead';
-        } else {
-            midiButton.textContent = 'Export MIDI Files';
-            midiButton.title = 'Export binary MIDI files';
-        }
-    }
 }
 
 // Initialize the app when DOM is loaded
@@ -775,8 +1432,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize the main app immediately
     initializeApp();
     
-    // Load libraries in parallel (non-blocking)
-    await initializeLibraries();
     
     // Log library status for debugging immediately and after delay
     checkLibraries();

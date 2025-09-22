@@ -1672,7 +1672,8 @@ export function exportAsText(songData) {
     text += `═══ MUSICAL FOUNDATION ═══\n`;
     text += `♪ Key: ${data.key || 'Not set'}\n`;
     text += `♪ Scale: ${data.scale || 'Not set'}\n`;
-    text += `♪ Tempo: ${data.tempo || 'Not set'} BPM\n\n`;
+    text += `♪ Tempo: ${data.tempo || 'Not set'} BPM\n`;
+    text += `♪ Time Signature: ${data.strummingPattern?.timeSignature || 'Not set'}\n\n`;
     
     if (data.chordProgression) {
         text += `═══ HARMONY ═══\n`;
@@ -1681,17 +1682,54 @@ export function exportAsText(songData) {
         text += `♪ Chords: ${data.chordProgression.chords.join(' → ')}\n`;
         text += `♪ Function: ${data.chordProgression.function || 'Standard progression'}\n\n`;
     }
-    
-    if (data.drumPattern) {
-        text += `═══ RHYTHM ═══\n`;
-        text += `♫ Drum Pattern: ${data.drumPattern.name}\n`;
-        text += `  └─ ${data.drumPattern.description}\n\n`;
+
+    if (data.strummingPattern) {
+        text += `═══ STRUMMING PATTERN ═══\n`;
+        text += `♫ Pattern: ${data.strummingPattern.name}\n`;
+        text += `  └─ ${data.strummingPattern.description}\n`;
+        text += `♪ Category: ${data.strummingPattern.category}\n`;
+        text += `♪ Difficulty: ${data.strummingPattern.difficulty}\n`;
+        text += `♪ BPM Range: ${data.strummingPattern.bpm[0]}-${data.strummingPattern.bpm[1]} BPM\n`;
+        const strokeSymbols = data.strummingPattern.pattern.map(stroke => {
+            switch (stroke) {
+                case 'D': return '↓';
+                case 'U': return '↑';
+                case 'X': return '×';
+                case '-': return '•';
+                default: return stroke;
+            }
+        });
+        text += `♪ Pattern: ${strokeSymbols.join(' ')}\n\n`;
     }
     
-    if (data.bassLine && data.bassLine.length > 0) {
-        text += `═══ BASS LINE ═══\n`;
-        text += `♪ Bass Notes: ${data.bassLine.map(note => note.note).join(' → ')}\n`;
-        text += `♪ Style: ${data.bassComplexity || 'Simple'}\n\n`;
+    if (data.rhythmTemplate) {
+        text += `═══ RHYTHM SECTION ═══\n`;
+        text += `♫ Template: ${data.rhythmTemplate.name}\n`;
+        text += `  └─ ${data.rhythmTemplate.description}\n`;
+        text += `♪ Drum Pattern: ${data.rhythmTemplate.drumPattern}\n`;
+        text += `♪ Bass Style: ${data.rhythmTemplate.bassStyle}\n`;
+        text += `♪ Compatibility: ${data.rhythmTemplate.compatibility} match\n\n`;
+    } else {
+        // Fallback for old format
+        if (data.drumPattern) {
+            text += `═══ RHYTHM ═══\n`;
+            text += `♫ Drum Pattern: ${data.drumPattern.name}\n`;
+            text += `  └─ ${data.drumPattern.description || 'Drum pattern for rhythm section'}\n\n`;
+        }
+
+        if (data.bassLine && (data.bassLine.length > 0 || data.bassLine.style || data.bassLine.notes)) {
+            text += `═══ BASS LINE ═══\n`;
+            if (data.bassLine.style) {
+                text += `♪ Bass Style: ${data.bassLine.style}\n`;
+                if (data.bassLine.notes) {
+                    text += `♪ Bass Notes: ${data.bassLine.notes.map(note => note.note).join(' → ')}\n`;
+                }
+                text += `\n`;
+            } else if (data.bassLine.map) {
+                text += `♪ Bass Notes: ${data.bassLine.map(note => note.note).join(' → ')}\n`;
+                text += `♪ Style: ${data.bassComplexity || 'Simple'}\n\n`;
+            }
+        }
     }
     
     if (data.melodyIdea) {
@@ -1701,14 +1739,36 @@ export function exportAsText(songData) {
         text += `♪ Notes: ${data.melodyIdea.pattern.join(' → ')}\n\n`;
     }
     
-    if (data.songStructure && data.songStructure.length > 0) {
-        text += `═══ SONG STRUCTURE ═══\n`;
-        text += `♪ ${data.songStructure.join(' → ')}\n\n`;
-    }
-    
-    if (data.lyrics && data.lyrics.trim()) {
-        text += `═══ LYRICS ═══\n`;
-        text += `${data.lyrics}\n\n`;
+    // Detailed song sections (from songcraft)
+    if (data.songSections && data.songSections.length > 0) {
+        text += `═══ DETAILED SONG STRUCTURE ═══\n`;
+        data.songSections.forEach((section, index) => {
+            text += `\n${index + 1}. ${section.type.toUpperCase()}\n`;
+            if (section.chords && section.chords.trim()) {
+                text += `   🎸 Chords: ${section.chords}\n`;
+            }
+            if (section.lyrics && section.lyrics.trim()) {
+                text += `   🎤 Lyrics:\n`;
+                const lyricsLines = section.lyrics.split('\n');
+                lyricsLines.forEach(line => {
+                    if (line.trim()) {
+                        text += `      ${line}\n`;
+                    }
+                });
+            }
+        });
+        text += `\n`;
+    } else {
+        // Fallback to basic structure if detailed sections aren't available
+        if (data.songStructure && data.songStructure.length > 0) {
+            text += `═══ SONG STRUCTURE ═══\n`;
+            text += `♪ ${data.songStructure.join(' → ')}\n\n`;
+        }
+
+        if (data.lyrics && data.lyrics.trim()) {
+            text += `═══ LYRICS ═══\n`;
+            text += `${data.lyrics}\n\n`;
+        }
     }
     
     text += `═══════════════════════════════════\n`;
