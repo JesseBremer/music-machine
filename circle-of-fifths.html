@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle of Fifths - Music Machine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+    <script src="js/guitar-audio.js"></script>
+    <style>
+        .circle-page {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-sm);
+            text-shadow: var(--glow-accent);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .navigation {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--surface-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin: 0 var(--spacing-xs);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-link:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .circle-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: var(--spacing-2xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .circle-of-fifths {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            background: radial-gradient(circle, var(--surface-elevated) 20%, var(--background-color) 70%);
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+            box-shadow: var(--box-shadow-lg);
+        }
+
+        .key-position {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: var(--font-size-base);
+        }
+
+        .key-position:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: var(--glow-primary);
+        }
+
+        .key-position.selected {
+            background: var(--accent-color);
+            color: var(--background-color);
+            border-color: var(--accent-color);
+            box-shadow: var(--glow-accent);
+        }
+
+        .key-position.major {
+            color: var(--text-primary);
+        }
+
+        .key-position.minor {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .circle-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-surface);
+            border: 3px solid var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-small);
+            color: var(--accent-color);
+            font-weight: bold;
+            text-align: center;
+            box-shadow: var(--glow-accent);
+        }
+
+        .key-info {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .key-info h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .key-signature {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .signature-display {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-large);
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .chord-progressions-section {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .progression-category {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .category-title {
+            color: var(--secondary-color);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-md);
+            border-left: 4px solid var(--secondary-color);
+            padding-left: var(--spacing-md);
+        }
+
+        .progressions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .progression-card {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .progression-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
+            transform: translateY(-2px);
+        }
+
+        .progression-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .chord-sequence {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-large);
+            color: var(--accent-color);
+            margin: var(--spacing-sm) 0;
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .chord {
+            background: var(--surface-elevated);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+        }
+
+        .progression-description {
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .progression-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .play-progression-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            font-size: var(--font-size-small);
+            transition: all 0.2s ease;
+        }
+
+        .play-progression-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .progression-key {
+            font-size: var(--font-size-small);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .theory-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .theory-card {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .theory-card h3 {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .theory-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .relative-keys {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .relative-key {
+            background: var(--surface-color);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            font-size: var(--font-size-small);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .relative-key:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .circle-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+            }
+
+            .circle-of-fifths {
+                width: 350px;
+                height: 350px;
+            }
+
+            .key-position {
+                width: 50px;
+                height: 25px;
+                font-size: var(--font-size-small);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .circle-page {
+                padding: var(--spacing-md);
+            }
+
+            .circle-of-fifths {
+                width: 300px;
+                height: 300px;
+            }
+
+            .progressions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>🎭 Circle of Fifths</h1>
+            <p>Explore harmonic relationships and chord progressions</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="chords.html" class="nav-link">🎸 Chords</a>
+                <a href="scales.html" class="nav-link">🎵 Scales</a>
+                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link active">🎭 Circle of Fifths</a>
+            </nav>
+        </header>
+
+        <div class="circle-page">
+
+        <div class="circle-container">
+            <div class="circle-of-fifths" id="circle-of-fifths">
+                <div class="circle-center">
+                    Circle<br>of<br>Fifths
+                </div>
+                <!-- Key positions will be generated by JavaScript -->
+            </div>
+
+            <div class="key-info">
+                <h3 id="selected-key">Select a Key</h3>
+                <div class="key-signature">
+                    <div class="signature-display" id="key-signature">♮</div>
+                    <div style="text-align: center; font-size: var(--font-size-small); color: var(--text-secondary);">
+                        Key Signature
+                    </div>
+                </div>
+                <div class="relative-keys">
+                    <div class="relative-key" id="relative-major">Major</div>
+                    <div class="relative-key" id="relative-minor">Minor</div>
+                </div>
+                <div style="margin-top: var(--spacing-md);">
+                    <h4 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Scale Degrees</h4>
+                    <div id="scale-degrees" style="font-family: var(--font-family-mono); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                        Select a key to see scale degrees
+                    </div>
+                    <h4 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Chord Functions</h4>
+                    <div id="chord-functions" style="font-family: var(--font-family-mono); color: var(--text-secondary); font-size: var(--font-size-small);">
+                        Select a key to see chord functions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <div class="theory-card">
+                <h3>🎯 How It Works</h3>
+                <div class="theory-content">
+                    The Circle of Fifths shows the relationship between keys. Moving clockwise adds sharps,
+                    counterclockwise adds flats. Adjacent keys share the most chords, making smooth transitions
+                    between them. The inner circle shows relative minor keys.
+                </div>
+            </div>
+            <div class="theory-card">
+                <h3>🎵 Chord Relationships</h3>
+                <div class="theory-content">
+                    Keys that are close on the circle work well together. The I-IV-V progression uses chords
+                    from adjacent positions. Common progressions like vi-IV-I-V move around the circle in a
+                    harmonically pleasing way.
+                </div>
+            </div>
+            <div class="theory-card">
+                <h3>🔄 Key Changes</h3>
+                <div class="theory-content">
+                    Modulating to nearby keys (one step clockwise/counterclockwise) sounds natural.
+                    Relative major/minor keys share the same notes but have different tonal centers.
+                    Parallel keys have the same root but different modes.
+                </div>
+            </div>
+        </div>
+
+        <div class="chord-progressions-section">
+            <h2 style="color: var(--primary-color); margin-top: 0; margin-bottom: var(--spacing-lg);">
+                🎼 Chord Progressions by Key
+            </h2>
+            <div id="progressions-container">
+                <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                    Select a key from the circle above to see chord progressions
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Circle of Fifths data
+        const circleData = {
+            // Major keys (outer circle)
+            major: [
+                { key: 'C', sharps: 0, flats: 0, angle: 0 },
+                { key: 'G', sharps: 1, flats: 0, angle: 30 },
+                { key: 'D', sharps: 2, flats: 0, angle: 60 },
+                { key: 'A', sharps: 3, flats: 0, angle: 90 },
+                { key: 'E', sharps: 4, flats: 0, angle: 120 },
+                { key: 'B', sharps: 5, flats: 0, angle: 150 },
+                { key: 'F♯', sharps: 6, flats: 0, angle: 180 },
+                { key: 'D♭', sharps: 0, flats: 5, angle: 210 },
+                { key: 'A♭', sharps: 0, flats: 4, angle: 240 },
+                { key: 'E♭', sharps: 0, flats: 3, angle: 270 },
+                { key: 'B♭', sharps: 0, flats: 2, angle: 300 },
+                { key: 'F', sharps: 0, flats: 1, angle: 330 }
+            ],
+            // Minor keys (inner circle)
+            minor: [
+                { key: 'Am', sharps: 0, flats: 0, angle: 0 },
+                { key: 'Em', sharps: 1, flats: 0, angle: 30 },
+                { key: 'Bm', sharps: 2, flats: 0, angle: 60 },
+                { key: 'F♯m', sharps: 3, flats: 0, angle: 90 },
+                { key: 'C♯m', sharps: 4, flats: 0, angle: 120 },
+                { key: 'G♯m', sharps: 5, flats: 0, angle: 150 },
+                { key: 'D♯m', sharps: 6, flats: 0, angle: 180 },
+                { key: 'B♭m', sharps: 0, flats: 5, angle: 210 },
+                { key: 'Fm', sharps: 0, flats: 4, angle: 240 },
+                { key: 'Cm', sharps: 0, flats: 3, angle: 270 },
+                { key: 'Gm', sharps: 0, flats: 2, angle: 300 },
+                { key: 'Dm', sharps: 0, flats: 1, angle: 330 }
+            ]
+        };
+
+        // Chord progressions by key
+        const progressionsByKey = {
+            'C': {
+                'Classic I-V-vi-IV': { chords: ['C', 'G', 'Am', 'F'], description: 'The most popular progression in Western music' },
+                'I-vi-IV-V': { chords: ['C', 'Am', 'F', 'G'], description: '50s Progression - classic doo-wop sound' },
+                'vi-IV-I-V': { chords: ['Am', 'F', 'C', 'G'], description: 'Pop-punk favorite progression' },
+                'I-IV-vi-V': { chords: ['C', 'F', 'Am', 'G'], description: 'Gentle ballad progression' },
+                'ii-V-I': { chords: ['Dm', 'G', 'C'], description: 'Jazz standard turnaround' }
+            },
+            'G': {
+                'Classic I-V-vi-IV': { chords: ['G', 'D', 'Em', 'C'], description: 'Country and folk favorite' },
+                'I-vi-IV-V': { chords: ['G', 'Em', 'C', 'D'], description: 'Acoustic guitar staple' },
+                'vi-IV-I-V': { chords: ['Em', 'C', 'G', 'D'], description: 'Modern pop progression' },
+                'I-IV-vi-V': { chords: ['G', 'C', 'Em', 'D'], description: 'Folk ballad progression' },
+                'ii-V-I': { chords: ['Am', 'D', 'G'], description: 'Jazz in G major' }
+            },
+            'D': {
+                'Classic I-V-vi-IV': { chords: ['D', 'A', 'Bm', 'G'], description: 'Rock and country staple' },
+                'I-vi-IV-V': { chords: ['D', 'Bm', 'G', 'A'], description: 'Classic rock progression' },
+                'vi-IV-I-V': { chords: ['Bm', 'G', 'D', 'A'], description: 'Alternative rock favorite' },
+                'I-IV-vi-V': { chords: ['D', 'G', 'Bm', 'A'], description: 'Power ballad progression' },
+                'ii-V-I': { chords: ['Em', 'A', 'D'], description: 'Jazz turnaround in D' }
+            },
+            'A': {
+                'Classic I-V-vi-IV': { chords: ['A', 'E', 'F#m', 'D'], description: 'Guitar-friendly progression' },
+                'I-vi-IV-V': { chords: ['A', 'F#m', 'D', 'E'], description: 'Classic pop progression' },
+                'vi-IV-I-V': { chords: ['F#m', 'D', 'A', 'E'], description: 'Modern rock progression' },
+                'I-IV-vi-V': { chords: ['A', 'D', 'F#m', 'E'], description: 'Country ballad progression' },
+                'ii-V-I': { chords: ['Bm', 'E', 'A'], description: 'Jazz cadence in A' }
+            },
+            'E': {
+                'Classic I-V-vi-IV': { chords: ['E', 'B', 'C#m', 'A'], description: 'Rock guitar progression' },
+                'I-vi-IV-V': { chords: ['E', 'C#m', 'A', 'B'], description: 'Blues-rock progression' },
+                'vi-IV-I-V': { chords: ['C#m', 'A', 'E', 'B'], description: 'Alternative progression' },
+                'I-IV-vi-V': { chords: ['E', 'A', 'C#m', 'B'], description: 'Rock ballad progression' },
+                'ii-V-I': { chords: ['F#m', 'B', 'E'], description: 'Jazz in E major' }
+            },
+            'B': {
+                'Classic I-V-vi-IV': { chords: ['B', 'F#', 'G#m', 'E'], description: 'Sharp key progression' },
+                'I-vi-IV-V': { chords: ['B', 'G#m', 'E', 'F#'], description: 'Pop progression in B' },
+                'vi-IV-I-V': { chords: ['G#m', 'E', 'B', 'F#'], description: 'Alternative in B major' },
+                'I-IV-vi-V': { chords: ['B', 'E', 'G#m', 'F#'], description: 'Ballad in B major' },
+                'ii-V-I': { chords: ['C#m', 'F#', 'B'], description: 'Jazz in B major' }
+            },
+            'F#': {
+                'Classic I-V-vi-IV': { chords: ['F#', 'C#', 'D#m', 'B'], description: 'Sharp key progression' },
+                'I-vi-IV-V': { chords: ['F#', 'D#m', 'B', 'C#'], description: 'Pop in F# major' },
+                'vi-IV-I-V': { chords: ['D#m', 'B', 'F#', 'C#'], description: 'Alternative F# progression' },
+                'I-IV-vi-V': { chords: ['F#', 'B', 'D#m', 'C#'], description: 'Ballad in F# major' },
+                'ii-V-I': { chords: ['G#m', 'C#', 'F#'], description: 'Jazz in F# major' }
+            },
+            'F': {
+                'Classic I-V-vi-IV': { chords: ['F', 'C', 'Dm', 'Bb'], description: 'Folk and pop progression' },
+                'I-vi-IV-V': { chords: ['F', 'Dm', 'Bb', 'C'], description: 'Classic progression in F' },
+                'vi-IV-I-V': { chords: ['Dm', 'Bb', 'F', 'C'], description: 'Modern pop in F major' },
+                'I-IV-vi-V': { chords: ['F', 'Bb', 'Dm', 'C'], description: 'Gentle ballad in F' },
+                'ii-V-I': { chords: ['Gm', 'C', 'F'], description: 'Jazz turnaround in F' }
+            },
+            'Bb': {
+                'Classic I-V-vi-IV': { chords: ['Bb', 'F', 'Gm', 'Eb'], description: 'Jazz and pop favorite' },
+                'I-vi-IV-V': { chords: ['Bb', 'Gm', 'Eb', 'F'], description: 'Soul progression' },
+                'vi-IV-I-V': { chords: ['Gm', 'Eb', 'Bb', 'F'], description: 'R&B progression' },
+                'I-IV-vi-V': { chords: ['Bb', 'Eb', 'Gm', 'F'], description: 'Ballad in Bb' },
+                'ii-V-I': { chords: ['Cm', 'F', 'Bb'], description: 'Jazz in Bb major' }
+            },
+            'Eb': {
+                'Classic I-V-vi-IV': { chords: ['Eb', 'Bb', 'Cm', 'Ab'], description: 'Jazz standard key' },
+                'I-vi-IV-V': { chords: ['Eb', 'Cm', 'Ab', 'Bb'], description: 'Soul and R&B' },
+                'vi-IV-I-V': { chords: ['Cm', 'Ab', 'Eb', 'Bb'], description: 'Modern Eb progression' },
+                'I-IV-vi-V': { chords: ['Eb', 'Ab', 'Cm', 'Bb'], description: 'Ballad in Eb' },
+                'ii-V-I': { chords: ['Fm', 'Bb', 'Eb'], description: 'Jazz in Eb major' }
+            },
+            'Ab': {
+                'Classic I-V-vi-IV': { chords: ['Ab', 'Eb', 'Fm', 'Db'], description: 'Jazz ballad key' },
+                'I-vi-IV-V': { chords: ['Ab', 'Fm', 'Db', 'Eb'], description: 'Classic Ab progression' },
+                'vi-IV-I-V': { chords: ['Fm', 'Db', 'Ab', 'Eb'], description: 'Alternative Ab' },
+                'I-IV-vi-V': { chords: ['Ab', 'Db', 'Fm', 'Eb'], description: 'Ballad in Ab' },
+                'ii-V-I': { chords: ['Bbm', 'Eb', 'Ab'], description: 'Jazz in Ab major' }
+            },
+            'Am': {
+                'i-VII-VI-VII': { chords: ['Am', 'G', 'F', 'G'], description: 'Classic minor progression' },
+                'i-VI-VII-i': { chords: ['Am', 'F', 'G', 'Am'], description: 'Minor folk progression' },
+                'i-iv-VII-III': { chords: ['Am', 'Dm', 'G', 'C'], description: 'Natural minor progression' },
+                'i-VI-IV-VII': { chords: ['Am', 'F', 'C', 'G'], description: 'Pop minor progression' },
+                'i-VII-i': { chords: ['Am', 'G', 'Am'], description: 'Simple minor cadence' }
+            },
+            'Em': {
+                'i-VII-VI-VII': { chords: ['Em', 'D', 'C', 'D'], description: 'Rock minor progression' },
+                'i-VI-VII-i': { chords: ['Em', 'C', 'D', 'Em'], description: 'Folk minor progression' },
+                'i-iv-VII-III': { chords: ['Em', 'Am', 'D', 'G'], description: 'Natural minor in Em' },
+                'i-VI-IV-VII': { chords: ['Em', 'C', 'G', 'D'], description: 'Pop minor in Em' },
+                'i-VII-i': { chords: ['Em', 'D', 'Em'], description: 'Simple Em cadence' }
+            },
+            'Bm': {
+                'i-VII-VI-VII': { chords: ['Bm', 'A', 'G', 'A'], description: 'Minor progression in Bm' },
+                'i-VI-VII-i': { chords: ['Bm', 'G', 'A', 'Bm'], description: 'Folk minor in Bm' },
+                'i-iv-VII-III': { chords: ['Bm', 'Em', 'A', 'D'], description: 'Natural minor in Bm' },
+                'i-VI-IV-VII': { chords: ['Bm', 'G', 'D', 'A'], description: 'Pop minor in Bm' },
+                'i-VII-i': { chords: ['Bm', 'A', 'Bm'], description: 'Simple Bm cadence' }
+            },
+            'F#m': {
+                'i-VII-VI-VII': { chords: ['F#m', 'E', 'D', 'E'], description: 'Minor progression in F#m' },
+                'i-VI-VII-i': { chords: ['F#m', 'D', 'E', 'F#m'], description: 'Folk minor in F#m' },
+                'i-iv-VII-III': { chords: ['F#m', 'Bm', 'E', 'A'], description: 'Natural minor in F#m' },
+                'i-VI-IV-VII': { chords: ['F#m', 'D', 'A', 'E'], description: 'Pop minor in F#m' },
+                'i-VII-i': { chords: ['F#m', 'E', 'F#m'], description: 'Simple F#m cadence' }
+            },
+            'C#m': {
+                'i-VII-VI-VII': { chords: ['C#m', 'B', 'A', 'B'], description: 'Minor progression in C#m' },
+                'i-VI-VII-i': { chords: ['C#m', 'A', 'B', 'C#m'], description: 'Folk minor in C#m' },
+                'i-iv-VII-III': { chords: ['C#m', 'F#m', 'B', 'E'], description: 'Natural minor in C#m' },
+                'i-VI-IV-VII': { chords: ['C#m', 'A', 'E', 'B'], description: 'Pop minor in C#m' },
+                'i-VII-i': { chords: ['C#m', 'B', 'C#m'], description: 'Simple C#m cadence' }
+            },
+            'Dm': {
+                'i-VII-VI-VII': { chords: ['Dm', 'C', 'Bb', 'C'], description: 'Minor progression in Dm' },
+                'i-VI-VII-i': { chords: ['Dm', 'Bb', 'C', 'Dm'], description: 'Folk minor in Dm' },
+                'i-iv-VII-III': { chords: ['Dm', 'Gm', 'C', 'F'], description: 'Natural minor in Dm' },
+                'i-VI-IV-VII': { chords: ['Dm', 'Bb', 'F', 'C'], description: 'Pop minor in Dm' },
+                'i-VII-i': { chords: ['Dm', 'C', 'Dm'], description: 'Simple Dm cadence' }
+            },
+            'Gm': {
+                'i-VII-VI-VII': { chords: ['Gm', 'F', 'Eb', 'F'], description: 'Minor progression in Gm' },
+                'i-VI-VII-i': { chords: ['Gm', 'Eb', 'F', 'Gm'], description: 'Folk minor in Gm' },
+                'i-iv-VII-III': { chords: ['Gm', 'Cm', 'F', 'Bb'], description: 'Natural minor in Gm' },
+                'i-VI-IV-VII': { chords: ['Gm', 'Eb', 'Bb', 'F'], description: 'Pop minor in Gm' },
+                'i-VII-i': { chords: ['Gm', 'F', 'Gm'], description: 'Simple Gm cadence' }
+            },
+            'Cm': {
+                'i-VII-VI-VII': { chords: ['Cm', 'Bb', 'Ab', 'Bb'], description: 'Minor progression in Cm' },
+                'i-VI-VII-i': { chords: ['Cm', 'Ab', 'Bb', 'Cm'], description: 'Folk minor in Cm' },
+                'i-iv-VII-III': { chords: ['Cm', 'Fm', 'Bb', 'Eb'], description: 'Natural minor in Cm' },
+                'i-VI-IV-VII': { chords: ['Cm', 'Ab', 'Eb', 'Bb'], description: 'Pop minor in Cm' },
+                'i-VII-i': { chords: ['Cm', 'Bb', 'Cm'], description: 'Simple Cm cadence' }
+            },
+            'Fm': {
+                'i-VII-VI-VII': { chords: ['Fm', 'Eb', 'Db', 'Eb'], description: 'Minor progression in Fm' },
+                'i-VI-VII-i': { chords: ['Fm', 'Db', 'Eb', 'Fm'], description: 'Folk minor in Fm' },
+                'i-iv-VII-III': { chords: ['Fm', 'Bbm', 'Eb', 'Ab'], description: 'Natural minor in Fm' },
+                'i-VI-IV-VII': { chords: ['Fm', 'Db', 'Ab', 'Eb'], description: 'Pop minor in Fm' },
+                'i-VII-i': { chords: ['Fm', 'Eb', 'Fm'], description: 'Simple Fm cadence' }
+            },
+            'Db': {
+                'Classic I-V-vi-IV': { chords: ['Db', 'Ab', 'Bbm', 'Gb'], description: 'Jazz ballad progression' },
+                'I-vi-IV-V': { chords: ['Db', 'Bbm', 'Gb', 'Ab'], description: 'Classic Db progression' },
+                'vi-IV-I-V': { chords: ['Bbm', 'Gb', 'Db', 'Ab'], description: 'Alternative Db progression' },
+                'I-IV-vi-V': { chords: ['Db', 'Gb', 'Bbm', 'Ab'], description: 'Ballad in Db major' },
+                'ii-V-I': { chords: ['Ebm', 'Ab', 'Db'], description: 'Jazz in Db major' }
+            },
+            'G#m': {
+                'i-VII-VI-VII': { chords: ['G#m', 'F#', 'E', 'F#'], description: 'Minor progression in G#m' },
+                'i-VI-VII-i': { chords: ['G#m', 'E', 'F#', 'G#m'], description: 'Folk minor in G#m' },
+                'i-iv-VII-III': { chords: ['G#m', 'C#m', 'F#', 'B'], description: 'Natural minor in G#m' },
+                'i-VI-IV-VII': { chords: ['G#m', 'E', 'B', 'F#'], description: 'Pop minor in G#m' },
+                'i-VII-i': { chords: ['G#m', 'F#', 'G#m'], description: 'Simple G#m cadence' }
+            },
+            'D#m': {
+                'i-VII-VI-VII': { chords: ['D#m', 'C#', 'B', 'C#'], description: 'Minor progression in D#m' },
+                'i-VI-VII-i': { chords: ['D#m', 'B', 'C#', 'D#m'], description: 'Folk minor in D#m' },
+                'i-iv-VII-III': { chords: ['D#m', 'G#m', 'C#', 'F#'], description: 'Natural minor in D#m' },
+                'i-VI-IV-VII': { chords: ['D#m', 'B', 'F#', 'C#'], description: 'Pop minor in D#m' },
+                'i-VII-i': { chords: ['D#m', 'C#', 'D#m'], description: 'Simple D#m cadence' }
+            },
+            'Bbm': {
+                'i-VII-VI-VII': { chords: ['Bbm', 'Ab', 'Gb', 'Ab'], description: 'Minor progression in Bbm' },
+                'i-VI-VII-i': { chords: ['Bbm', 'Gb', 'Ab', 'Bbm'], description: 'Folk minor in Bbm' },
+                'i-iv-VII-III': { chords: ['Bbm', 'Ebm', 'Ab', 'Db'], description: 'Natural minor in Bbm' },
+                'i-VI-IV-VII': { chords: ['Bbm', 'Gb', 'Db', 'Ab'], description: 'Pop minor in Bbm' },
+                'i-VII-i': { chords: ['Bbm', 'Ab', 'Bbm'], description: 'Simple Bbm cadence' }
+            },
+            // Keys with symbols (for circle compatibility)
+            'F♯': {
+                'Classic I-V-vi-IV': { chords: ['F#', 'C#', 'D#m', 'B'], description: 'Sharp key progression' },
+                'I-vi-IV-V': { chords: ['F#', 'D#m', 'B', 'C#'], description: 'Pop in F# major' },
+                'vi-IV-I-V': { chords: ['D#m', 'B', 'F#', 'C#'], description: 'Alternative F# progression' },
+                'I-IV-vi-V': { chords: ['F#', 'B', 'D#m', 'C#'], description: 'Ballad in F# major' },
+                'ii-V-I': { chords: ['G#m', 'C#', 'F#'], description: 'Jazz in F# major' }
+            },
+            'D♭': {
+                'Classic I-V-vi-IV': { chords: ['Db', 'Ab', 'Bbm', 'Gb'], description: 'Jazz ballad progression' },
+                'I-vi-IV-V': { chords: ['Db', 'Bbm', 'Gb', 'Ab'], description: 'Classic Db progression' },
+                'vi-IV-I-V': { chords: ['Bbm', 'Gb', 'Db', 'Ab'], description: 'Alternative Db progression' },
+                'I-IV-vi-V': { chords: ['Db', 'Gb', 'Bbm', 'Ab'], description: 'Ballad in Db major' },
+                'ii-V-I': { chords: ['Ebm', 'Ab', 'Db'], description: 'Jazz in Db major' }
+            },
+            'A♭': {
+                'Classic I-V-vi-IV': { chords: ['Ab', 'Eb', 'Fm', 'Db'], description: 'Jazz ballad key' },
+                'I-vi-IV-V': { chords: ['Ab', 'Fm', 'Db', 'Eb'], description: 'Classic Ab progression' },
+                'vi-IV-I-V': { chords: ['Fm', 'Db', 'Ab', 'Eb'], description: 'Alternative Ab' },
+                'I-IV-vi-V': { chords: ['Ab', 'Db', 'Fm', 'Eb'], description: 'Ballad in Ab' },
+                'ii-V-I': { chords: ['Bbm', 'Eb', 'Ab'], description: 'Jazz in Ab major' }
+            },
+            'E♭': {
+                'Classic I-V-vi-IV': { chords: ['Eb', 'Bb', 'Cm', 'Ab'], description: 'Jazz standard key' },
+                'I-vi-IV-V': { chords: ['Eb', 'Cm', 'Ab', 'Bb'], description: 'Soul and R&B' },
+                'vi-IV-I-V': { chords: ['Cm', 'Ab', 'Eb', 'Bb'], description: 'Modern Eb progression' },
+                'I-IV-vi-V': { chords: ['Eb', 'Ab', 'Cm', 'Bb'], description: 'Ballad in Eb' },
+                'ii-V-I': { chords: ['Fm', 'Bb', 'Eb'], description: 'Jazz in Eb major' }
+            },
+            'B♭': {
+                'Classic I-V-vi-IV': { chords: ['Bb', 'F', 'Gm', 'Eb'], description: 'Jazz and pop favorite' },
+                'I-vi-IV-V': { chords: ['Bb', 'Gm', 'Eb', 'F'], description: 'Soul progression' },
+                'vi-IV-I-V': { chords: ['Gm', 'Eb', 'Bb', 'F'], description: 'R&B progression' },
+                'I-IV-vi-V': { chords: ['Bb', 'Eb', 'Gm', 'F'], description: 'Ballad in Bb' },
+                'ii-V-I': { chords: ['Cm', 'F', 'Bb'], description: 'Jazz in Bb major' }
+            },
+            'F♯m': {
+                'i-VII-VI-VII': { chords: ['F#m', 'E', 'D', 'E'], description: 'Minor progression in F#m' },
+                'i-VI-VII-i': { chords: ['F#m', 'D', 'E', 'F#m'], description: 'Folk minor in F#m' },
+                'i-iv-VII-III': { chords: ['F#m', 'Bm', 'E', 'A'], description: 'Natural minor in F#m' },
+                'i-VI-IV-VII': { chords: ['F#m', 'D', 'A', 'E'], description: 'Pop minor in F#m' },
+                'i-VII-i': { chords: ['F#m', 'E', 'F#m'], description: 'Simple F#m cadence' }
+            },
+            'C♯m': {
+                'i-VII-VI-VII': { chords: ['C#m', 'B', 'A', 'B'], description: 'Minor progression in C#m' },
+                'i-VI-VII-i': { chords: ['C#m', 'A', 'B', 'C#m'], description: 'Folk minor in C#m' },
+                'i-iv-VII-III': { chords: ['C#m', 'F#m', 'B', 'E'], description: 'Natural minor in C#m' },
+                'i-VI-IV-VII': { chords: ['C#m', 'A', 'E', 'B'], description: 'Pop minor in C#m' },
+                'i-VII-i': { chords: ['C#m', 'B', 'C#m'], description: 'Simple C#m cadence' }
+            },
+            'G♯m': {
+                'i-VII-VI-VII': { chords: ['G#m', 'F#', 'E', 'F#'], description: 'Minor progression in G#m' },
+                'i-VI-VII-i': { chords: ['G#m', 'E', 'F#', 'G#m'], description: 'Folk minor in G#m' },
+                'i-iv-VII-III': { chords: ['G#m', 'C#m', 'F#', 'B'], description: 'Natural minor in G#m' },
+                'i-VI-IV-VII': { chords: ['G#m', 'E', 'B', 'F#'], description: 'Pop minor in G#m' },
+                'i-VII-i': { chords: ['G#m', 'F#', 'G#m'], description: 'Simple G#m cadence' }
+            },
+            'D♯m': {
+                'i-VII-VI-VII': { chords: ['D#m', 'C#', 'B', 'C#'], description: 'Minor progression in D#m' },
+                'i-VI-VII-i': { chords: ['D#m', 'B', 'C#', 'D#m'], description: 'Folk minor in D#m' },
+                'i-iv-VII-III': { chords: ['D#m', 'G#m', 'C#', 'F#'], description: 'Natural minor in D#m' },
+                'i-VI-IV-VII': { chords: ['D#m', 'B', 'F#', 'C#'], description: 'Pop minor in D#m' },
+                'i-VII-i': { chords: ['D#m', 'C#', 'D#m'], description: 'Simple D#m cadence' }
+            },
+            'B♭m': {
+                'i-VII-VI-VII': { chords: ['Bbm', 'Ab', 'Gb', 'Ab'], description: 'Minor progression in Bbm' },
+                'i-VI-VII-i': { chords: ['Bbm', 'Gb', 'Ab', 'Bbm'], description: 'Folk minor in Bbm' },
+                'i-iv-VII-III': { chords: ['Bbm', 'Ebm', 'Ab', 'Db'], description: 'Natural minor in Bbm' },
+                'i-VI-IV-VII': { chords: ['Bbm', 'Gb', 'Db', 'Ab'], description: 'Pop minor in Bbm' },
+                'i-VII-i': { chords: ['Bbm', 'Ab', 'Bbm'], description: 'Simple Bbm cadence' }
+            }
+        };
+
+        let selectedKey = null;
+
+        function initializeCircle() {
+            const circle = document.getElementById('circle-of-fifths');
+
+            // Create major key positions (outer circle)
+            circleData.major.forEach((keyData, index) => {
+                const keyElement = createKeyElement(keyData, 'major', 170);
+                circle.appendChild(keyElement);
+            });
+
+            // Create minor key positions (inner circle)
+            circleData.minor.forEach((keyData, index) => {
+                const keyElement = createKeyElement(keyData, 'minor', 130);
+                circle.appendChild(keyElement);
+            });
+        }
+
+        function createKeyElement(keyData, type, radius) {
+            const element = document.createElement('div');
+            element.className = `key-position ${type}`;
+            element.textContent = keyData.key;
+            element.dataset.key = keyData.key;
+            element.dataset.type = type;
+
+            // Calculate position
+            const angleRad = (keyData.angle - 90) * Math.PI / 180; // -90 to start at top
+            const x = 200 + radius * Math.cos(angleRad) - 30; // 30 = half width
+            const y = 200 + radius * Math.sin(angleRad) - 15; // 15 = half height
+
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+
+            element.addEventListener('click', () => selectKey(keyData.key, type));
+
+            return element;
+        }
+
+        function selectKey(key, type) {
+            // Update selected key visual
+            document.querySelectorAll('.key-position').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            const selectedElement = document.querySelector(`[data-key="${key}"][data-type="${type}"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+
+            selectedKey = key;
+            updateKeyInfo(key, type);
+            updateProgressions(key);
+        }
+
+        function updateKeyInfo(key, type) {
+            const keyData = circleData[type].find(k => k.key === key);
+            if (!keyData) return;
+
+            document.getElementById('selected-key').textContent = `${key} ${type === 'major' ? 'Major' : 'Minor'}`;
+
+            // Update key signature with actual note names
+            let signature = '';
+            if (keyData.sharps > 0) {
+                const sharpOrder = ['F#', 'C#', 'G#', 'D#', 'A#', 'E#', 'B#'];
+                signature = sharpOrder.slice(0, keyData.sharps).join(' ');
+            } else if (keyData.flats > 0) {
+                const flatOrder = ['Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Fb'];
+                signature = flatOrder.slice(0, keyData.flats).join(' ');
+            } else {
+                signature = 'No sharps or flats';
+            }
+            document.getElementById('key-signature').textContent = signature;
+
+            // Update relative keys with click functionality
+            const relativeIndex = circleData[type].findIndex(k => k.key === key);
+            const relativeMajor = type === 'minor' ? circleData.major[relativeIndex].key : key;
+            const relativeMinor = type === 'major' ? circleData.minor[relativeIndex].key : key;
+
+            const relativeMajorBtn = document.getElementById('relative-major');
+            const relativeMinorBtn = document.getElementById('relative-minor');
+
+            relativeMajorBtn.textContent = relativeMajor + ' Major';
+            relativeMinorBtn.textContent = relativeMinor + ' Minor';
+
+            // Add click handlers for relative keys
+            relativeMajorBtn.onclick = () => selectKey(relativeMajor, 'major');
+            relativeMinorBtn.onclick = () => selectKey(relativeMinor, 'minor');
+
+            // Highlight current type
+            if (type === 'major') {
+                relativeMajorBtn.style.background = 'var(--primary-color)';
+                relativeMajorBtn.style.color = 'white';
+                relativeMinorBtn.style.background = 'var(--surface-color)';
+                relativeMinorBtn.style.color = 'var(--text-primary)';
+            } else {
+                relativeMinorBtn.style.background = 'var(--primary-color)';
+                relativeMinorBtn.style.color = 'white';
+                relativeMajorBtn.style.background = 'var(--surface-color)';
+                relativeMajorBtn.style.color = 'var(--text-primary)';
+            }
+
+            // Update scale degrees
+            updateScaleDegrees(key, type);
+        }
+
+        function updateScaleDegrees(key, type) {
+            const scaleDegrees = getScaleDegrees(key, type);
+            document.getElementById('scale-degrees').textContent = scaleDegrees.join(' - ');
+
+            // Update chord functions
+            const chordFunctions = getChordFunctions(key, type);
+            document.getElementById('chord-functions').innerHTML = chordFunctions;
+        }
+
+        function getChordFunctions(key, type) {
+            const scaleDegrees = getScaleDegrees(key, type);
+
+            if (type === 'major') {
+                const romanNumerals = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+                const functions = ['Tonic', 'Supertonic', 'Mediant', 'Subdominant', 'Dominant', 'Submediant', 'Leading Tone'];
+
+                return romanNumerals.map((numeral, index) => {
+                    const note = scaleDegrees[index] || '';
+                    const func = functions[index];
+                    return `<div style="margin-bottom: var(--spacing-xs);">
+                        <strong>${numeral}</strong> = ${note} (${func})
+                    </div>`;
+                }).join('');
+            } else {
+                const romanNumerals = ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
+                const functions = ['Tonic', 'Supertonic', 'Mediant', 'Subdominant', 'Dominant', 'Submediant', 'Subtonic'];
+
+                return romanNumerals.map((numeral, index) => {
+                    const note = scaleDegrees[index] || '';
+                    const func = functions[index];
+                    return `<div style="margin-bottom: var(--spacing-xs);">
+                        <strong>${numeral}</strong> = ${note} (${func})
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function getScaleDegrees(key, type) {
+            // Normalize key name - convert symbols to # and b
+            const normalizedKey = key.replace(/♯/g, '#').replace(/♭/g, 'b');
+
+            const majorScales = {
+                // Natural key
+                'C': ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+
+                // Sharp keys (Order of sharps: F# C# G# D# A# E# B#)
+                'G': ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
+                'D': ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+                'A': ['A', 'B', 'C#', 'D', 'E', 'F#', 'G#'],
+                'E': ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'],
+                'B': ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#'],
+                'F#': ['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#'],
+                'C#': ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#'],
+
+                // Flat keys (Order of flats: Bb Eb Ab Db Gb Cb Fb)
+                'F': ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'],
+                'Bb': ['Bb', 'C', 'D', 'Eb', 'F', 'G', 'A'],
+                'Eb': ['Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D'],
+                'Ab': ['Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'G'],
+                'Db': ['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'],
+                'Gb': ['Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F'],
+                'Cb': ['Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb']
+            };
+
+            const minorScales = {
+                // Natural minor
+                'Am': ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+
+                // Sharp minor keys (natural minor scales)
+                'Em': ['E', 'F#', 'G', 'A', 'B', 'C', 'D'],
+                'Bm': ['B', 'C#', 'D', 'E', 'F#', 'G', 'A'],
+                'F#m': ['F#', 'G#', 'A', 'B', 'C#', 'D', 'E'],
+                'C#m': ['C#', 'D#', 'E', 'F#', 'G#', 'A', 'B'],
+                'G#m': ['G#', 'A#', 'B', 'C#', 'D#', 'E', 'F#'],
+                'D#m': ['D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C#'],
+                'A#m': ['A#', 'B#', 'C#', 'D#', 'E#', 'F#', 'G#'],
+
+                // Flat minor keys (natural minor scales)
+                'Dm': ['D', 'E', 'F', 'G', 'A', 'Bb', 'C'],
+                'Gm': ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F'],
+                'Cm': ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'],
+                'Fm': ['F', 'G', 'Ab', 'Bb', 'C', 'Db', 'Eb'],
+                'Bbm': ['Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'Ab'],
+                'Ebm': ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db'],
+                'Abm': ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb']
+            };
+
+            if (type === 'minor') {
+                return minorScales[normalizedKey] || ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
+            } else {
+                const rootKey = normalizedKey.replace('m', '');
+                return majorScales[rootKey] || ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+            }
+        }
+
+        function updateProgressions(key) {
+            const container = document.getElementById('progressions-container');
+            const progressions = progressionsByKey[key];
+
+            if (!progressions) {
+                container.innerHTML = `
+                    <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                        Progressions for ${key} coming soon...
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="progression-category">
+                    <h3 class="category-title">Progressions in ${key}</h3>
+                    <div class="progressions-grid">
+                        ${Object.entries(progressions).map(([name, data]) => `
+                            <div class="progression-card" onclick="playProgression('${key}', '${name}')">
+                                <div class="progression-name">${name}</div>
+                                <div class="chord-sequence">
+                                    ${data.chords.map(chord => `<span class="chord">${chord}</span>`).join('')}
+                                </div>
+                                <div class="progression-description">${data.description}</div>
+                                <div class="progression-controls">
+                                    <button class="play-progression-btn" onclick="event.stopPropagation(); playProgression('${key}', '${name}')">
+                                        ▶️ Play
+                                    </button>
+                                    <span class="progression-key">Key of ${key}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function initializeAudio() {
+            if (!window.guitarAudio) {
+                console.log('Guitar audio system not loaded yet');
+                return false;
+            }
+
+            try {
+                if (!window.guitarAudio.isInitialized) {
+                    await window.guitarAudio.initialize();
+                }
+                return true;
+            } catch (error) {
+                console.error('Failed to initialize audio:', error);
+                return false;
+            }
+        }
+
+        function normalizeChordName(chord) {
+            // Convert sharp symbols to # and flat symbols to b for audio compatibility
+            return chord.replace(/♯/g, '#').replace(/♭/g, 'b');
+        }
+
+        async function playProgression(key, progressionName) {
+            const progression = progressionsByKey[key][progressionName];
+            if (!progression) {
+                console.log('Progression not found:', progressionName, 'in key', key);
+                return;
+            }
+
+            // Initialize audio if needed
+            const audioReady = await initializeAudio();
+            if (!audioReady) {
+                console.log('Audio system not ready');
+                // Show user feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '🔇 Audio Loading...';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+                return;
+            }
+
+            console.log(`Playing ${progressionName} in ${key}:`, progression.chords.join(' - '));
+
+            // Normalize chord names and play each chord in sequence
+            const normalizedChords = progression.chords.map(normalizeChordName);
+
+            for (let i = 0; i < normalizedChords.length; i++) {
+                const chord = normalizedChords[i];
+                setTimeout(async () => {
+                    try {
+                        if (window.playGuitarChord) {
+                            await window.playGuitarChord(chord, 1.5);
+                        } else if (window.guitarAudio && window.guitarAudio.playChord) {
+                            await window.guitarAudio.playChord(chord, 1.5);
+                        }
+                    } catch (error) {
+                        console.error('Error playing chord:', chord, error);
+                    }
+                }, i * 1500); // 1.5 seconds per chord
+            }
+        }
+
+        // Initialize the circle when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCircle();
+
+            // Try to initialize audio system
+            setTimeout(async () => {
+                try {
+                    if (window.guitarAudio) {
+                        await initializeAudio();
+                        console.log('Circle of Fifths: Audio system ready');
+                    }
+                } catch (error) {
+                    console.log('Circle of Fifths: Audio system not ready yet');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
