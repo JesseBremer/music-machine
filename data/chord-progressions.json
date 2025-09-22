@@ -2,126 +2,90 @@
   "progressions": {
     "major": {
       "I-V-vi-IV": {
-        "name": "Classic Progression",
-        "description": "Most popular in modern music - uplifting and familiar",
+        "name": "Pop Magic",
+        "description": "The ultimate feel-good progression - uplifting and universal",
         "numerals": ["I", "V", "vi", "IV"],
         "function": "Tonic-Dominant-Relative Minor-Subdominant"
       },
-      "vi-IV-I-V": {
-        "name": "Emotional Progression",
-        "description": "Same progression starting on vi - more emotional",
-        "numerals": ["vi", "IV", "I", "V"],
-        "function": "Relative Minor-Subdominant-Tonic-Dominant"
+      "I-IV-V-I": {
+        "name": "Perfect Cadence",
+        "description": "Classic strong resolution - triumphant and complete",
+        "numerals": ["I", "IV", "V", "I"],
+        "function": "Tonic-Subdominant-Dominant-Tonic"
       },
       "I-vi-IV-V": {
-        "name": "50s Progression",
-        "description": "Classic doo-wop and oldies progression",
+        "name": "Heart and Soul",
+        "description": "Timeless progression - optimistic and familiar",
         "numerals": ["I", "vi", "IV", "V"],
         "function": "Tonic-Relative Minor-Subdominant-Dominant"
       },
-      "I-IV-V": {
-        "name": "Classic Rock",
-        "description": "Traditional blues and rock progression",
-        "numerals": ["I", "IV", "V"],
-        "function": "Tonic-Subdominant-Dominant"
+      "I-iii-vi-IV": {
+        "name": "Unchained Melody",
+        "description": "Romantic ballad progression - tender and flowing",
+        "numerals": ["I", "iii", "vi", "IV"],
+        "function": "Stepwise descent to subdominant"
       },
-      "I-V-IV": {
-        "name": "Folk Rock",
-        "description": "Simple and effective, common in folk",
-        "numerals": ["I", "V", "IV"],
-        "function": "Tonic-Dominant-Subdominant"
+      "I-vi-iii-IV": {
+        "name": "Stand By Me",
+        "description": "Supportive and warm progression - classic and reliable",
+        "numerals": ["I", "vi", "iii", "IV"],
+        "function": "Smooth voice leading progression"
       },
-      "ii-V-I": {
-        "name": "Jazz Standard",
-        "description": "The most important progression in jazz",
-        "numerals": ["ii", "V", "I"],
-        "function": "Subdominant Function-Dominant-Tonic"
-      },
-      "iii-vi-ii-V-I": {
-        "name": "Circle of Fifths",
-        "description": "Extended jazz progression following circle of fifths",
-        "numerals": ["iii", "vi", "ii", "V", "I"],
-        "function": "Mediant-Relative Minor-Subdominant-Dominant-Tonic"
-      },
-      "I-vi-ii-V": {
-        "name": "Jazz Turnaround",
-        "description": "Common jazz turnaround progression",
-        "numerals": ["I", "vi", "ii", "V"],
-        "function": "Tonic-Relative Minor-Subdominant-Dominant"
-      },
-      "IV-V-vi": {
-        "name": "Modal Interchange",
-        "description": "Creates tension and emotional depth",
-        "numerals": ["IV", "V", "vi"],
-        "function": "Subdominant-Dominant-Relative Minor"
+      "I-V-IV-V": {
+        "name": "Anthemic",
+        "description": "Building energy and excitement - stadium-ready",
+        "numerals": ["I", "V", "IV", "V"],
+        "function": "Strong dominant preparation"
       },
       "I-iii-IV-V": {
         "name": "Mediant Progression",
-        "description": "Uses the iii chord for smooth voice leading",
+        "description": "Uses the iii chord for smooth voice leading - sophisticated",
         "numerals": ["I", "iii", "IV", "V"],
         "function": "Tonic-Mediant-Subdominant-Dominant"
       },
-      "vi-V-IV-V": {
-        "name": "Emotional Progression",
-        "description": "Creates emotional tension and release",
-        "numerals": ["vi", "V", "IV", "V"],
-        "function": "Relative Minor-Dominant-Subdominant-Dominant"
-      },
-      "I-V-vi-iii-IV-I-IV-V": {
-        "name": "Canon in D",
-        "description": "Pachelbel's famous progression",
-        "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
-        "function": "Extended classical progression"
-      },
-      "I-VII-IV": {
-        "name": "Rock Power Progression",
-        "description": "Classic rock progression with powerful bVII",
-        "numerals": ["I", "♭VII", "IV"],
-        "function": "Tonic-Mixolydian Subtonic-Subdominant"
+      "I-IV-vi-V": {
+        "name": "Optimistic Flow",
+        "description": "Bright and hopeful - perfect for uplifting songs",
+        "numerals": ["I", "IV", "vi", "V"],
+        "function": "Tonic-Subdominant-Relative Minor-Dominant"
       }
     },
     "minor": {
       "i-VII-VI": {
-        "name": "Natural Minor Rock",
-        "description": "Dark and powerful minor progression",
+        "name": "Natural Minor Descending",
+        "description": "Classic minor progression - dark and emotional",
         "numerals": ["i", "♭VII", "♭VI"],
         "function": "Tonic-Subtonic-Submediant"
       },
       "i-iv-V": {
-        "name": "Minor Blues",
-        "description": "Classic minor blues with harmonic minor V",
+        "name": "Harmonic Minor",
+        "description": "Traditional minor with leading tone - dramatic resolution",
         "numerals": ["i", "iv", "V"],
         "function": "Tonic-Subdominant-Dominant"
       },
       "i-VI-III-VII": {
         "name": "Modern Minor",
-        "description": "Modern minor progression, very popular",
+        "description": "Contemporary minor progression - melancholic and popular",
         "numerals": ["i", "♭VI", "♭III", "♭VII"],
         "function": "Tonic-Submediant-Mediant-Subtonic"
       },
-      "i-iv-VII-III": {
-        "name": "Andalusian Cadence",
-        "description": "Spanish/flamenco influenced progression",
-        "numerals": ["i", "♭VII", "♭VI", "V"],
-        "function": "Descending progression with Phrygian flavor"
-      },
       "i-v-iv-i": {
         "name": "Minor Circle",
-        "description": "Creates a closed loop feeling",
+        "description": "Closed loop feeling - contemplative and cycling",
         "numerals": ["i", "v", "iv", "i"],
         "function": "Tonic-Dominant-Subdominant-Tonic"
       },
-      "i-ii°-V-i": {
-        "name": "Minor ii-V-i",
-        "description": "Jazz minor progression",
-        "numerals": ["i", "ii°", "V", "i"],
-        "function": "Tonic-Subdominant Function-Dominant-Tonic"
-      },
       "i-VII-iv-i": {
-        "name": "Gothic Progression",
-        "description": "Dark, medieval sound",
+        "name": "Gothic Minor",
+        "description": "Dark, medieval sound - mysterious and haunting",
         "numerals": ["i", "♭VII", "iv", "i"],
         "function": "Tonic-Subtonic-Subdominant-Tonic"
+      },
+      "i-VI-VII": {
+        "name": "Ascending Minor",
+        "description": "Building tension progressively - hopeful darkness",
+        "numerals": ["i", "♭VI", "♭VII"],
+        "function": "Tonic-Submediant-Subtonic"
       },
       "i-VI-VII": {
         "name": "Minor Rock Ballad",
@@ -213,6 +177,12 @@
       }
     },
     "jazz": {
+      "ii-V-I": {
+        "name": "Jazz Standard",
+        "description": "The most important progression in jazz",
+        "numerals": ["ii", "V", "I"],
+        "function": "Subdominant Function-Dominant-Tonic"
+      },
       "ii7-V7-Imaj7": {
         "name": "Major ii-V-I",
         "description": "Most important jazz progression in major",
@@ -236,6 +206,18 @@
         "description": "Extended circle of fifths with 7th chords",
         "numerals": ["iii7", "VI7", "ii7", "V7", "Imaj7"],
         "function": "Complete circle of fifths movement"
+      },
+      "I-vi-ii-V": {
+        "name": "Jazz Turnaround",
+        "description": "Common jazz turnaround progression",
+        "numerals": ["I", "vi", "ii", "V"],
+        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+      },
+      "i-ii°-V-i": {
+        "name": "Minor ii-V-i",
+        "description": "Jazz minor progression",
+        "numerals": ["i", "ii°", "V", "i"],
+        "function": "Tonic-Subdominant Function-Dominant-Tonic"
       }
     },
     "blues": {
@@ -300,18 +282,206 @@
         "function": "Subtonic-Tonic resolution"
       }
     },
+    "pop": {
+      "I-vi-V-IV": {
+        "name": "Shape of You (Ed Sheeran)",
+        "description": "Modern pop hit formula - upbeat and catchy",
+        "numerals": ["I", "vi", "V", "IV"],
+        "function": "Contemporary pop progression"
+      },
+      "vi-I-IV-V": {
+        "name": "Levitating (Dua Lipa)",
+        "description": "Nu-disco pop - danceable and bright",
+        "numerals": ["vi", "I", "IV", "V"],
+        "function": "Disco revival in pop"
+      },
+      "vi-IV-I-V": {
+        "name": "Blinding Lights (The Weeknd)",
+        "description": "80s synthwave revival - nostalgic pop",
+        "numerals": ["vi", "IV", "I", "V"],
+        "function": "Retro synthpop progression"
+      },
+      "I-V-vi-vi": {
+        "name": "Bad Guy (Billie Eilish)",
+        "description": "Dark pop - stays on vi for modern edge",
+        "numerals": ["I", "V", "vi", "vi"],
+        "function": "Alt-pop with extended minor"
+      }
+    },
+    "rock": {
+      "I-IV-V": {
+        "name": "Classic Rock Power",
+        "description": "Traditional blues and rock progression - simple and powerful",
+        "numerals": ["I", "IV", "V"],
+        "function": "Tonic-Subdominant-Dominant power"
+      },
+      "I-V-IV": {
+        "name": "Folk Rock",
+        "description": "Simple and effective, common in folk rock",
+        "numerals": ["I", "V", "IV"],
+        "function": "Tonic-Dominant-Subdominant"
+      },
+      "I-bVII-IV-I": {
+        "name": "Sweet Child O' Mine",
+        "description": "Classic rock with modal flavor - Guns N' Roses style",
+        "numerals": ["I", "♭VII", "IV", "I"],
+        "function": "Mixolydian rock progression"
+      },
+      "vi-I-V-vi": {
+        "name": "Creep (Radiohead)",
+        "description": "Alternative rock - haunting and beautiful",
+        "numerals": ["vi", "I", "V", "vi"],
+        "function": "Minor tonic with unexpected major resolution"
+      },
+      "I-V-vi-iii-IV-I-IV-V": {
+        "name": "Canon Rock",
+        "description": "Rock arrangement of Pachelbel's Canon - epic and building",
+        "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
+        "function": "Classical progression in rock context"
+      },
+      "i-VI-VII-i": {
+        "name": "Stairway to Heaven",
+        "description": "Epic rock ballad progression - Led Zeppelin style",
+        "numerals": ["i", "♭VI", "♭VII", "i"],
+        "function": "Minor tonic with dramatic ascending movement"
+      },
+      "i-VII-VI-VII": {
+        "name": "Zombie (The Cranberries)",
+        "description": "Haunting alternative rock - creates tension and release",
+        "numerals": ["i", "♭VII", "♭VI", "♭VII"],
+        "function": "Minor with modal movement"
+      }
+    },
     "electronic": {
       "i-VII-VI-VII": {
-        "name": "EDM Dark",
-        "description": "Common in dark electronic music",
+        "name": "EDM Dark Drop",
+        "description": "Dark electronic music - builds tension for drops",
         "numerals": ["i", "♭VII", "♭VI", "♭VII"],
-        "function": "Tension and release for drops"
+        "function": "Minor progression for electronic drops"
+      },
+      "i-VI-III-VII": {
+        "name": "Closer (Chainsmokers)",
+        "description": "Progressive house buildup - electronic energy",
+        "numerals": ["i", "♭VI", "♭III", "♭VII"],
+        "function": "EDM buildup progression"
       },
       "vi-IV-I-V": {
         "name": "EDM Euphoric",
-        "description": "Uplifting for trance and progressive house",
+        "description": "Uplifting trance and progressive house",
         "numerals": ["vi", "IV", "I", "V"],
-        "function": "Emotional build-up progression"
+        "function": "Emotional electronic buildup"
+      },
+      "I-V-vi-IV": {
+        "name": "Festival Anthem",
+        "description": "Big room house and festival EDM",
+        "numerals": ["I", "V", "vi", "IV"],
+        "function": "Crowd-pleasing EDM progression"
+      }
+    },
+    "country": {
+      "I-V-vi-vi": {
+        "name": "Old Town Road",
+        "description": "Country trap fusion - modern country style",
+        "numerals": ["I", "V", "vi", "vi"],
+        "function": "Extended minor for country emotion"
+      },
+      "I-IV-V-I": {
+        "name": "Classic Country",
+        "description": "Traditional country progression",
+        "numerals": ["I", "IV", "V", "I"],
+        "function": "Simple country resolution"
+      }
+    },
+    "vintage": {
+      "I-vi-IV-V": {
+        "name": "50s Progression",
+        "description": "Classic doo-wop and oldies progression",
+        "numerals": ["I", "vi", "IV", "V"],
+        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+      },
+      "I-V-vi-iii-IV-I-IV-V": {
+        "name": "Canon in D (Pachelbel's Canon)",
+        "description": "The most famous classical progression - hundreds of pop songs use this",
+        "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
+        "function": "Descending bass line progression"
+      }
+    },
+    "alternative": {
+      "vi-V-IV-V": {
+        "name": "Indie Pop (Somebody That I Used to Know)",
+        "description": "Modern indie/alternative sound - Gotye, Arctic Monkeys",
+        "numerals": ["vi", "V", "IV", "V"],
+        "function": "Minor start with dominant resolution"
+      },
+      "i-v-VI-iv": {
+        "name": "Mad World",
+        "description": "Melancholic progression - Gary Jules, Tears for Fears",
+        "numerals": ["i", "v", "♭VI", "iv"],
+        "function": "All minor chords for maximum sadness"
+      },
+      "IV-V-iii-vi": {
+        "name": "Axis Progression",
+        "description": "Modern alternative/indie - fresh harmonic movement",
+        "numerals": ["IV", "V", "iii", "vi"],
+        "function": "Delayed resolution progression"
+      }
+    },
+    "traditional": {
+      "i-III-VII-VI": {
+        "name": "House of the Rising Sun",
+        "description": "Folk/rock classic - The Animals, many covers",
+        "numerals": ["i", "♭III", "♭VII", "♭VI"],
+        "function": "Descending bass line progression"
+      },
+      "i-iv-VII-III": {
+        "name": "Andalusian Cadence",
+        "description": "Spanish/flamenco influenced progression",
+        "numerals": ["i", "♭VII", "♭VI", "V"],
+        "function": "Descending progression with Phrygian flavor"
+      }
+    },
+    "indie": {
+      "vi-IV-I-V": {
+        "name": "The Sadness (Someone Like You)",
+        "description": "Emotional ballad progression - Adele, Coldplay, Let It Be",
+        "numerals": ["vi", "IV", "I", "V"],
+        "function": "Melancholic start with hopeful resolution"
+      },
+      "I-V-vi-IV": {
+        "name": "Indie Anthem",
+        "description": "Universal crowd-pleaser - Mumford & Sons, Of Monsters and Men",
+        "numerals": ["I", "V", "vi", "IV"],
+        "function": "Epic indie folk progression"
+      },
+      "vi-V-IV-IV": {
+        "name": "Sufjan Stevens",
+        "description": "Indie folk melancholy - beautiful and contemplative",
+        "numerals": ["vi", "V", "IV", "IV"],
+        "function": "Extended subdominant for emotion"
+      },
+      "I-vi-V-V": {
+        "name": "Arctic Monkeys",
+        "description": "Indie rock energy - driving and memorable",
+        "numerals": ["I", "vi", "V", "V"],
+        "function": "Extended dominant for tension"
+      },
+      "vi-V-I-IV": {
+        "name": "Vampire Weekend",
+        "description": "Preppy indie pop - sophisticated and catchy",
+        "numerals": ["vi", "V", "I", "IV"],
+        "function": "Unexpected resolution pattern"
+      },
+      "IV-I-V-vi": {
+        "name": "Fleet Foxes",
+        "description": "Indie harmony - lush and atmospheric",
+        "numerals": ["IV", "I", "V", "vi"],
+        "function": "Plagal motion to relative minor"
+      },
+      "I-iii-IV-vi": {
+        "name": "The National",
+        "description": "Moody indie rock - introspective and building",
+        "numerals": ["I", "iii", "IV", "vi"],
+        "function": "Stepwise emotional progression"
       }
     }
   }
