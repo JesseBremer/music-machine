@@ -9,6 +9,63 @@
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <script src="js/guitar-audio.js"></script>
     <style>
+        .integration-banner {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--glow-accent);
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: var(--spacing-md);
+        }
+
+        .banner-icon {
+            font-size: var(--font-size-2xl);
+            flex-shrink: 0;
+        }
+
+        .banner-text {
+            flex: 1;
+        }
+
+        .banner-text strong {
+            display: block;
+            font-size: var(--font-size-large);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .banner-text small {
+            opacity: 0.9;
+            font-size: var(--font-size-small);
+        }
+
+        .banner-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-large);
+            flex-shrink: 0;
+        }
+
+        .banner-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .scales-page {
             max-width: 1400px;
             margin: 0 auto;
@@ -209,6 +266,74 @@
         .play-scale-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .practice-metronome {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .metronome-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .metronome-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            transition: all 0.2s ease;
+        }
+
+        .metronome-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .metronome-btn.playing {
+            background: var(--error-color);
+        }
+
+        .tempo-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .tempo-controls button {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .tempo-controls button:hover {
+            background: var(--accent-color);
+            color: var(--background-color);
+        }
+
+        .tempo-display {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-family: var(--font-family-mono);
+            font-weight: bold;
+            color: var(--text-primary);
+            min-width: 80px;
+            text-align: center;
         }
 
         .scale-card.selected {
@@ -571,17 +696,24 @@
     </style>
 </head>
 <body>
-    <div class="scales-page">
-        <div class="page-header">
-            <h1 class="page-title">🎵 Musical Scales Reference</h1>
-            <p class="page-subtitle">Comprehensive database of musical scales with notes, patterns, and audio examples</p>
-        </div>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>🎵 Musical Scales Reference</h1>
+            <p>Comprehensive database of musical scales with notes, patterns, and audio examples</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="chords.html" class="nav-link">🎸 Chords</a>
+                <a href="scales.html" class="nav-link active">🎵 Scales</a>
+                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+            </nav>
+        </header>
 
-        <div class="navigation">
-            <a href="index.html" class="nav-link">← Back to Music Machine</a>
-            <a href="chords.html" class="nav-link">🎸 Chords</a>
-            <a href="#stats" class="nav-link">📊 Statistics</a>
-        </div>
+        <div class="scales-page">
+
+            <div class="navigation">
+                <a href="#stats" class="nav-link">📊 Statistics</a>
+            </div>
 
         <div class="filter-controls">
             <h3>🔍 Filter Scales</h3>
@@ -675,6 +807,19 @@
                 <button class="fretboard-btn play-scale-btn" onclick="playScale()" id="play-scale-btn">▶️ Play Scale</button>
             </div>
 
+            <div class="practice-metronome">
+                <div class="metronome-controls">
+                    <button class="metronome-btn" id="metronome-toggle">🥁 Start Metronome</button>
+                    <div class="tempo-controls">
+                        <button id="tempo-minus-10">-10</button>
+                        <button id="tempo-minus-5">-5</button>
+                        <span class="tempo-display" id="tempo-display">120 BPM</span>
+                        <button id="tempo-plus-5">+5</button>
+                        <button id="tempo-plus-10">+10</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="fretboard-container">
                 <div id="guitar-fretboard" class="guitar-fretboard">
                     <!-- Fretboard will be generated here -->
@@ -703,6 +848,34 @@
     </div>
 
     <script type="module">
+        // Check if coming from strumming patterns integration
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromStrumming = urlParams.get('from') === 'strumming';
+        let strummingPatternInfo = null;
+
+        if (fromStrumming) {
+            try {
+                strummingPatternInfo = JSON.parse(localStorage.getItem('strummingPatternInfo'));
+                if (strummingPatternInfo) {
+                    // Add integration banner
+                    document.body.insertAdjacentHTML('afterbegin', `
+                        <div class="integration-banner">
+                            <div class="banner-content">
+                                <span class="banner-icon">🎼</span>
+                                <div class="banner-text">
+                                    <strong>Practice Mode:</strong> Scales for "${strummingPatternInfo.name}" pattern
+                                    <small>Suggested chords: ${strummingPatternInfo.chords.join(', ')}</small>
+                                </div>
+                                <button class="banner-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                            </div>
+                        </div>
+                    `);
+                }
+            } catch (error) {
+                console.error('Error loading strumming pattern info:', error);
+            }
+        }
+
         // Musical scales database with comprehensive information
         const scaleDatabase = {
             // Major Scale Family
@@ -1287,12 +1460,83 @@
             });
         }
 
+        // Simple metronome functionality
+        let metronomeInterval = null;
+        let currentTempo = 120;
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playClick() {
+            if (!audioContext) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'square';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function toggleMetronome() {
+            const toggleBtn = document.getElementById('metronome-toggle');
+
+            if (metronomeInterval) {
+                // Stop metronome
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+                toggleBtn.textContent = '🥁 Start Metronome';
+                toggleBtn.classList.remove('playing');
+            } else {
+                // Start metronome
+                initAudio();
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                const interval = 60000 / currentTempo; // milliseconds per beat
+                metronomeInterval = setInterval(playClick, interval);
+                toggleBtn.textContent = '⏸️ Stop Metronome';
+                toggleBtn.classList.add('playing');
+            }
+        }
+
+        function adjustTempo(change) {
+            currentTempo = Math.max(40, Math.min(200, currentTempo + change));
+            document.getElementById('tempo-display').textContent = currentTempo + ' BPM';
+
+            // If metronome is running, restart with new tempo
+            if (metronomeInterval) {
+                toggleMetronome(); // Stop
+                toggleMetronome(); // Start with new tempo
+            }
+        }
+
         // Initialize page
         function init() {
             // Set up filter event listeners
             document.getElementById('root-filter').addEventListener('change', updateDisplay);
             document.getElementById('scale-type-filter').addEventListener('change', updateDisplay);
             document.getElementById('mood-filter').addEventListener('change', updateDisplay);
+
+            // Set up metronome event listeners
+            document.getElementById('metronome-toggle').addEventListener('click', toggleMetronome);
+            document.getElementById('tempo-minus-10').addEventListener('click', () => adjustTempo(-10));
+            document.getElementById('tempo-minus-5').addEventListener('click', () => adjustTempo(-5));
+            document.getElementById('tempo-plus-5').addEventListener('click', () => adjustTempo(5));
+            document.getElementById('tempo-plus-10').addEventListener('click', () => adjustTempo(10));
 
             // Initial display
             updateDisplay();
@@ -1301,5 +1545,6 @@
         // Initialize when page loads
         init();
     </script>
+    </main>
 </body>
 </html>
