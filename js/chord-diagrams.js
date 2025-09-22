@@ -661,7 +661,7 @@ function generateGuitarDiagram(chordName) {
     return container;
 }
 
-// Generate enhanced piano diagram with custom SVG
+// Generate piano diagram using piano-chart library
 function generatePianoDiagram(chordName) {
     // Get chord notes using Tonal.js if available
     let chordNotes = [];
@@ -683,63 +683,128 @@ function generatePianoDiagram(chordName) {
     // Create unique ID for this chart
     const chartId = `piano-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
 
-    // Create container with standardized styling
-    const container = `
-        <div class="chord-diagram piano-diagram">
-            <div class="chord-name">${chordName} Piano</div>
-            <div id="${chartId}" class="svg-container svg-piano-container">
-                ${generateEnhancedPianoSVG(chordName, chordNotes)}
-            </div>
-            <div class="chord-info">
-                <span class="chord-notes">Notes: ${chordNotes.join(' • ')}</span>
-            </div>
-        </div>
-    `;
+    // Return just the SVG content directly for embedding in existing containers
+    return generateEnhancedPianoSVG(chordName, chordNotes);
+}
 
-    return container;
+// Initialize piano chart with chord notes
+function initializePianoChart(containerId, chordNotes) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.warn('Piano chart container not available:', containerId);
+        return;
+    }
+
+    // Check for various possible piano chart library patterns
+    const PianoChart = window.PianoChart || window.pianoChart || window.Piano || window.Instrument;
+
+    if (!PianoChart) {
+        console.warn('Piano chart library not available, using fallback SVG for:', containerId);
+        // Use the enhanced SVG fallback instead
+        const chordName = containerId.replace('piano-chart-', '');
+        container.innerHTML = generateEnhancedPianoSVG(chordName, chordNotes);
+        return;
+    }
+
+    try {
+        // Clear any existing content
+        container.innerHTML = '';
+
+        // Try different API patterns
+        let piano;
+
+        // Pattern 1: PianoChart.Instrument
+        if (PianoChart.Instrument) {
+            piano = new PianoChart.Instrument(container, {
+                startOctave: 3,
+                endOctave: 5,
+                showNoteNames: true,
+                highlightedNotes: chordNotes
+            });
+        }
+        // Pattern 2: Direct PianoChart constructor
+        else if (typeof PianoChart === 'function') {
+            piano = new PianoChart(container, {
+                startOctave: 3,
+                endOctave: 5,
+                showNoteNames: true,
+                highlightedNotes: chordNotes
+            });
+        }
+        else {
+            throw new Error('Unknown piano chart API pattern');
+        }
+
+        // Create the piano keyboard
+        if (piano && piano.create) {
+            piano.create();
+        }
+
+        // Highlight chord notes with octave numbers
+        if (piano && piano.keyDown) {
+            chordNotes.forEach(note => {
+                // Try different octaves to ensure visibility
+                const octaves = [3, 4, 5];
+                octaves.forEach(octave => {
+                    try {
+                        piano.keyDown(`${note}${octave}`);
+                    } catch (e) {
+                        // Ignore if note+octave combination doesn't exist
+                    }
+                });
+            });
+        }
+
+        console.log(`Piano chart initialized for chord: ${chordNotes.join(', ')}`);
+    } catch (error) {
+        console.error('Error initializing piano chart:', error);
+        // Fallback to SVG piano diagram
+        const chordName = containerId.replace('piano-chart-', '');
+        container.innerHTML = generateEnhancedPianoSVG(chordName, chordNotes);
+    }
 }
 
 // Generate enhanced professional piano SVG
 function generateEnhancedPianoSVG(chordName, chordNotes) {
     const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '');
-    const width = 240;  // More reasonable width
+    const width = 200;  // Increased width to ensure no cut-off
     const height = 120;
     const whiteKeyWidth = 24;
     const whiteKeyHeight = 80;
     const blackKeyWidth = 14;
     const blackKeyHeight = 50;
 
-    // 9 white keys: C D E F G A B C D
-    const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D'];
+    // 7 white keys: C D E F G A B (one octave)
+    const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
     const blackKeys = [
         { note: 'C#', position: 1 },
         { note: 'D#', position: 2 },
         { note: 'F#', position: 4 },
         { note: 'G#', position: 5 },
-        { note: 'A#', position: 6 },
-        { note: 'C#', position: 8 }
+        { note: 'A#', position: 6 }
     ];
 
-    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="background: #f8f8f8; border-radius: 6px; border: 1px solid #ccc;">
+    // Match guitar chord styling - dark theme with same colors
+    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="background: transparent; border-radius: 6px;">
         <defs>
             <filter id="dropShadow${chartId}" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="1" dy="2" stdDeviation="1" flood-color="#000" flood-opacity="0.15"/>
+                <feDropShadow dx="1" dy="2" stdDeviation="1" flood-color="#000" flood-opacity="0.3"/>
             </filter>
             <linearGradient id="whiteKeyGrad${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:#f0f0f0;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
             </linearGradient>
             <linearGradient id="blackKeyGrad${chartId}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#2c2c2c;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:#2a2a2a;stop-opacity:1" />
                 <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
             </linearGradient>
             <radialGradient id="pressedWhiteGrad${chartId}" cx="50%" cy="30%" r="70%">
                 <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:0.9" />
-                <stop offset="100%" style="stop-color:#e55555;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d63031;stop-opacity:1" />
             </radialGradient>
             <radialGradient id="pressedBlackGrad${chartId}" cx="50%" cy="30%" r="70%">
                 <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:0.9" />
-                <stop offset="100%" style="stop-color:#45b7b8;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#00b894;stop-opacity:1" />
             </radialGradient>
         </defs>`;
 
@@ -751,14 +816,23 @@ function generateEnhancedPianoSVG(chordName, chordNotes) {
     // Draw all white keys first
     whiteKeys.forEach((note, index) => {
         const x = startX + index * whiteKeyWidth;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         console.log(`White key ${index + 1}: ${note} at x=${x}, pressed=${isPressed}`);
 
         const fillColor = isPressed ? `url(#pressedWhiteGrad${chartId})` : `url(#whiteKeyGrad${chartId})`;
-        const strokeColor = isPressed ? '#ff6b6b' : '#ddd';
+        const strokeColor = isPressed ? '#ff6b6b' : '#e0e0e0';
         const strokeWidth = isPressed ? '2' : '1';
 
         svgContent += `
@@ -770,12 +844,21 @@ function generateEnhancedPianoSVG(chordName, chordNotes) {
     // Draw black keys on top
     blackKeys.forEach(({ note, position }) => {
         const x = startX + (position - 1) * whiteKeyWidth + whiteKeyWidth - blackKeyWidth/2;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         const fillColor = isPressed ? `url(#pressedBlackGrad${chartId})` : `url(#blackKeyGrad${chartId})`;
-        const strokeColor = isPressed ? '#4ecdc4' : '#333';
+        const strokeColor = isPressed ? '#4ecdc4' : '#bbbbbb';
 
         svgContent += `
             <rect x="${x}" y="${startY}" width="${blackKeyWidth}" height="${blackKeyHeight}"
@@ -786,9 +869,18 @@ function generateEnhancedPianoSVG(chordName, chordNotes) {
     // Draw white key labels (on top so they're visible)
     whiteKeys.forEach((note, index) => {
         const x = startX + index * whiteKeyWidth;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         svgContent += `
             <text x="${x + whiteKeyWidth/2}" y="${startY + whiteKeyHeight - 10}"
@@ -801,14 +893,23 @@ function generateEnhancedPianoSVG(chordName, chordNotes) {
     // Draw black key labels
     blackKeys.forEach(({ note, position }) => {
         const x = startX + (position - 1) * whiteKeyWidth + whiteKeyWidth - blackKeyWidth/2;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         svgContent += `
             <text x="${x + blackKeyWidth/2}" y="${startY + blackKeyHeight - 8}"
                   text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="600"
-                  fill="${isPressed ? '#000' : '#ccc'}">
+                  fill="${isPressed ? '#000' : '#ffffff'}">
                 ${note}
             </text>`;
     });
@@ -864,9 +965,18 @@ function generatePianoSVG(chordName, chordNotes) {
     // Draw white keys
     whiteKeys.forEach((note, index) => {
         const x = index * whiteKeyWidth;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         const fillColor = isPressed ? `url(#pressedWhiteGradient${chartId})` : `url(#whiteKeyGradient${chartId})`;
         const strokeColor = isPressed ? '#ff6b6b' : '#ddd';
@@ -886,9 +996,18 @@ function generatePianoSVG(chordName, chordNotes) {
     // Draw black keys
     blackKeys.forEach(({ note, position }) => {
         const x = (position - 1) * whiteKeyWidth + whiteKeyWidth - blackKeyWidth/2;
-        const isPressed = chordNotes.some(chordNote =>
-            chordNote.replace(/[0-9]/g, '') === note
-        );
+        const isPressed = chordNotes.some(chordNote => {
+            const cleanChordNote = chordNote.replace(/[0-9]/g, '');
+            // Check for enharmonic equivalents
+            const enharmonicEquivalents = {
+                'C#': 'Db', 'Db': 'C#',
+                'D#': 'Eb', 'Eb': 'D#',
+                'F#': 'Gb', 'Gb': 'F#',
+                'G#': 'Ab', 'Ab': 'G#',
+                'A#': 'Bb', 'Bb': 'A#'
+            };
+            return cleanChordNote === note || enharmonicEquivalents[cleanChordNote] === note;
+        });
 
         const fillColor = isPressed ? `url(#pressedBlackGradient${chartId})` : `url(#blackKeyGradient${chartId})`;
         const strokeColor = isPressed ? '#4ecdc4' : '#666';
@@ -910,44 +1029,134 @@ function generatePianoSVG(chordName, chordNotes) {
 
 // Generate bass fretboard diagram with professional SVG
 function generateBassDiagram(chordName) {
-    // Get chord notes using Tonal.js if available
-    let chordNotes = [];
-
     // Parse the chord to handle slash chords correctly
     const chordInfo = parseEnhancedChordName(chordName);
-    const rootNote = chordInfo.root;
+    const rootNote = chordInfo.bassNote || chordInfo.root || chordName.charAt(0);
 
-    if (window.Tonal && window.Tonal.Chord) {
-        try {
-            const chordInfo = window.Tonal.Chord.get(chordName);
-            chordNotes = chordInfo.notes || [];
-        } catch (error) {
-            console.warn('Error getting chord notes:', error);
+    // Get the basic chord notes for reference
+    const chordNotes = getBasicChordNotes(chordName);
+    const fifth = chordNotes.length > 2 ? chordNotes[2] : null;
+
+    // Return just the SVG content for embedding in existing containers
+    return generateBassLineSVG(chordName, rootNote, fifth);
+}
+
+// Generate practical bass line reference SVG
+function generateBassLineSVG(chordName, rootNote, fifth) {
+    const width = 200;
+    const height = 120;
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '');
+
+    // Bass tuning: E A D G (4-string bass)
+    const strings = ['G', 'D', 'A', 'E']; // Top to bottom on diagram
+    const stringPositions = [20, 40, 60, 80]; // Y positions
+
+    // Find root note positions on each string
+    const rootPositions = findNotePositions(rootNote, strings);
+    const fifthPositions = fifth ? findNotePositions(fifth, strings) : [];
+
+    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="background: transparent;">
+        <defs>
+            <linearGradient id="rootGrad${chartId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d63031;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="fifthGrad${chartId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#00b894;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+
+        <!-- Bass neck representation -->
+        <rect x="40" y="15" width="120" height="70" fill="none" stroke="#e0e0e0" stroke-width="1" rx="4"/>
+
+        <!-- Fret lines -->`;
+
+    for (let fret = 1; fret <= 4; fret++) {
+        const x = 40 + (fret * 24);
+        svgContent += `<line x1="${x}" y1="15" x2="${x}" y2="85" stroke="#bbbbbb" stroke-width="1"/>`;
+    }
+
+    // String lines
+    strings.forEach((stringNote, index) => {
+        const y = stringPositions[index];
+        svgContent += `
+            <line x1="40" y1="${y}" x2="160" y2="${y}" stroke="#999" stroke-width="2"/>
+            <text x="30" y="${y + 4}" font-family="Arial, sans-serif" font-size="10" fill="#ffffff" text-anchor="end">${stringNote}</text>`;
+    });
+
+    // Mark root note positions
+    rootPositions.forEach(pos => {
+        if (pos.fret <= 4) {
+            const x = 40 + (pos.fret === 0 ? 0 : pos.fret * 24);
+            const y = stringPositions[pos.stringIndex];
+
+            if (pos.fret === 0) {
+                // Open string - circle
+                svgContent += `<circle cx="35" cy="${y}" r="6" fill="url(#rootGrad${chartId})" stroke="#ffffff" stroke-width="1"/>`;
+            } else {
+                // Fretted note - circle on fret
+                svgContent += `<circle cx="${x}" cy="${y}" r="6" fill="url(#rootGrad${chartId})" stroke="#ffffff" stroke-width="1"/>`;
+            }
+            svgContent += `<text x="${pos.fret === 0 ? 35 : x}" y="${y + 3}" font-family="Arial, sans-serif" font-size="8" fill="#ffffff" text-anchor="middle" font-weight="bold">${rootNote}</text>`;
         }
+    });
+
+    // Mark fifth positions (if available)
+    fifthPositions.forEach(pos => {
+        if (pos.fret <= 4 && pos.fret > 0) { // Skip open strings for fifths to avoid clutter
+            const x = 40 + (pos.fret * 24);
+            const y = stringPositions[pos.stringIndex];
+
+            svgContent += `<circle cx="${x}" cy="${y}" r="5" fill="url(#fifthGrad${chartId})" stroke="#ffffff" stroke-width="1"/>`;
+            svgContent += `<text x="${x}" y="${y + 2}" font-family="Arial, sans-serif" font-size="7" fill="#000000" text-anchor="middle" font-weight="bold">${fifth}</text>`;
+        }
+    });
+
+    // Add legend
+    svgContent += `
+        <text x="${width/2}" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#ffffff" font-weight="bold">${chordName} Bass Notes</text>
+        <circle cx="20" cy="110" r="4" fill="url(#rootGrad${chartId})"/>
+        <text x="30" y="114" font-family="Arial, sans-serif" font-size="8" fill="#ffffff">Root (${rootNote})</text>`;
+
+    if (fifth) {
+        svgContent += `
+            <circle cx="120" cy="110" r="4" fill="url(#fifthGrad${chartId})"/>
+            <text x="130" y="114" font-family="Arial, sans-serif" font-size="8" fill="#ffffff">Fifth (${fifth})</text>`;
     }
 
-    // Fallback to basic triads if Tonal.js fails
-    if (chordNotes.length === 0) {
-        chordNotes = getBasicChordNotes(chordName);
-    }
+    svgContent += '</svg>';
+    return svgContent;
+}
 
-    // Create unique ID for this chart
-    const chartId = `bass-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '')}`;
+// Helper function to find note positions on bass strings
+function findNotePositions(targetNote, strings) {
+    const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const enharmonics = {
+        'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
 
-    // Create container with standardized styling
-    const container = `
-        <div class="chord-diagram bass-diagram">
-            <div class="chord-name">${chordName} Bass</div>
-            <div id="${chartId}" class="svg-container svg-bass-container">
-                ${generateBassSVG(chordName, chordNotes, rootNote)}
-            </div>
-            <div class="chord-info">
-                <span class="chord-notes">Notes: ${chordNotes.join(' • ')}</span>
-            </div>
-        </div>
-    `;
+    const normalizedTarget = enharmonics[targetNote] || targetNote;
+    const targetIndex = noteOrder.indexOf(normalizedTarget);
 
-    return container;
+    if (targetIndex === -1) return [];
+
+    const positions = [];
+
+    strings.forEach((stringNote, stringIndex) => {
+        const stringIndex_notes = noteOrder.indexOf(stringNote);
+        if (stringIndex_notes === -1) return;
+
+        // Find positions up to 5th fret
+        for (let fret = 0; fret <= 4; fret++) {
+            const noteAtFret = (stringIndex_notes + fret) % 12;
+            if (noteAtFret === targetIndex) {
+                positions.push({ stringIndex, fret, note: targetNote });
+            }
+        }
+    });
+
+    return positions;
 }
 
 // Helper function to parse enhanced chord names (inversions, extensions, etc.)
@@ -1102,22 +1311,52 @@ function generateSimpleBassSVG(chordName, chordNotes, rootNote, chartId) {
 
 // Helper function to get basic chord notes
 function getBasicChordNotes(chordName) {
-    const root = chordName.replace(/[^A-G#b]/g, '');
-    const isMinor = chordName.includes('m') && !chordName.includes('maj');
+    // Handle slash chords (e.g., C/E) - extract base chord before the slash
+    let baseChord = chordName.split('/')[0];
 
-    // Simple triad construction
+    // Extract root note properly (handle sharps and flats)
+    let root = '';
+    if (baseChord.length >= 2 && (baseChord[1] === '#' || baseChord[1] === 'b')) {
+        root = baseChord.substring(0, 2);
+    } else {
+        root = baseChord[0];
+    }
+
+    const isMinor = baseChord.includes('m') && !baseChord.includes('maj');
+
+    // Simple triad construction with proper enharmonic equivalents
     const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const rootIndex = noteOrder.indexOf(root);
+
+    // Handle flat notes - convert to sharps for calculation
+    const enharmonics = {
+        'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
+
+    // Reverse mapping for proper enharmonic spelling in results
+    const preferredSpelling = {
+        'C#': 'C#', 'D#': 'Eb', 'F#': 'F#', 'G#': 'Ab', 'A#': 'Bb'
+    };
+
+    const normalizedRoot = enharmonics[root] || root;
+    const rootIndex = noteOrder.indexOf(normalizedRoot);
 
     if (rootIndex === -1) return [root];
 
     const third = isMinor ? 3 : 4; // Minor 3rd = 3 semitones, Major 3rd = 4 semitones
     const fifth = 7; // Perfect 5th = 7 semitones
 
+    // Calculate chord tones
+    const thirdNote = noteOrder[(rootIndex + third) % 12];
+    const fifthNote = noteOrder[(rootIndex + fifth) % 12];
+
+    // Use preferred enharmonic spelling for common readability
+    const displayThird = preferredSpelling[thirdNote] || thirdNote;
+    const displayFifth = preferredSpelling[fifthNote] || fifthNote;
+
     return [
-        root,
-        noteOrder[(rootIndex + third) % 12],
-        noteOrder[(rootIndex + fifth) % 12]
+        root, // Keep original root notation
+        displayThird,
+        displayFifth
     ];
 }
 
@@ -1145,4 +1384,5 @@ window.generateGuitarDiagram = generateGuitarDiagram;
 window.generatePianoDiagram = generatePianoDiagram;
 window.generateBassDiagram = generateBassDiagram;
 window.generateChordDiagrams = generateChordDiagrams;
+window.initializePianoChart = initializePianoChart;
 window.guitarChords = guitarChords;
