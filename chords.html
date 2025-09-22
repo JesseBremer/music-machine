@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+    <script src="https://unpkg.com/piano-chart@2.0.5/lib/piano-chart.umd.js"></script>
     <script src="js/chord-diagrams.js"></script>
     <script src="js/guitar-audio.js"></script>
     <style>
@@ -181,6 +182,39 @@
             margin: 0 auto;
         }
 
+        .chord-card .piano-chart-container {
+            min-width: 200px;
+            max-width: 250px;
+            margin: 0 auto;
+            height: 120px;
+            background: transparent !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .piano-chart-container .piano-keyboard {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+        }
+
+        .piano-chart-container * {
+            background: transparent !important;
+        }
+
+        .svg-piano-container {
+            background: transparent !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        .svg-piano-container * {
+            background: transparent !important;
+        }
+
         .chord-card .chord-info {
             margin-top: var(--spacing-sm);
         }
@@ -257,17 +291,25 @@
     </style>
 </head>
 <body>
-    <div class="chords-page">
-        <div class="page-header">
-            <h1 class="page-title">🎸 Guitar Chords Reference</h1>
-            <p class="page-subtitle">Complete database of guitar chord diagrams organized by root note</p>
-        </div>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>🎸 Guitar Chords Reference</h1>
+            <p>Complete database of guitar chord diagrams organized by root note</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="chords.html" class="nav-link active">🎸 Chords</a>
+                <a href="scales.html" class="nav-link">🎵 Scales</a>
+                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+            </nav>
+        </header>
 
-        <div class="navigation">
-            <a href="index.html" class="nav-link">← Back to Music Machine</a>
-            <a href="#stats" class="nav-link">📊 Statistics</a>
-            <a href="#missing" class="nav-link">⚠️ Missing Chords</a>
-        </div>
+        <div class="chords-page">
+
+            <div class="navigation">
+                <a href="#stats" class="nav-link">📊 Statistics</a>
+                <a href="#missing" class="nav-link">⚠️ Missing Chords</a>
+            </div>
 
         <div class="note-filter">
             <h3>🎵 Filter by Note</h3>
@@ -285,6 +327,15 @@
                 <button class="note-btn" data-note="A">A</button>
                 <button class="note-btn" data-note="A#/Bb">A#/Bb</button>
                 <button class="note-btn" data-note="B">B</button>
+            </div>
+        </div>
+
+        <div class="note-filter">
+            <h3>🎹 Instrument View</h3>
+            <div class="note-selector">
+                <button class="note-btn active" data-instrument="guitar">🎸 Guitar Only</button>
+                <button class="note-btn" data-instrument="piano">🎹 Piano Only</button>
+                <button class="note-btn" data-instrument="both">🎸🎹 Both</button>
             </div>
         </div>
 
@@ -444,9 +495,10 @@
                 return `
                     <div class="chord-card clickable-chord" onclick="playChordDiagram('${escapedChordName}')" title="Click to play ${chordName}">
                         <div class="chord-name">${chordName} <span style="font-size: 0.8em; color: var(--text-secondary);">🔊</span></div>
-                        <div id="${chordId}" class="svg-guitar-container"></div>
+                        <div id="${chordId}-guitar" class="svg-guitar-container diagram-container" data-instrument="guitar"></div>
+                        <div id="${chordId}-piano" class="svg-piano-container diagram-container" data-instrument="piano" style="display: none;"></div>
                         <div class="chord-info">
-                            <span class="chord-notes">Click to play • Loading...</span>
+                            <span class="chord-notes"></span>
                         </div>
                     </div>
                 `;
@@ -474,39 +526,49 @@
 
                 setTimeout(() => {
                     try {
-                        const element = document.getElementById(chordId);
-                        // Check if diagram already exists to prevent double generation
-                        if (element && element.innerHTML.includes('svg-guitar-container') && element.innerHTML.length > 100) {
-                            console.log(`Skipping ${chordName} - already has diagram`);
+                        const guitarElement = document.getElementById(`${chordId}-guitar`);
+                        const pianoElement = document.getElementById(`${chordId}-piano`);
+
+                        // Check if diagrams already exist to prevent double generation
+                        if (guitarElement && guitarElement.innerHTML.length > 100) {
+                            console.log(`Skipping ${chordName} - already has diagrams`);
                             return;
                         }
 
                         const diagrams = generateChordDiagrams(chordName);
-                        if (element && diagrams && diagrams.guitar) {
-                            element.innerHTML = diagrams.guitar;
 
-                            // Update chord info
-                            const infoElement = element.nextElementSibling?.querySelector('.chord-notes');
-                            if (infoElement) {
-                                // Get chord info from database
-                                const chordData = guitarChords[chordName];
-                                console.log(`Chord: ${chordName}, Data:`, chordData);
-                                if (chordData) {
-                                    infoElement.textContent = `${chordData.name}`;
-                                } else {
-                                    infoElement.textContent = `Chord: ${chordName}`;
-                                }
-                            }
-                        } else {
-                            if (element) {
-                                element.innerHTML = '<div class="diagram-placeholder">Diagram not available</div>';
+                        // Populate guitar diagram
+                        if (guitarElement && diagrams && diagrams.guitar) {
+                            guitarElement.innerHTML = diagrams.guitar;
+                        }
+
+                        // Populate piano diagram
+                        if (pianoElement && diagrams && diagrams.piano) {
+                            pianoElement.innerHTML = diagrams.piano;
+                        }
+
+                        // Update chord info
+                        const infoElement = guitarElement?.parentElement?.querySelector('.chord-notes');
+                        if (infoElement) {
+                            // Get chord info from database
+                            const chordData = guitarChords[chordName];
+                            console.log(`Chord: ${chordName}, Data:`, chordData);
+                            if (chordData) {
+                                infoElement.textContent = `${chordData.name}`;
+                            } else {
+                                infoElement.textContent = `Chord: ${chordName}`;
                             }
                         }
+
                     } catch (error) {
                         console.error(`Error generating diagram for ${chordName}:`, error);
-                        const element = document.getElementById(chordId);
-                        if (element) {
-                            element.innerHTML = '<div class="diagram-placeholder">Error loading diagram</div>';
+                        const guitarElement = document.getElementById(`${chordId}-guitar`);
+                        const pianoElement = document.getElementById(`${chordId}-piano`);
+                        if (guitarElement) {
+                            guitarElement.innerHTML = '<div class="diagram-placeholder">Error loading guitar diagram</div>';
+                        }
+                        if (pianoElement) {
+                            pianoElement.innerHTML = '<div class="diagram-placeholder">Error loading piano diagram</div>';
                         }
                     }
                 }, 100);
@@ -649,10 +711,10 @@
                 }
 
                 // Set up note filter event listeners
-                document.querySelectorAll('.note-btn').forEach(btn => {
+                document.querySelectorAll('button[data-note]').forEach(btn => {
                     btn.addEventListener('click', () => {
-                        // Remove active class from all buttons
-                        document.querySelectorAll('.note-btn').forEach(b => b.classList.remove('active'));
+                        // Remove active class from all note filter buttons
+                        document.querySelectorAll('button[data-note]').forEach(b => b.classList.remove('active'));
 
                         // Add active class to clicked button
                         btn.classList.add('active');
@@ -663,11 +725,49 @@
                     });
                 });
 
+                // Set up instrument toggle event listeners
+                document.querySelectorAll('button[data-instrument]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Remove active class from all instrument buttons
+                        document.querySelectorAll('button[data-instrument]').forEach(b => b.classList.remove('active'));
+
+                        // Add active class to clicked button
+                        btn.classList.add('active');
+
+                        // Toggle instrument views
+                        const selectedInstrument = btn.getAttribute('data-instrument');
+                        toggleInstrumentView(selectedInstrument);
+                    });
+                });
+
             } catch (error) {
                 console.error('Error initializing chords page:', error);
                 document.getElementById('chords-container').innerHTML =
                     '<div class="error">Error loading chord database</div>';
             }
+        }
+
+        // Toggle instrument view function
+        function toggleInstrumentView(selectedInstrument) {
+            const guitarContainers = document.querySelectorAll('.diagram-container[data-instrument="guitar"]');
+            const pianoContainers = document.querySelectorAll('.diagram-container[data-instrument="piano"]');
+
+            switch (selectedInstrument) {
+                case 'guitar':
+                    guitarContainers.forEach(container => container.style.display = 'block');
+                    pianoContainers.forEach(container => container.style.display = 'none');
+                    break;
+                case 'piano':
+                    guitarContainers.forEach(container => container.style.display = 'none');
+                    pianoContainers.forEach(container => container.style.display = 'block');
+                    break;
+                case 'both':
+                    guitarContainers.forEach(container => container.style.display = 'block');
+                    pianoContainers.forEach(container => container.style.display = 'block');
+                    break;
+            }
+
+            console.log(`Switched to ${selectedInstrument} view`);
         }
 
         // Play chord diagram audio using the new guitar audio system
@@ -690,5 +790,6 @@
         // Initialize when page loads
         init();
     </script>
+    </main>
 </body>
 </html>
