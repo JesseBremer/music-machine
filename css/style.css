@@ -3101,6 +3101,245 @@ body {
     box-shadow: var(--glow-secondary);
 }
 
+/* Advanced Melody Generator Styles */
+.melody-section {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: rgba(35, 36, 42, 0.6);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.melody-section h7 {
+    color: var(--primary-color);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    display: block;
+}
+
+.advanced-melody-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.melody-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.melody-row label {
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    min-width: 120px;
+}
+
+.melody-select,
+.melody-input {
+    background: rgba(35, 36, 42, 0.8);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-small);
+    flex: 1;
+    min-width: 200px;
+}
+
+.melody-select:focus,
+.melody-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+}
+
+.melody-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.melody-checkboxes {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.advanced-melody-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-sm);
+}
+
+.advanced-melody-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+}
+
+.melody-style-btn:disabled,
+.advanced-melody-btn:disabled {
+    background: rgba(100, 100, 100, 0.3) !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.melody-style-btn:disabled:hover,
+.advanced-melody-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Enhanced Melody Display */
+.generated-melody-content.advanced {
+    background: linear-gradient(135deg, rgba(35, 36, 42, 0.9), rgba(45, 46, 52, 0.9));
+    border: 2px solid rgba(78, 205, 196, 0.3);
+}
+
+.phrase-structure {
+    margin: var(--spacing-sm) 0;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(78, 205, 196, 0.1);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.phrase-marker {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 0 4px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.phrase-marker.phrase-question {
+    background: rgba(255, 217, 61, 0.2);
+    color: var(--accent-color);
+}
+
+.phrase-marker.phrase-answer {
+    background: rgba(78, 205, 196, 0.2);
+    color: var(--primary-color);
+}
+
+.lyrics-info {
+    margin: var(--spacing-sm) 0;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-style: italic;
+}
+
+.melody-sequence.advanced {
+    background: rgba(35, 36, 42, 0.3);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+}
+
+.melody-note.strong-beat {
+    background: rgba(78, 205, 196, 0.2);
+    border-color: var(--primary-color);
+}
+
+.melody-note.downbeat {
+    background: rgba(255, 217, 61, 0.2);
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+.melody-note.hook-section {
+    background: rgba(255, 99, 71, 0.2);
+    border-color: #ff6347;
+}
+
+.melody-note.melisma {
+    background: rgba(138, 43, 226, 0.2);
+    border-color: #8a2be2;
+}
+
+.melody-note sup {
+    font-size: 0.6rem;
+    color: var(--accent-color);
+    margin-left: 2px;
+}
+
+.melody-features {
+    margin: var(--spacing-md) 0;
+}
+
+.feature-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    justify-content: center;
+}
+
+.feature-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(78, 205, 196, 0.15);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.melody-analysis.advanced {
+    background: rgba(35, 36, 42, 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+}
+
+.export-btn {
+    background: rgba(139, 69, 19, 0.6);
+    border: 1px solid rgba(139, 69, 19, 0.8);
+    color: var(--text-primary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    background: rgba(139, 69, 19, 0.8);
+    transform: translateY(-1px);
+}
+
 /* Responsive adjustments for advanced features */
 @media (max-width: 768px) {
     .roman-numerals {
@@ -3134,8 +3373,213 @@ body {
     }
 
     .melody-controls .play-btn,
-    .melody-controls .regenerate-btn {
+    .melody-controls .regenerate-btn,
+    .melody-controls .export-btn {
         min-width: auto;
+    }
+
+    .melody-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .melody-row label {
+        min-width: auto;
+    }
+
+    .melody-select,
+    .melody-input {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .melody-checkboxes {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .feature-tags {
+        justify-content: flex-start;
+    }
+
+    .melody-section {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Section Melody Generator Styles */
+.melody-generator-container {
+    background: rgba(35, 36, 42, 0.4);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+}
+
+.melody-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.melody-section-header h4 {
+    color: var(--primary-color);
+    font-size: var(--font-size-small);
+    margin: 0;
+}
+
+.generate-section-melody-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.generate-section-melody-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.section-melody-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.melody-option-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.85rem;
+}
+
+.melody-option-row label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.section-melody-style {
+    background: rgba(35, 36, 42, 0.8);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    flex: 1;
+    max-width: 200px;
+}
+
+.use-section-lyrics {
+    accent-color: var(--primary-color);
+}
+
+.section-melody-display {
+    margin-top: var(--spacing-sm);
+}
+
+.section-melody-content {
+    background: rgba(45, 46, 52, 0.6);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+}
+
+.melody-header h5 {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.lyrics-adapted {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+.melody-sequence.section {
+    background: rgba(35, 36, 42, 0.5);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm) 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.melody-sequence.section .melody-note {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+}
+
+.section-melody-analysis {
+    margin: var(--spacing-sm) 0;
+}
+
+.analysis-tip-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: rgba(78, 205, 196, 0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin: 2px 0;
+    border-left: 3px solid var(--primary-color);
+}
+
+.section-melody-controls {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.play-section-melody-btn,
+.regenerate-section-btn,
+.copy-section-melody-btn {
+    background: rgba(78, 205, 196, 0.2);
+    border: 1px solid rgba(78, 205, 196, 0.4);
+    color: var(--text-primary);
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.play-section-melody-btn:hover,
+.regenerate-section-btn:hover,
+.copy-section-melody-btn:hover {
+    background: rgba(78, 205, 196, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Responsive adjustments for section melody */
+@media (max-width: 768px) {
+    .melody-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .section-melody-controls {
+        justify-content: center;
+    }
+
+    .melody-option-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .section-melody-style {
+        max-width: 100%;
     }
 
     .voicing-diagrams {

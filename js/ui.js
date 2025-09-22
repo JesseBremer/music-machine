@@ -534,25 +534,109 @@ export function renderMelodyIdeas(melodyIdeas, container) {
 
     // Generate smart melody suggestions if chord progression and key are available
     let smartMelodyHTML = '';
-    const currentChordProgression = window.appState?.currentProgression;
-    const currentKey = window.appState?.currentKey;
+    const currentChordProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+    const currentKey = window.appState?.songData?.key;
 
-    if (currentChordProgression && currentKey && window.MusicTheory?.generateSmartMelody) {
+    // Debug information
+    console.log('Melody rendering debug:', {
+        hasProgression: !!currentChordProgression,
+        hasKey: !!currentKey,
+        hasSmartMelody: !!window.MusicTheory?.generateSmartMelody,
+        hasAdvancedMelody: !!window.MusicTheory?.generateAdvancedMelody,
+        progression: currentChordProgression,
+        key: currentKey,
+        fullAppState: window.appState,
+        songData: window.appState?.songData
+    });
+
+    if (window.MusicTheory?.generateSmartMelody) {
+        const hasRequiredData = currentChordProgression && currentKey;
         smartMelodyHTML = `
             <div class="smart-melody-generator">
-                <h6>🤖 AI Melody Generator</h6>
-                <p>Generate melodies that follow voice leading principles with your chord progression</p>
-                <div class="melody-styles">
-                    <button class="melody-style-btn" onclick="generateSmartMelody('smooth')">
-                        🎵 Smooth & Flowing
-                    </button>
-                    <button class="melody-style-btn" onclick="generateSmartMelody('angular')">
-                        🎢 Angular & Dramatic
-                    </button>
-                    <button class="melody-style-btn" onclick="generateSmartMelody('pentatonic')">
-                        🎯 Pentatonic & Safe
-                    </button>
+                <h6>🤖 Advanced AI Melody Generator</h6>
+                <p>Generate professional melodies with motif development, genre styling, and phrase structure</p>
+
+                ${!hasRequiredData ? `
+                    <div class="melody-requirement-notice">
+                        <p style="color: #ff6347; font-weight: 500; text-align: center; padding: 12px; background: rgba(255, 99, 71, 0.1); border-radius: 8px; margin-bottom: 16px;">
+                            ⚠️ Complete Steps 1-4 (Key & Chord Progression) to generate melodies
+                        </p>
+                    </div>
+                ` : ''}
+
+                <!-- Basic Melody Styles -->
+                <div class="melody-section">
+                    <h7>Quick Generation</h7>
+                    <div class="melody-styles">
+                        <button class="melody-style-btn" onclick="generateSmartMelody('smooth')" ${!hasRequiredData ? 'disabled' : ''}>
+                            🎵 Smooth & Flowing
+                        </button>
+                        <button class="melody-style-btn" onclick="generateSmartMelody('angular')" ${!hasRequiredData ? 'disabled' : ''}>
+                            🎢 Angular & Dramatic
+                        </button>
+                        <button class="melody-style-btn" onclick="generateSmartMelody('pentatonic')" ${!hasRequiredData ? 'disabled' : ''}>
+                            🎯 Pentatonic & Safe
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Advanced Options -->
+                <div class="melody-section">
+                    <h7>🎼 Genre-Specific Advanced Generation</h7>
+                    <div class="advanced-melody-controls">
+                        <div class="melody-row">
+                            <label for="melody-genre">Genre:</label>
+                            <select id="melody-genre" class="melody-select">
+                                <option value="pop">Pop - Hook-focused, catchy</option>
+                                <option value="rock">Rock - Pentatonic, powerful</option>
+                                <option value="jazz">Jazz - Complex, sophisticated</option>
+                                <option value="folk">Folk - Modal, storytelling</option>
+                                <option value="country">Country - Simple, authentic</option>
+                                <option value="rnb">R&B - Melismatic, soulful</option>
+                                <option value="classical">Classical - Arch-shaped, refined</option>
+                            </select>
+                        </div>
+
+                        <div class="melody-row">
+                            <label for="phrase-structure">Phrase Structure:</label>
+                            <select id="phrase-structure" class="melody-select">
+                                <option value="question-answer">Question-Answer (Call & Response)</option>
+                                <option value="arch">Arch Shape (Rise & Fall)</option>
+                                <option value="sequential">Sequential Development</option>
+                                <option value="free">Free Form</option>
+                            </select>
+                        </div>
+
+                        <div class="melody-row">
+                            <label for="melody-lyrics">Lyrics (optional):</label>
+                            <input type="text" id="melody-lyrics" class="melody-input" placeholder="Enter lyrics to adapt melody rhythm...">
+                        </div>
+
+                        <div class="melody-checkboxes">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="use-motifs" checked>
+                                <span class="checkmark"></span>
+                                Use Motif Development
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="call-response" checked>
+                                <span class="checkmark"></span>
+                                Call & Response Phrasing
+                            </label>
+                        </div>
+
+                        ${window.MusicTheory?.generateAdvancedMelody ? `
+                            <button class="advanced-melody-btn" onclick="generateAdvancedMelody()" ${!hasRequiredData ? 'disabled' : ''}>
+                                🌟 Generate Advanced Melody
+                            </button>
+                        ` : `
+                            <div class="advanced-melody-placeholder">
+                                <p style="color: #888; font-style: italic;">Advanced melody features loading...</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+
                 <div id="generated-melody" class="generated-melody" style="display: none;"></div>
             </div>
         `;
@@ -1725,6 +1809,31 @@ function createSongSection(type, chords, lyrics) {
         <div class="chord-input-container">
             <textarea class="chord-progression-input" placeholder="Enter chord progression (e.g., C - Am - F - G)" rows="2">${chords}</textarea>
             <div class="chord-suggestions" id="suggestions-${sectionId}"></div>
+        </div>
+        <div class="melody-generator-container">
+            <div class="melody-section-header">
+                <h4>🎵 Section Melody</h4>
+                <button class="generate-section-melody-btn" onclick="generateSectionMelody('${sectionId}')">Generate Melody</button>
+            </div>
+            <div class="section-melody-options">
+                <div class="melody-option-row">
+                    <label>Style:</label>
+                    <select class="section-melody-style">
+                        <option value="verse" ${type === 'Verse' ? 'selected' : ''}>Narrative (Verse)</option>
+                        <option value="chorus" ${type === 'Chorus' ? 'selected' : ''}>Hook-focused (Chorus)</option>
+                        <option value="bridge" ${type === 'Bridge' ? 'selected' : ''}>Contrasting (Bridge)</option>
+                        <option value="smooth">Smooth & Flowing</option>
+                        <option value="angular">Angular & Dramatic</option>
+                    </select>
+                </div>
+                <div class="melody-option-row">
+                    <label>
+                        <input type="checkbox" class="use-section-lyrics" checked>
+                        Adapt to lyrics below
+                    </label>
+                </div>
+            </div>
+            <div class="section-melody-display" id="melody-${sectionId}" style="display: none;"></div>
         </div>
         <textarea class="lyrics-input" placeholder="Write your lyrics here..." rows="4">${lyrics}</textarea>
     `;

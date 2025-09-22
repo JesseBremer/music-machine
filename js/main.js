@@ -57,8 +57,8 @@ window.playVoicing = function(midiNotesStr) {
 // Global function for generating smart melodies
 window.generateSmartMelody = function(style) {
     try {
-        const currentChordProgression = window.appState?.currentProgression;
-        const currentKey = window.appState?.currentKey;
+        const currentChordProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+        const currentKey = window.appState?.songData?.key;
 
         if (!currentChordProgression || !currentKey || !window.MusicTheory?.generateSmartMelody) {
             console.warn('Smart melody generation not available');
@@ -129,6 +129,361 @@ window.playGeneratedMelody = function(midiNotesStr) {
         }
     } catch (error) {
         console.error('Error playing generated melody:', error);
+    }
+};
+
+// Advanced melody generation with all new features
+window.generateAdvancedMelody = function() {
+    try {
+        const currentChordProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
+        const currentKey = window.appState?.songData?.key;
+
+        if (!currentChordProgression || !currentKey || !window.MusicTheory?.generateAdvancedMelody) {
+            console.warn('Advanced melody generation not available');
+            return;
+        }
+
+        // Get user preferences from UI
+        const genre = document.getElementById('melody-genre')?.value || 'pop';
+        const phraseStructure = document.getElementById('phrase-structure')?.value || 'question-answer';
+        const lyrics = document.getElementById('melody-lyrics')?.value || null;
+        const useMotifs = document.getElementById('use-motifs')?.checked !== false;
+        const callResponse = document.getElementById('call-response')?.checked !== false;
+
+        // Configure advanced generation options
+        const options = {
+            genre: genre,
+            phraseStructure: callResponse ? 'question-answer' : phraseStructure,
+            lyrics: lyrics && lyrics.trim() ? lyrics.trim() : null,
+            useMotifs: useMotifs,
+            developmentTechniques: ['sequence', 'inversion', 'augmentation'],
+            notesPerChord: genre === 'jazz' ? 6 : genre === 'classical' ? 8 : 4,
+            style: genre === 'rock' ? 'angular' : genre === 'classical' ? 'smooth' : 'mixed',
+            vocalRange: { low: 'C4', high: 'C6' }
+        };
+
+        console.log('Generating advanced melody with options:', options);
+
+        const melodyResult = window.MusicTheory.generateAdvancedMelody(currentChordProgression, currentKey, options);
+
+        if (melodyResult) {
+            displayAdvancedMelody(melodyResult, options);
+        } else {
+            console.error('Failed to generate advanced melody');
+        }
+    } catch (error) {
+        console.error('Error generating advanced melody:', error);
+    }
+};
+
+function displayAdvancedMelody(melodyResult, options) {
+    const generatedMelodyDiv = document.getElementById('generated-melody');
+    if (!generatedMelodyDiv) return;
+
+    const melodyNotes = melodyResult.melody.map(note => `${note.note}${note.octave}`);
+
+    // Create enhanced display with phrase structure and development info
+    const phraseInfo = melodyResult.phrases ? melodyResult.phrases.map(phrase =>
+        `<span class="phrase-marker phrase-${phrase.type}">${phrase.type}</span>`
+    ).join(' ') : '';
+
+    generatedMelodyDiv.innerHTML = `
+        <div class="generated-melody-content advanced">
+            <h7>🌟 Advanced ${options.genre.charAt(0).toUpperCase() + options.genre.slice(1)} Melody</h7>
+
+            ${phraseInfo ? `<div class="phrase-structure">
+                <small>Phrase Structure: ${phraseInfo}</small>
+            </div>` : ''}
+
+            ${options.lyrics ? `<div class="lyrics-info">
+                <small>📝 Adapted to lyrics: "${options.lyrics}"</small>
+            </div>` : ''}
+
+            <div class="melody-sequence advanced">
+                ${melodyResult.melody.map((note, i) => {
+                    let noteClasses = ['melody-note'];
+                    if (note.isChordTone) noteClasses.push('chord-tone');
+                    if (note.isStrongBeat) noteClasses.push('strong-beat');
+                    if (note.isDownbeat) noteClasses.push('downbeat');
+                    if (note.isHookSection) noteClasses.push('hook-section');
+                    if (note.allowMelisma) noteClasses.push('melisma');
+
+                    return `
+                        <span class="${noteClasses.join(' ')}" title="${note.selectionReason || ''}">
+                            ${note.note}${note.octave}
+                            <small>${note.chord}</small>
+                            ${note.isStrongBeat ? '<sup>●</sup>' : ''}
+                            ${note.isDownbeat ? '<sup>▼</sup>' : ''}
+                        </span>
+                    `;
+                }).join('')}
+            </div>
+
+            <div class="melody-features">
+                <div class="feature-tags">
+                    ${melodyResult.features?.chordToneAware ? '<span class="feature-tag">🎯 Chord-Tone Aware</span>' : ''}
+                    ${melodyResult.features?.motifDevelopment ? '<span class="feature-tag">🎵 Motif Development</span>' : ''}
+                    ${melodyResult.features?.callAndResponse ? '<span class="feature-tag">💬 Call & Response</span>' : ''}
+                    ${melodyResult.features?.lyricalAdaptation ? '<span class="feature-tag">🎤 Lyrical Adaptation</span>' : ''}
+                    ${melodyResult.features?.genreSpecific ? `<span class="feature-tag">🎼 ${options.genre} Style</span>` : ''}
+                </div>
+            </div>
+
+            <div class="melody-analysis advanced">
+                ${melodyResult.analysis.map(tip => `<div class="analysis-tip">${tip}</div>`).join('')}
+            </div>
+
+            <div class="melody-controls">
+                <button class="play-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
+                    🎵 Play Advanced Melody
+                </button>
+                <button class="regenerate-btn" onclick="generateAdvancedMelody()">
+                    🔄 Generate New Variation
+                </button>
+                <button class="export-btn" onclick="exportMelodyToClipboard('${JSON.stringify(melodyResult.melody.map(n => `${n.note}${n.octave}`)).replace(/"/g, '&quot;')}')">
+                    📋 Copy Melody Notes
+                </button>
+            </div>
+        </div>
+    `;
+
+    generatedMelodyDiv.style.display = 'block';
+}
+
+// Export melody to clipboard
+window.exportMelodyToClipboard = function(melodyNotesStr) {
+    try {
+        const melodyNotes = JSON.parse(melodyNotesStr);
+        const melodyText = melodyNotes.join(' - ');
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(melodyText).then(() => {
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = melodyText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Error copying melody to clipboard:', error);
+    }
+};
+
+// Generate melody for specific song section
+window.generateSectionMelody = function(sectionId) {
+    try {
+        const sectionElement = document.getElementById(sectionId);
+        if (!sectionElement) return;
+
+        const chordInput = sectionElement.querySelector('.chord-progression-input');
+        const lyricsInput = sectionElement.querySelector('.lyrics-input');
+        const styleSelect = sectionElement.querySelector('.section-melody-style');
+        const useLyricsCheckbox = sectionElement.querySelector('.use-section-lyrics');
+        const melodyDisplay = sectionElement.querySelector('.section-melody-display');
+
+        // Get section data
+        const chordText = chordInput?.value?.trim();
+        const lyrics = useLyricsCheckbox?.checked ? lyricsInput?.value?.trim() : null;
+        const style = styleSelect?.value || 'verse';
+        const key = window.appState?.songData?.key;
+
+        if (!chordText || !key) {
+            alert('Please ensure the section has chord progression and a key is selected.');
+            return;
+        }
+
+        // Parse chord progression
+        const chords = chordText.split(/[-–—\s]+/).map(c => c.trim()).filter(c => c);
+        const chordProgression = { chords: chords };
+
+        // Map style to genre and options
+        let genre = window.appState?.songData?.genre?.name || 'pop';
+        let phraseStructure = 'question-answer';
+        let developmentTechniques = ['sequence', 'inversion'];
+
+        // Section-specific adjustments
+        switch(style) {
+            case 'verse':
+                phraseStructure = 'free';
+                developmentTechniques = ['sequence'];
+                break;
+            case 'chorus':
+                genre = 'pop'; // Force hook-focused approach
+                phraseStructure = 'question-answer';
+                developmentTechniques = ['sequence', 'inversion'];
+                break;
+            case 'bridge':
+                phraseStructure = 'arch';
+                developmentTechniques = ['inversion', 'augmentation'];
+                break;
+        }
+
+        // Calculate appropriate number of notes based on lyrics
+        let notesPerChord = 4; // Default
+
+        if (lyrics && lyrics.length > 0) {
+            // Count syllables in lyrics
+            const syllableCount = countSyllablesInText(lyrics);
+            const chordCount = chords.length;
+
+            // Calculate notes per chord to match syllables (with some musical flexibility)
+            notesPerChord = Math.max(1, Math.round(syllableCount / chordCount));
+
+            // Cap at reasonable limits
+            notesPerChord = Math.min(8, Math.max(1, notesPerChord));
+
+            console.log('Lyrical adaptation:', { lyrics, syllableCount, chordCount, notesPerChord });
+        }
+
+        // Configure advanced generation options
+        const options = {
+            genre: genre,
+            phraseStructure: phraseStructure,
+            lyrics: lyrics,
+            useMotifs: true,
+            developmentTechniques: developmentTechniques,
+            notesPerChord: notesPerChord,
+            style: style === 'angular' ? 'angular' : 'smooth',
+            vocalRange: { low: 'C4', high: 'C6' }
+        };
+
+        console.log('Generating section melody:', { sectionId, chords, lyrics, style, options });
+
+        const melodyResult = window.MusicTheory.generateAdvancedMelody(chordProgression, key, options);
+
+        if (melodyResult) {
+            displaySectionMelody(melodyResult, options, melodyDisplay, sectionId);
+        } else {
+            console.error('Failed to generate section melody');
+        }
+    } catch (error) {
+        console.error('Error generating section melody:', error);
+    }
+};
+
+function displaySectionMelody(melodyResult, options, melodyDisplay, sectionId) {
+    if (!melodyDisplay) return;
+
+    melodyDisplay.innerHTML = `
+        <div class="section-melody-content">
+            <div class="melody-header">
+                <h5>🎵 Generated Melody - ${options.genre.charAt(0).toUpperCase() + options.genre.slice(1)} Style</h5>
+                ${options.lyrics ? `<p class="lyrics-adapted">📝 Adapted to: "${options.lyrics}"</p>` : ''}
+            </div>
+
+            <div class="melody-sequence section">
+                ${melodyResult.melody.map((note, i) => {
+                    let noteClasses = ['melody-note'];
+                    if (note.isChordTone) noteClasses.push('chord-tone');
+                    if (note.isStrongBeat) noteClasses.push('strong-beat');
+                    if (note.isDownbeat) noteClasses.push('downbeat');
+
+                    return `
+                        <span class="${noteClasses.join(' ')}" title="${note.selectionReason || ''}">
+                            ${note.note}${note.octave}
+                            <small>${note.chord}</small>
+                            ${note.isStrongBeat ? '<sup>●</sup>' : ''}
+                        </span>
+                    `;
+                }).join('')}
+            </div>
+
+            <div class="section-melody-analysis">
+                ${melodyResult.analysis.slice(0, 3).map(tip => `<div class="analysis-tip-small">${tip}</div>`).join('')}
+            </div>
+
+            <div class="section-melody-controls">
+                <button class="play-section-melody-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
+                    🎵 Play
+                </button>
+                <button class="regenerate-section-btn" onclick="generateSectionMelody('${sectionId}')">
+                    🔄 New Variation
+                </button>
+                <button class="copy-section-melody-btn" onclick="copySectionMelody('${sectionId}')">
+                    📋 Copy Notes
+                </button>
+            </div>
+        </div>
+    `;
+
+    melodyDisplay.style.display = 'block';
+}
+
+// Count syllables in text for melody adaptation
+function countSyllablesInText(text) {
+    if (!text) return 0;
+
+    const words = text.toLowerCase().split(/\s+/);
+    let totalSyllables = 0;
+
+    words.forEach(word => {
+        // Remove punctuation
+        word = word.replace(/[^a-z]/g, '');
+        if (!word) return;
+
+        let syllableCount = 0;
+        let wasVowel = false;
+
+        for (let i = 0; i < word.length; i++) {
+            const isVowel = 'aeiouy'.includes(word[i]);
+            if (isVowel && !wasVowel) {
+                syllableCount++;
+            }
+            wasVowel = isVowel;
+        }
+
+        // Handle silent e
+        if (word.endsWith('e') && syllableCount > 1) {
+            syllableCount--;
+        }
+
+        // Minimum of 1 syllable per word
+        totalSyllables += Math.max(1, syllableCount);
+    });
+
+    return totalSyllables;
+}
+
+// Copy section melody to clipboard
+window.copySectionMelody = function(sectionId) {
+    try {
+        const melodyDisplay = document.querySelector(`#melody-${sectionId}`);
+        const melodyNotes = Array.from(melodyDisplay.querySelectorAll('.melody-note')).map(note => {
+            return note.textContent.split(' ')[0]; // Get just the note name
+        });
+
+        const melodyText = melodyNotes.join(' - ');
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(melodyText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    } catch (error) {
+        console.error('Error copying section melody:', error);
     }
 };
 

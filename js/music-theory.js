@@ -3726,14 +3726,17 @@ function generateFunctionalAnalysis(chords) {
     return analysis;
 }
 
-// Smart Melody Generation with Voice Leading
+// Smart Melody Generation with Advanced Chord-Tone Awareness
 export function generateSmartMelody(chordProgression, key, options = {}) {
     try {
         const {
-            style = 'smooth', // 'smooth', 'angular', 'pentatonic'
+            style = 'smooth', // 'smooth', 'angular', 'pentatonic', 'vocal'
             preferChordTones = true,
             avoidLargeLeaps = true,
-            octave = 5
+            octave = 5,
+            notesPerChord = 4, // Number of melody notes per chord
+            emphasizeStrongBeats = true,
+            vocalRange = { low: 'C4', high: 'C6' } // Vocal-friendly range
         } = options;
 
         const scale = Tonal.Scale.get(`${key} major`);
@@ -3742,52 +3745,120 @@ export function generateSmartMelody(chordProgression, key, options = {}) {
         const melody = [];
         let lastNote = scale.notes[0]; // Start on tonic
 
-        chordProgression.chords.forEach((chord, index) => {
+        // Get chord tone priorities (root, third, fifth have highest priority)
+        const getChordTonePriority = (note, chordTones) => {
+            const index = chordTones.indexOf(note);
+            if (index === 0) return 3; // Root
+            if (index === 2) return 2; // Fifth
+            if (index === 1) return 2.5; // Third (slightly higher than fifth)
+            if (index === 3) return 1.5; // Seventh
+            return index >= 0 ? 1 : 0; // Other chord tones or non-chord tones
+        };
+
+        chordProgression.chords.forEach((chord, chordIndex) => {
             const chordInfo = Tonal.Chord.get(chord);
             const chordTones = chordInfo.notes || [];
+            const scaleNotes = scale.notes;
 
-            let nextNote;
+            // Generate multiple notes per chord for rhythmic interest
+            for (let noteIndex = 0; noteIndex < notesPerChord; noteIndex++) {
+                const isStrongBeat = noteIndex % 2 === 0; // Every other note is a strong beat
+                const isDownbeat = noteIndex === 0; // First note of chord
 
-            if (preferChordTones && chordTones.length > 0) {
-                // Choose chord tone with smallest interval from last note
-                let bestNote = chordTones[0];
-                let smallestInterval = 12; // Start with octave
+                let nextNote;
+                let selectionReason = '';
 
-                chordTones.forEach(note => {
-                    const interval = Math.abs(Tonal.Interval.semitones(Tonal.Interval.distance(lastNote, note)));
-                    if (interval < smallestInterval) {
-                        smallestInterval = interval;
-                        bestNote = note;
+                if (preferChordTones && chordTones.length > 0) {
+                    if (isStrongBeat || isDownbeat) {
+                        // Strong beats: prioritize chord tones, especially root and third
+                        const weightedChordTones = chordTones.map(tone => ({
+                            note: tone,
+                            weight: getChordTonePriority(tone, chordTones) *
+                                   (isDownbeat ? 1.5 : 1) * // Extra weight for downbeat
+                                   (1 / (Math.abs(Tonal.Interval.semitones(Tonal.Interval.distance(lastNote, tone))) + 1)) // Favor close intervals
+                        }));
+
+                        // Sort by weight and pick top choice with some randomness
+                        weightedChordTones.sort((a, b) => b.weight - a.weight);
+                        const topChoices = weightedChordTones.slice(0, Math.min(3, weightedChordTones.length));
+                        nextNote = topChoices[Math.floor(Math.random() * topChoices.length)].note;
+                        selectionReason = isDownbeat ? 'downbeat-chord-tone' : 'strong-beat-chord-tone';
+                    } else {
+                        // Weak beats: allow passing tones and scale notes for melodic movement
+                        const passingToneChance = 0.4; // 40% chance of using passing tone
+
+                        if (Math.random() < passingToneChance) {
+                            // Use scale notes for passing tones
+                            const lastIndex = scaleNotes.indexOf(Tonal.Note.get(lastNote).pc);
+                            const direction = Math.random() > 0.5 ? 1 : -1;
+                            const stepSize = Math.random() > 0.8 ? 2 : 1; // Mostly stepwise motion
+                            const nextIndex = (lastIndex + (direction * stepSize) + scaleNotes.length) % scaleNotes.length;
+                            nextNote = scaleNotes[nextIndex];
+                            selectionReason = 'passing-tone';
+                        } else {
+                            // Still prefer chord tones but with less strict voice leading
+                            const availableChordTones = chordTones.filter(tone => {
+                                const interval = Math.abs(Tonal.Interval.semitones(Tonal.Interval.distance(lastNote, tone)));
+                                return !avoidLargeLeaps || interval <= 5; // Perfect fourth or less
+                            });
+
+                            nextNote = availableChordTones.length > 0 ?
+                                      availableChordTones[Math.floor(Math.random() * availableChordTones.length)] :
+                                      chordTones[Math.floor(Math.random() * chordTones.length)];
+                            selectionReason = 'weak-beat-chord-tone';
+                        }
                     }
+                } else {
+                    // Fallback to scale notes
+                    const lastIndex = scaleNotes.indexOf(Tonal.Note.get(lastNote).pc);
+                    const direction = Math.random() > 0.5 ? 1 : -1;
+                    const stepSize = avoidLargeLeaps ? (Math.random() > 0.7 ? 2 : 1) : Math.floor(Math.random() * 4) + 1;
+                    const nextIndex = (lastIndex + (direction * stepSize) + scaleNotes.length) % scaleNotes.length;
+                    nextNote = scaleNotes[nextIndex];
+                    selectionReason = 'scale-note';
+                }
+
+                // Apply vocal range constraints if specified
+                let finalOctave = octave;
+                if (vocalRange) {
+                    const noteWithOctave = nextNote + finalOctave;
+                    const midiNote = Tonal.Midi.toMidi(noteWithOctave);
+                    const lowMidi = Tonal.Midi.toMidi(vocalRange.low);
+                    const highMidi = Tonal.Midi.toMidi(vocalRange.high);
+
+                    if (midiNote < lowMidi) finalOctave = Math.ceil((lowMidi - Tonal.Midi.toMidi(nextNote + '0')) / 12);
+                    if (midiNote > highMidi) finalOctave = Math.floor((highMidi - Tonal.Midi.toMidi(nextNote + '0')) / 12);
+                }
+
+                const noteWithOctave = nextNote + finalOctave;
+                melody.push({
+                    note: nextNote,
+                    noteWithOctave: noteWithOctave,
+                    chord: chord,
+                    octave: finalOctave,
+                    midiNote: Tonal.Midi.toMidi(noteWithOctave),
+                    isChordTone: chordTones.includes(nextNote),
+                    isStrongBeat: isStrongBeat,
+                    isDownbeat: isDownbeat,
+                    chordIndex: chordIndex,
+                    noteIndex: noteIndex,
+                    intervalFromPrevious: melody.length > 0 ? Tonal.Interval.distance(lastNote, nextNote) : 'unison',
+                    selectionReason: selectionReason,
+                    chordTonePriority: getChordTonePriority(nextNote, chordTones)
                 });
 
-                nextNote = bestNote;
-            } else {
-                // Use scale notes
-                const lastIndex = scale.notes.indexOf(lastNote);
-                const direction = Math.random() > 0.5 ? 1 : -1;
-                const stepSize = avoidLargeLeaps ? (Math.random() > 0.7 ? 2 : 1) : Math.floor(Math.random() * 4) + 1;
-                const nextIndex = (lastIndex + (direction * stepSize) + scale.notes.length) % scale.notes.length;
-                nextNote = scale.notes[nextIndex];
+                lastNote = nextNote;
             }
-
-            melody.push({
-                note: nextNote,
-                chord: chord,
-                octave: octave,
-                midiNote: Tonal.Midi.toMidi(nextNote + octave),
-                isChordTone: chordTones.includes(nextNote),
-                intervalFromPrevious: index > 0 ? Tonal.Interval.distance(lastNote, nextNote) : 'unison'
-            });
-
-            lastNote = nextNote;
         });
 
         return {
             melody,
             analysis: analyzeMelodyQuality(melody),
             style,
-            key
+            key,
+            notesPerChord,
+            chordCount: chordProgression.chords.length,
+            totalNotes: melody.length
         };
     } catch (error) {
         console.error('Smart melody generation error:', error);
@@ -3798,29 +3869,619 @@ export function generateSmartMelody(chordProgression, key, options = {}) {
 function analyzeMelodyQuality(melody) {
     const analysis = [];
     let chordToneCount = 0;
+    let strongBeatChordTones = 0;
+    let downbeatChordTones = 0;
     let largeLeaps = 0;
+    let passingTones = 0;
+    let stepwiseMotion = 0;
 
     melody.forEach((note, index) => {
-        if (note.isChordTone) chordToneCount++;
+        if (note.isChordTone) {
+            chordToneCount++;
+            if (note.isStrongBeat) strongBeatChordTones++;
+            if (note.isDownbeat) downbeatChordTones++;
+        }
+
+        if (note.selectionReason === 'passing-tone') passingTones++;
 
         if (index > 0) {
             const interval = note.intervalFromPrevious;
             const semitones = Math.abs(Tonal.Interval.semitones(interval));
-            if (semitones > 4) largeLeaps++;
+
+            if (semitones > 4) {
+                largeLeaps++;
+            } else if (semitones <= 2) {
+                stepwiseMotion++;
+            }
         }
     });
 
+    // Calculate percentages
     const chordTonePercentage = Math.round((chordToneCount / melody.length) * 100);
-    analysis.push(`${chordTonePercentage}% chord tones - ${chordTonePercentage > 60 ? 'strong harmonic connection' : 'more scalar/linear'}`);
+    const strongBeats = melody.filter(n => n.isStrongBeat).length;
+    const downbeats = melody.filter(n => n.isDownbeat).length;
+    const strongBeatChordTonePercentage = strongBeats > 0 ? Math.round((strongBeatChordTones / strongBeats) * 100) : 0;
+    const downbeatChordTonePercentage = downbeats > 0 ? Math.round((downbeatChordTones / downbeats) * 100) : 0;
+    const stepwisePercentage = melody.length > 1 ? Math.round((stepwiseMotion / (melody.length - 1)) * 100) : 0;
 
-    if (largeLeaps === 0) {
-        analysis.push('✅ Smooth melody - no large leaps');
-    } else if (largeLeaps <= 2) {
-        analysis.push('⚠️ Few large leaps - good for dramatic effect');
+    // Overall chord tone analysis
+    analysis.push(`🎵 ${chordTonePercentage}% chord tones overall - ${chordTonePercentage > 70 ? 'excellent harmonic foundation' : chordTonePercentage > 50 ? 'good harmonic connection' : 'more scalar/melodic approach'}`);
+
+    // Strong beat analysis
+    if (strongBeatChordTonePercentage >= 80) {
+        analysis.push(`🎯 ${strongBeatChordTonePercentage}% chord tones on strong beats - excellent rhythmic emphasis`);
+    } else if (strongBeatChordTonePercentage >= 60) {
+        analysis.push(`✅ ${strongBeatChordTonePercentage}% chord tones on strong beats - good harmonic rhythm`);
     } else {
-        analysis.push('🎢 Angular melody - many large leaps');
+        analysis.push(`⚠️ ${strongBeatChordTonePercentage}% chord tones on strong beats - consider more harmonic emphasis`);
+    }
+
+    // Downbeat analysis
+    if (downbeatChordTonePercentage >= 90) {
+        analysis.push(`🏛️ ${downbeatChordTonePercentage}% chord tones on downbeats - strong harmonic structure`);
+    } else if (downbeatChordTonePercentage >= 70) {
+        analysis.push(`✅ ${downbeatChordTonePercentage}% chord tones on downbeats - solid foundation`);
+    }
+
+    // Motion analysis
+    if (stepwisePercentage >= 70) {
+        analysis.push(`🎶 ${stepwisePercentage}% stepwise motion - very singable melody`);
+    } else if (stepwisePercentage >= 50) {
+        analysis.push(`🎵 ${stepwisePercentage}% stepwise motion - good melodic flow`);
+    }
+
+    if (passingTones > 0) {
+        const passingTonePercentage = Math.round((passingTones / melody.length) * 100);
+        analysis.push(`🌊 ${passingTonePercentage}% passing tones - adds melodic fluidity`);
+    }
+
+    // Leap analysis
+    if (largeLeaps === 0) {
+        analysis.push('✅ Smooth melody - no large leaps, excellent for vocal performance');
+    } else if (largeLeaps <= Math.ceil(melody.length * 0.1)) {
+        analysis.push('⚡ Few strategic leaps - good for melodic interest');
+    } else {
+        analysis.push('🎢 Angular melody - many large leaps, challenging but expressive');
+    }
+
+    // Professional assessment
+    if (chordTonePercentage > 60 && strongBeatChordTonePercentage > 70 && stepwisePercentage > 60) {
+        analysis.push('🌟 Professional quality melody with strong harmonic foundation and singable contour');
+    } else if (chordTonePercentage > 50 && strongBeatChordTonePercentage > 60) {
+        analysis.push('👍 Well-crafted melody with good harmonic awareness');
     }
 
     return analysis;
+}
+
+// Advanced Melodic Development Functions
+
+// Generate melodic motif (2-4 notes that can be developed)
+export function generateMotif(key, chordTones, options = {}) {
+    const {
+        length = 3, // 2-4 notes
+        style = 'stepwise', // 'stepwise', 'arpeggiated', 'mixed'
+        intervalPattern = null // Custom interval pattern like [2, -1, 3]
+    } = options;
+
+    const scale = Tonal.Scale.get(`${key} major`);
+    const motif = [];
+
+    if (intervalPattern) {
+        // Use custom interval pattern
+        let currentNote = chordTones[0] || scale.notes[0];
+        motif.push(currentNote);
+
+        intervalPattern.slice(0, length - 1).forEach(interval => {
+            const nextNote = Tonal.Note.transpose(currentNote, Tonal.Interval.fromSemitones(interval));
+            motif.push(nextNote);
+            currentNote = nextNote;
+        });
+    } else {
+        // Generate based on style
+        switch (style) {
+            case 'stepwise':
+                let startIndex = Math.floor(Math.random() * scale.notes.length);
+                for (let i = 0; i < length; i++) {
+                    motif.push(scale.notes[(startIndex + i) % scale.notes.length]);
+                }
+                break;
+
+            case 'arpeggiated':
+                // Use chord tones in sequence
+                for (let i = 0; i < length && i < chordTones.length; i++) {
+                    motif.push(chordTones[i]);
+                }
+                break;
+
+            case 'mixed':
+                // Mix stepwise and chord tone approaches
+                motif.push(chordTones[0] || scale.notes[0]);
+                for (let i = 1; i < length; i++) {
+                    if (Math.random() > 0.5 && chordTones[i]) {
+                        motif.push(chordTones[i]);
+                    } else {
+                        const lastNote = motif[motif.length - 1];
+                        const lastIndex = scale.notes.indexOf(lastNote);
+                        const direction = Math.random() > 0.5 ? 1 : -1;
+                        const nextIndex = (lastIndex + direction + scale.notes.length) % scale.notes.length;
+                        motif.push(scale.notes[nextIndex]);
+                    }
+                }
+                break;
+        }
+    }
+
+    return {
+        notes: motif,
+        intervals: motif.slice(1).map((note, i) =>
+            Tonal.Interval.distance(motif[i], note)
+        ),
+        style,
+        length
+    };
+}
+
+// Apply motif development techniques
+export function developMotif(motif, technique, options = {}) {
+    const { notes } = motif;
+    const { transposition = 0, rhythmicAugmentation = 1 } = options;
+
+    switch (technique) {
+        case 'sequence':
+            // Repeat motif at different pitch levels
+            const interval = options.sequenceInterval || 'M2'; // Major second by default
+            return notes.map(note => Tonal.Note.transpose(note, interval));
+
+        case 'inversion':
+            // Invert the interval direction
+            const inverted = [notes[0]];
+            for (let i = 1; i < notes.length; i++) {
+                const originalInterval = Tonal.Interval.distance(notes[i-1], notes[i]);
+                const invertedInterval = Tonal.Interval.invert(originalInterval);
+                inverted.push(Tonal.Note.transpose(inverted[i-1], invertedInterval));
+            }
+            return inverted;
+
+        case 'retrograde':
+            // Reverse the note order
+            return [...notes].reverse();
+
+        case 'augmentation':
+            // Stretch intervals (make them larger)
+            const augmented = [notes[0]];
+            for (let i = 1; i < notes.length; i++) {
+                const interval = Tonal.Interval.distance(notes[i-1], notes[i]);
+                const semitones = Tonal.Interval.semitones(interval);
+                const augmentedInterval = Tonal.Interval.fromSemitones(semitones * 2);
+                augmented.push(Tonal.Note.transpose(augmented[i-1], augmentedInterval));
+            }
+            return augmented;
+
+        case 'diminution':
+            // Compress intervals (make them smaller)
+            const diminished = [notes[0]];
+            for (let i = 1; i < notes.length; i++) {
+                const interval = Tonal.Interval.distance(notes[i-1], notes[i]);
+                const semitones = Tonal.Interval.semitones(interval);
+                const diminishedInterval = Tonal.Interval.fromSemitones(Math.ceil(semitones / 2));
+                diminished.push(Tonal.Note.transpose(diminished[i-1], diminishedInterval));
+            }
+            return diminished;
+
+        case 'fragmentation':
+            // Use only part of the motif
+            const fragmentLength = Math.max(2, Math.floor(notes.length / 2));
+            return notes.slice(0, fragmentLength);
+
+        default:
+            return notes;
+    }
+}
+
+// Genre-specific melodic patterns and scales
+export function getGenreMelodicStyle(genre) {
+    const styles = {
+        'pop': {
+            preferredScales: ['major', 'minor', 'dorian'],
+            intervalPreferences: ['m2', 'M2', 'm3', 'M3'], // Stepwise motion preferred
+            rhythmicPatterns: ['straight', 'syncopated'],
+            phraseStructure: [4, 8], // 4 or 8 bar phrases
+            hookFocus: true,
+            chordToneEmphasis: 0.7
+        },
+        'rock': {
+            preferredScales: ['minor pentatonic', 'blues', 'natural minor'],
+            intervalPreferences: ['m3', 'P4', 'P5'], // Power chord intervals
+            rhythmicPatterns: ['straight', 'driving'],
+            phraseStructure: [4, 8],
+            hookFocus: true,
+            chordToneEmphasis: 0.6
+        },
+        'jazz': {
+            preferredScales: ['major', 'dorian', 'mixolydian', 'altered'],
+            intervalPreferences: ['M2', 'm2', 'M7', 'm7'], // Complex intervals
+            rhythmicPatterns: ['swing', 'syncopated'],
+            phraseStructure: [8, 16, 32],
+            hookFocus: false,
+            chordToneEmphasis: 0.8
+        },
+        'folk': {
+            preferredScales: ['major', 'dorian', 'mixolydian', 'pentatonic'],
+            intervalPreferences: ['M2', 'm2', 'M3', 'P4'],
+            rhythmicPatterns: ['straight', 'lilting'],
+            phraseStructure: [8, 16],
+            hookFocus: false,
+            chordToneEmphasis: 0.6
+        },
+        'country': {
+            preferredScales: ['major', 'mixolydian', 'pentatonic'],
+            intervalPreferences: ['M2', 'M3', 'P4'],
+            rhythmicPatterns: ['straight', 'shuffle'],
+            phraseStructure: [4, 8],
+            hookFocus: true,
+            chordToneEmphasis: 0.7
+        },
+        'rnb': {
+            preferredScales: ['minor', 'dorian', 'blues', 'pentatonic'],
+            intervalPreferences: ['m2', 'M2', 'm3', 'M3', 'm7'],
+            rhythmicPatterns: ['syncopated', 'groove'],
+            phraseStructure: [4, 8, 16],
+            hookFocus: true,
+            chordToneEmphasis: 0.75,
+            melismaticRuns: true
+        },
+        'classical': {
+            preferredScales: ['major', 'minor', 'dorian', 'phrygian'],
+            intervalPreferences: ['M2', 'm2', 'M3', 'm3', 'P4', 'P5'],
+            rhythmicPatterns: ['straight', 'rubato'],
+            phraseStructure: [8, 16, 32],
+            hookFocus: false,
+            chordToneEmphasis: 0.85,
+            phraseArches: true
+        }
+    };
+
+    return styles[genre.toLowerCase()] || styles['pop'];
+}
+
+// Generate phrase structure with breathing points
+export function generatePhraseStructure(chordProgression, options = {}) {
+    const {
+        phraseLength = 8, // bars per phrase
+        breathingPoints = true,
+        questionAnswer = true,
+        archShape = true
+    } = options;
+
+    const totalChords = chordProgression.chords.length;
+    const phrases = [];
+
+    for (let i = 0; i < totalChords; i += phraseLength) {
+        const phraseChords = chordProgression.chords.slice(i, i + phraseLength);
+        const phraseInfo = {
+            chords: phraseChords,
+            startBar: i,
+            endBar: Math.min(i + phraseLength - 1, totalChords - 1),
+            type: 'statement'
+        };
+
+        // Apply phrase structure logic
+        if (questionAnswer && phrases.length % 2 === 0) {
+            phraseInfo.type = 'question'; // Antecedent
+            phraseInfo.contour = 'rising'; // Questions often rise
+        } else if (questionAnswer && phrases.length % 2 === 1) {
+            phraseInfo.type = 'answer'; // Consequent
+            phraseInfo.contour = 'falling'; // Answers often fall
+        }
+
+        if (archShape) {
+            const midPoint = Math.floor(phraseChords.length / 2);
+            phraseInfo.climaxPoint = midPoint;
+            phraseInfo.contour = 'arch'; // Rise to middle, then fall
+        }
+
+        if (breathingPoints) {
+            phraseInfo.breathingPoint = phraseInfo.endBar;
+        }
+
+        phrases.push(phraseInfo);
+    }
+
+    return phrases;
+}
+
+// Create call-and-response melodic patterns
+export function generateCallAndResponse(motif, key, options = {}) {
+    const {
+        responseType = 'answer', // 'echo', 'answer', 'contrast'
+        responseInterval = 'P5', // Interval to transpose response
+        responseRhythm = 'same' // 'same', 'augmented', 'diminished'
+    } = options;
+
+    const call = motif.notes;
+    let response = [];
+
+    switch (responseType) {
+        case 'echo':
+            // Simple repetition, possibly transposed
+            response = call.map(note =>
+                responseInterval ? Tonal.Note.transpose(note, responseInterval) : note
+            );
+            break;
+
+        case 'answer':
+            // Complementary phrase that resolves
+            response = developMotif(motif, 'inversion').slice(0, call.length);
+            // Ensure it ends on a stable note
+            const scale = Tonal.Scale.get(`${key} major`);
+            response[response.length - 1] = scale.notes[0]; // End on tonic
+            break;
+
+        case 'contrast':
+            // Different rhythm and contour
+            response = call.map((note, i) => {
+                const interval = i % 2 === 0 ? 'M3' : 'm2';
+                return Tonal.Note.transpose(note, interval);
+            });
+            break;
+    }
+
+    return {
+        call: call,
+        response: response,
+        type: responseType,
+        interval: responseInterval
+    };
+}
+
+// Add lyrical rhythm consideration
+export function adaptMelodyToLyrics(melody, lyrics, options = {}) {
+    const {
+        emphasizeStressedSyllables = true,
+        respectNaturalAccents = true,
+        allowMelisma = false // Multiple notes per syllable
+    } = options;
+
+    if (!lyrics || lyrics.length === 0) return melody;
+
+    const words = lyrics.split(' ');
+    const syllables = [];
+
+    // Simple syllable counting (basic implementation)
+    words.forEach(word => {
+        const syllableCount = countSyllables(word);
+        const wordSyllables = [];
+
+        for (let i = 0; i < syllableCount; i++) {
+            wordSyllables.push({
+                text: i === 0 ? word : '',
+                isStressed: i === 0 || (syllableCount > 2 && i === syllableCount - 2),
+                isWordStart: i === 0,
+                isWordEnd: i === syllableCount - 1
+            });
+        }
+        syllables.push(...wordSyllables);
+    });
+
+    // Adapt melody to syllables
+    const adaptedMelody = melody.map((note, index) => {
+        const syllable = syllables[index % syllables.length];
+
+        if (!syllable) return note;
+
+        const adaptedNote = { ...note };
+
+        if (emphasizeStressedSyllables && syllable.isStressed) {
+            // Place stressed syllables on chord tones and higher pitches
+            adaptedNote.emphasis = 'stressed';
+            adaptedNote.preferHigherPitch = true;
+        }
+
+        if (syllable.isWordStart) {
+            adaptedNote.phrasePosition = 'word-start';
+        }
+
+        if (syllable.isWordEnd) {
+            adaptedNote.phrasePosition = 'word-end';
+            adaptedNote.allowBreath = true;
+        }
+
+        adaptedNote.syllable = syllable;
+
+        return adaptedNote;
+    });
+
+    return adaptedMelody;
+}
+
+// Simple syllable counter
+function countSyllables(word) {
+    if (!word) return 0;
+
+    word = word.toLowerCase();
+    let count = 0;
+    let wasVowel = false;
+
+    for (let i = 0; i < word.length; i++) {
+        const isVowel = 'aeiouy'.includes(word[i]);
+        if (isVowel && !wasVowel) {
+            count++;
+        }
+        wasVowel = isVowel;
+    }
+
+    // Handle silent e
+    if (word.endsWith('e')) {
+        count--;
+    }
+
+    // Minimum of 1 syllable
+    return Math.max(1, count);
+}
+
+// Enhanced Melody Generation that integrates all melodic development features
+export function generateAdvancedMelody(chordProgression, key, options = {}) {
+    try {
+        const {
+            style = 'smooth',
+            genre = 'pop',
+            lyrics = null,
+            useMotifs = true,
+            phraseStructure = 'question-answer',
+            developmentTechniques = ['sequence', 'inversion'],
+            notesPerChord = 4,
+            octave = 5,
+            vocalRange = { low: 'C4', high: 'C6' }
+        } = options;
+
+        // Get genre-specific style preferences
+        const genreStyle = getGenreMelodicStyle(genre);
+
+        // Generate phrase structure
+        const phrases = generatePhraseStructure(chordProgression, {
+            phraseLength: genreStyle.phraseStructure[0],
+            questionAnswer: phraseStructure === 'question-answer',
+            archShape: genreStyle.phraseArches || false
+        });
+
+        // Generate initial melody using enhanced chord-tone aware generation
+        const baseMelody = generateSmartMelody(chordProgression, key, {
+            style,
+            preferChordTones: true,
+            avoidLargeLeaps: true,
+            octave,
+            notesPerChord,
+            vocalRange,
+            emphasizeStrongBeats: true
+        });
+
+        if (!baseMelody) return null;
+
+        let enhancedMelody = baseMelody.melody;
+
+        // Apply motif development if requested
+        if (useMotifs && enhancedMelody.length >= 6) {
+            // Extract motif from first few notes
+            const motifNotes = enhancedMelody.slice(0, 3).map(note => note.note);
+            const firstChordTones = Tonal.Chord.get(chordProgression.chords[0]).notes || [];
+
+            const motif = {
+                notes: motifNotes,
+                intervals: motifNotes.slice(1).map((note, i) =>
+                    Tonal.Interval.distance(motifNotes[i], note)
+                ),
+                style: 'mixed',
+                length: motifNotes.length
+            };
+
+            // Apply development techniques throughout the melody
+            const developedSections = [];
+
+            developmentTechniques.forEach((technique, index) => {
+                if (index < phrases.length) {
+                    const developed = developMotif(motif, technique, {
+                        sequenceInterval: genreStyle.intervalPreferences[0] || 'M2'
+                    });
+                    developedSections.push({
+                        phrase: index,
+                        technique,
+                        notes: developed
+                    });
+                }
+            });
+
+            // Apply call-and-response if using question-answer structure
+            if (phraseStructure === 'question-answer' && phrases.length >= 2) {
+                const callAndResponse = generateCallAndResponse(motif, key, {
+                    responseType: 'answer',
+                    responseInterval: 'P5'
+                });
+
+                // Apply to alternating phrases
+                phrases.forEach((phrase, index) => {
+                    if (index % 2 === 0) {
+                        phrase.melodicRole = 'call';
+                        phrase.motifNotes = callAndResponse.call;
+                    } else {
+                        phrase.melodicRole = 'response';
+                        phrase.motifNotes = callAndResponse.response;
+                    }
+                });
+            }
+        }
+
+        // Apply genre-specific interval preferences
+        enhancedMelody = enhancedMelody.map((note, index) => {
+            const enhancedNote = { ...note };
+
+            // Apply genre-specific emphasis
+            enhancedNote.genreStyle = genreStyle;
+            enhancedNote.chordToneEmphasis = genreStyle.chordToneEmphasis;
+
+            // Mark hook-focused sections for pop/rock genres
+            if (genreStyle.hookFocus && index < notesPerChord * 2) {
+                enhancedNote.isHookSection = true;
+            }
+
+            // Add melismatic potential for R&B
+            if (genreStyle.melismaticRuns && note.isStrongBeat && Math.random() > 0.7) {
+                enhancedNote.allowMelisma = true;
+            }
+
+            return enhancedNote;
+        });
+
+        // Adapt to lyrics if provided
+        if (lyrics) {
+            enhancedMelody = adaptMelodyToLyrics(enhancedMelody, lyrics, {
+                emphasizeStressedSyllables: true,
+                allowMelisma: genreStyle.melismaticRuns || false
+            });
+        }
+
+        // Generate comprehensive analysis
+        const analysis = [
+            ...analyzeMelodyQuality(enhancedMelody),
+            `🎼 Genre: ${genre} - ${genreStyle.hookFocus ? 'Hook-focused' : 'Development-focused'} approach`,
+            `📏 Phrase structure: ${phrases.length} phrases (${phrases.map(p => p.type).join(', ')})`,
+        ];
+
+        if (useMotifs) {
+            analysis.push(`🎵 Motif development: ${developmentTechniques.join(', ')}`);
+        }
+
+        if (phraseStructure === 'question-answer') {
+            analysis.push(`💬 Call-and-response phrasing implemented`);
+        }
+
+        if (lyrics) {
+            analysis.push(`🎤 Melody adapted to lyrical rhythm and stress patterns`);
+        }
+
+        return {
+            melody: enhancedMelody,
+            phrases,
+            analysis,
+            genreStyle,
+            motifDevelopment: useMotifs ? developmentTechniques : null,
+            style,
+            key,
+            totalNotes: enhancedMelody.length,
+            features: {
+                chordToneAware: true,
+                rhythmicEmphasis: true,
+                motifDevelopment: useMotifs,
+                phraseStructure: phraseStructure,
+                genreSpecific: true,
+                lyricalAdaptation: !!lyrics,
+                callAndResponse: phraseStructure === 'question-answer'
+            }
+        };
+
+    } catch (error) {
+        console.error('Advanced melody generation error:', error);
+        return null;
+    }
 }
 
