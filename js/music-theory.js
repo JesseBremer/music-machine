@@ -57,6 +57,98 @@ export async function getSongStructuresData() {
 }
 
 // Enhanced music theory functions using Tonal.js
+
+// Get Roman numeral analysis for a chord in a given key
+export function getChordFunction(chord, key) {
+    if (!chord || !key || !window.Tonal) {
+        return '';
+    }
+
+    try {
+        // Clean up the key (remove any extra notation)
+        const cleanKey = key.replace(/\s*(major|minor)\s*/i, '').trim();
+
+        // Get the key's diatonic chords
+        const majorKeyInfo = window.Tonal.Key.majorKey(cleanKey);
+        const minorKeyInfo = window.Tonal.Key.minorKey(cleanKey);
+
+        // Roman numerals for major and minor keys
+        const majorNumerals = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+        const minorNumerals = ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
+
+        // Normalize chord name for comparison
+        const normalizedChord = chord.replace(/[()]/g, '');
+
+        // Check major key first
+        if (majorKeyInfo.chords && majorKeyInfo.chords.length > 0) {
+            const chordIndex = majorKeyInfo.chords.findIndex(keyChord => {
+                // Handle different chord notation styles
+                const normalizedKeyChord = keyChord.replace(/[()]/g, '');
+                return normalizedKeyChord === normalizedChord ||
+                       normalizedKeyChord.startsWith(normalizedChord) ||
+                       normalizedChord.startsWith(normalizedKeyChord);
+            });
+
+            if (chordIndex !== -1) {
+                return majorNumerals[chordIndex];
+            }
+        }
+
+        // Check minor key
+        if (minorKeyInfo.chords && minorKeyInfo.chords.length > 0) {
+            const chordIndex = minorKeyInfo.chords.findIndex(keyChord => {
+                const normalizedKeyChord = keyChord.replace(/[()]/g, '');
+                return normalizedKeyChord === normalizedChord ||
+                       normalizedKeyChord.startsWith(normalizedChord) ||
+                       normalizedChord.startsWith(normalizedKeyChord);
+            });
+
+            if (chordIndex !== -1) {
+                return minorNumerals[chordIndex];
+            }
+        }
+
+        // If not found in diatonic chords, it might be a borrowed chord or secondary dominant
+        // Try to find the root relationship
+        const chordRoot = window.Tonal.Chord.get(chord).tonic;
+        const keyRoot = cleanKey;
+
+        if (chordRoot && keyRoot) {
+            const interval = window.Tonal.Interval.distance(keyRoot, chordRoot);
+            const semitones = window.Tonal.Interval.semitones(interval);
+
+            // Map semitones to scale degrees
+            const scaleDegreesMap = {
+                0: 'I',   // Root
+                2: 'ii',  // Second
+                4: 'iii', // Third
+                5: 'IV',  // Fourth
+                7: 'V',   // Fifth
+                9: 'vi',  // Sixth
+                11: 'vii' // Seventh
+            };
+
+            const baseDegree = scaleDegreesMap[semitones % 12];
+            if (baseDegree) {
+                // Add quality indicators for non-diatonic chords
+                const chordQuality = window.Tonal.Chord.get(chord).quality;
+                if (chordQuality === 'major' && ['ii', 'iii', 'vi', 'vii'].includes(baseDegree)) {
+                    return baseDegree.toUpperCase(); // Borrowed major chord
+                } else if (chordQuality === 'minor' && ['I', 'IV', 'V'].includes(baseDegree)) {
+                    return baseDegree.toLowerCase(); // Borrowed minor chord
+                }
+                return baseDegree;
+            }
+        }
+
+        return ''; // Unknown function
+
+    } catch (error) {
+        console.warn('Error analyzing chord function:', error);
+        return '';
+    }
+}
+
 export function getScaleType(key) {
     try {
         const keyInfo = Tonal.Key.majorKey(key);
@@ -2979,7 +3071,7 @@ export function explainChordProgression(chordProgression, key) {
         key: key,
         analysis: [],
         theoryNotes: [],
-        harmonicFunction: getHarmonicFunction(chordProgression.numerals),
+        harmonicFunction: getProgressionFunctions(chordProgression.numerals),
         commonUse: getProgressionCommonUse(chordProgression.name)
     };
 
@@ -3007,7 +3099,7 @@ function analyzeChord(chord, numeral, key) {
             scaleDegree: scaleDegree,
             chordTones: chordInfo.notes || [],
             quality: getChordQuality(numeral),
-            function: getChordFunction(numeral),
+            function: getHarmonicFunction(numeral),
             intervals: chordInfo.intervals || [],
             explanation: getChordExplanation(numeral, scaleDegree)
         };
@@ -3045,7 +3137,7 @@ function getChordQuality(numeral) {
     return 'Unknown quality';
 }
 
-function getChordFunction(numeral) {
+function getHarmonicFunction(numeral) {
     const baseNumeral = numeral.replace(/[^IVXivx]/g, '').toUpperCase();
 
     const functionMap = {
@@ -3079,10 +3171,10 @@ function getChordExplanation(numeral, scaleDegree) {
         'VII': 'Subtonic - common in modal music, weaker than vii°'
     };
 
-    return explanations[numeral] || `${scaleDegree} - ${getChordFunction(numeral)}`;
+    return explanations[numeral] || `${scaleDegree} - ${getHarmonicFunction(numeral)}`;
 }
 
-function getHarmonicFunction(numerals) {
+function getProgressionFunctions(numerals) {
     const functions = numerals.map(numeral => {
         const base = numeral.replace(/[^IVXivx]/g, '').toUpperCase();
         if (['I', 'III', 'VI'].includes(base)) return 'T';

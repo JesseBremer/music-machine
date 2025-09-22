@@ -3264,8 +3264,25 @@ body {
 .chord-numeral {
     display: block;
     font-size: var(--font-size-small);
-    color: var(--text-secondary);
+    color: var(--primary-color);
     margin-top: var(--spacing-xs);
+    font-weight: 600;
+    font-family: var(--font-family-mono);
+}
+
+.progression-chords,
+.progression-analysis {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.progression-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+    min-width: 60px;
 }
 
 .chord-enhancement-options {

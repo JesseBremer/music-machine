@@ -287,7 +287,7 @@ export function displayChords(chordProgression, key) {
         <div class="individual-chord" data-chord-index="${index}">
             <div class="chord-header" onclick="playIndividualChord('${chord}')" title="Click to play chord">
                 <span class="chord-name">${chord}</span>
-                <span class="chord-numeral">${chordProgression.numerals[index]}</span>
+                <span class="chord-numeral">${window.MusicTheory?.getChordFunction ? window.MusicTheory.getChordFunction(chord, key) : (chordProgression.numerals ? chordProgression.numerals[index] : '')}</span>
             </div>
             <div class="chord-enhancement-options">
                 <button class="mini-enhancement-btn" onclick="showChordOptions(${index}, 'inversions')" title="Inversions">
@@ -328,10 +328,16 @@ export function displayChords(chordProgression, key) {
                 <div id="panel-content" class="panel-content"></div>
             </div>
 
-            <!-- Original Display -->
+            <!-- Progression Summary -->
             <div class="progression-summary">
-                <div class="chords" id="current-chords">${chordProgression.chords.join(' - ')}</div>
-                <div class="numerals">${chordProgression.numerals.join(' - ')}</div>
+                <div class="progression-chords">
+                    <label class="progression-label">Chords:</label>
+                    <div class="chords" id="current-chords">${chordProgression.chords.join(' - ')}</div>
+                </div>
+                <div class="progression-analysis">
+                    <label class="progression-label">Function:</label>
+                    <div class="numerals" title="Roman numeral analysis shows each chord's function in the key">${window.MusicTheory?.getChordFunction ? chordProgression.chords.map(chord => window.MusicTheory.getChordFunction(chord, key)).join(' - ') : chordProgression.numerals.join(' - ')}</div>
+                </div>
             </div>
 
             <div class="audio-controls">
@@ -1542,7 +1548,21 @@ function setupSectionManagement() {
     }
 }
 
-function generateSectionChords(sectionType, baseChords, songData) {
+// Helper function to find existing chorus progression
+function findExistingChorusProgression() {
+    const existingSections = document.querySelectorAll('.song-section');
+    for (const section of existingSections) {
+        const typeSelect = section.querySelector('.section-type');
+        const chordInput = section.querySelector('.chord-progression-input');
+
+        if (typeSelect?.value === 'Chorus' && chordInput?.value?.trim()) {
+            return chordInput.value.trim();
+        }
+    }
+    return null;
+}
+
+function generateSectionChords(sectionType, baseChords, songData, variationIndex = 0) {
     if (!baseChords || !songData?.key) return baseChords;
 
     const key = songData.key;
@@ -1598,40 +1618,48 @@ function generateSectionChords(sectionType, baseChords, songData) {
         return baseChords; // Fallback to base progression
     }
 
-    // Return a random variation
-    return variations[Math.floor(Math.random() * variations.length)];
+    // Return the specified variation (or first one if index is out of bounds)
+    return variations[variationIndex % variations.length];
+}
+
+// Helper function to get consistent chorus progression for templates
+function getConsistentChorusProgression(baseChords, songData) {
+    return generateSectionChords('Chorus', baseChords, songData, 0); // Always use first variation
 }
 
 function applyTemplate(templateType) {
     const songData = window.appState?.songData;
     const baseChords = songData?.chordProgression?.chords?.join(' - ') || '';
 
+    // Generate consistent chorus progression once
+    const chorusProgression = getConsistentChorusProgression(baseChords, songData);
+
     const templatesMap = {
         'verse-chorus': [
             { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
-            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' }
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' }
         ],
         'aaba': [
             { type: 'Verse', chords: baseChords, lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' }
         ],
         'pop': [
-            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData), lyrics: '' },
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData), lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData), lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
-            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData), lyrics: '' },
-            { type: 'Chorus', chords: generateSectionChords('Chorus', baseChords, songData), lyrics: '' },
-            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData), lyrics: '' }
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
         ],
         'custom': []
     };
@@ -1736,10 +1764,23 @@ window.refreshSectionChords = function(sectionId) {
 
     if (sectionType === 'Verse') {
         suggestions.push(baseChords);
+    } else if (sectionType === 'Chorus') {
+        // Chorus should be consistent - check if we already have a chorus progression
+        const existingChorus = findExistingChorusProgression();
+        if (existingChorus) {
+            // Use the existing chorus progression
+            suggestions.push(existingChorus);
+        } else {
+            // Generate a new chorus progression (first time)
+            const chorusProgression = generateSectionChords(sectionType, baseChords, songData, 0); // Use first variation
+            if (chorusProgression) {
+                suggestions.push(chorusProgression);
+            }
+        }
     } else {
-        // Generate 3 different variations
+        // Generate 3 different variations for other sections
         for (let i = 0; i < 3; i++) {
-            const variation = generateSectionChords(sectionType, baseChords, songData);
+            const variation = generateSectionChords(sectionType, baseChords, songData, i);
             if (variation && !suggestions.includes(variation)) {
                 suggestions.push(variation);
             }
