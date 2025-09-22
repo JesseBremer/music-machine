@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strumming Patterns Reference - Music Machine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .strumming-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-sm);
+            text-shadow: var(--glow-accent);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .navigation {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--surface-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin: 0 var(--spacing-xs);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-link:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .filters-section {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .filters-section h2 {
+            margin-top: 0;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--font-size-small);
+        }
+
+        .filter-select {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+        }
+
+        .pattern-display {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+        }
+
+        .pattern-display h2 {
+            margin-top: 0;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .pattern-viewer {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .practice-metronome {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .metronome-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .metronome-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            transition: all 0.2s ease;
+        }
+
+        .metronome-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .metronome-btn.playing {
+            background: var(--error-color);
+        }
+
+        .tempo-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .tempo-controls button {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .tempo-controls button:hover {
+            background: var(--accent-color);
+            color: var(--background-color);
+        }
+
+        .tempo-display {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-family: var(--font-family-mono);
+            font-weight: bold;
+            color: var(--text-primary);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .metronome-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            position: relative;
+        }
+
+        .metronome-flash {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            position: relative;
+            transition: all 0.1s ease;
+        }
+
+        .metronome-flash.flash {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
+            transform: scale(1.1);
+        }
+
+        .metronome-flash.downbeat {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: var(--glow-accent);
+        }
+
+        .beat-counter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+            min-width: 30px;
+            text-align: center;
+            transition: color 0.1s ease;
+        }
+
+        .beat-counter.active {
+            color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
+        .pattern-category {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .category-title {
+            color: var(--accent-color);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-md);
+            border-left: 4px solid var(--accent-color);
+            padding-left: var(--spacing-md);
+        }
+
+        .patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .pattern-card {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pattern-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
+            transform: translateY(-2px);
+        }
+
+        .pattern-card.selected {
+            border-color: var(--accent-color);
+            box-shadow: var(--glow-accent);
+            background: rgba(255, 217, 61, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .pattern-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--font-size-large);
+        }
+
+        .difficulty {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-small);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .difficulty.beginner {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .difficulty.intermediate {
+            background: var(--warning-color);
+            color: var(--background-color);
+        }
+
+        .difficulty.advanced {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .difficulty.custom {
+            background: var(--accent-color);
+            color: var(--background-color);
+        }
+
+        .pattern-preview {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .preview-stroke {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-small);
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-stroke.d {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .preview-stroke.u {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .preview-stroke.x {
+            background: var(--warning-color);
+            color: var(--background-color);
+        }
+
+        .preview-stroke.rest {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+        }
+
+        .pattern-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+        }
+
+        .pattern-details {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .pattern-info {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .pattern-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-2xl);
+        }
+
+        .pattern-difficulty {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: var(--font-size-small);
+        }
+
+        .pattern-details-grid {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .pattern-category-tag,
+        .pattern-time-sig,
+        .pattern-bpm {
+            background: var(--surface-elevated);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-small);
+            border: 1px solid var(--border-color);
+        }
+
+        .pattern-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        .pattern-visualization {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-xl) 0;
+            border: 2px solid var(--border-color);
+        }
+
+        .pattern-header-row,
+        .pattern-strokes-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            gap: var(--spacing-md);
+        }
+
+        .timing-label,
+        .strokes-label {
+            font-weight: bold;
+            color: var(--text-primary);
+            min-width: 70px;
+            font-size: var(--font-size-small);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pattern-beats {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .beat-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 32px;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .pattern-strokes {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .stroke {
+            width: 55px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-xl);
+            font-weight: bold;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .stroke.d {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .stroke.u {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .stroke.x {
+            background: var(--warning-color);
+            color: var(--background-color);
+            border-color: var(--warning-color);
+        }
+
+        .stroke.rest {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+            border-color: var(--border-subtle);
+        }
+
+
+        .pattern-legend {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-lg);
+            justify-content: center;
+            flex-wrap: wrap;
+            border: 1px solid var(--border-color);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .legend-symbol {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: var(--font-size-small);
+        }
+
+        .legend-symbol.d {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .legend-symbol.u {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .legend-symbol.x {
+            background: var(--warning-color);
+            color: var(--background-color);
+        }
+
+        .legend-symbol.rest {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .legend-text {
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+        }
+
+        .custom-pattern-section {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .custom-pattern-section h2 {
+            margin-top: 0;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .pattern-creator {
+            background: var(--background-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .creator-controls {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .creator-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--font-size-small);
+        }
+
+        .custom-input,
+        .custom-select {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+        }
+
+        .custom-input:focus,
+        .custom-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .pattern-editor h3 {
+            margin: 0 0 var(--spacing-md) 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-large);
+        }
+
+        .editor-legend {
+            display: flex;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .editor-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+        }
+
+        .legend-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: var(--font-size-small);
+            border: 1px solid var(--border-color);
+        }
+
+        .legend-btn.d {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .legend-btn.u {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .legend-btn.x {
+            background: var(--warning-color);
+            color: var(--background-color);
+        }
+
+        .legend-btn.rest {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+        }
+
+        .beat-editor {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .beat-editor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            gap: var(--spacing-md);
+        }
+
+        .beat-editor-label {
+            font-weight: bold;
+            color: var(--text-primary);
+            min-width: 70px;
+            font-size: var(--font-size-small);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .beat-slots {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .beat-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .beat-count {
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            font-family: var(--font-family-mono);
+            font-weight: 600;
+        }
+
+        .stroke-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stroke-btn {
+            width: 40px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: var(--font-size-small);
+            transition: all 0.2s ease;
+        }
+
+        .stroke-btn:hover {
+            background: var(--background-color);
+            border-color: var(--primary-color);
+        }
+
+        .stroke-btn.active.d {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .stroke-btn.active.u {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .stroke-btn.active.x {
+            background: var(--warning-color);
+            color: var(--background-color);
+            border-color: var(--warning-color);
+        }
+
+        .stroke-btn.active.rest {
+            background: var(--text-muted);
+            color: var(--background-color);
+            border-color: var(--text-muted);
+        }
+
+        .creator-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .creator-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .creator-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .creator-btn.save {
+            background: var(--success-color);
+        }
+
+        .creator-btn.save:hover {
+            background: #3eaa82;
+        }
+
+        .creator-btn.clear {
+            background: var(--error-color);
+        }
+
+        .creator-btn.clear:hover {
+            background: #e55555;
+        }
+
+        .creator-btn.preview {
+            background: var(--warning-color);
+            color: var(--background-color);
+        }
+
+        .creator-btn.preview:hover {
+            background: #e6c200;
+        }
+
+        @media (max-width: 768px) {
+            .strumming-page {
+                padding: var(--spacing-md);
+            }
+
+            .patterns-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pattern-header-row,
+            .pattern-strokes-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timing-label,
+            .strokes-label {
+                min-width: auto;
+            }
+
+            .creator-settings {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-legend {
+                justify-content: center;
+            }
+
+            .beat-slots {
+                justify-content: center;
+            }
+
+            .creator-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .creator-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>🎼 Strumming Patterns</h1>
+            <p>Master guitar strumming with patterns from beginner to advanced</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="chords.html" class="nav-link">🎸 Chords</a>
+                <a href="scales.html" class="nav-link">🎵 Scales</a>
+                <a href="strumming.html" class="nav-link active">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+            </nav>
+        </header>
+
+        <div class="strumming-page">
+
+        <div class="filters-section">
+            <h2>🔍 Find Your Perfect Pattern</h2>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="category-filter">Category</label>
+                    <select id="category-filter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Folk/Pop">Folk/Pop</option>
+                        <option value="Rock">Rock</option>
+                        <option value="Country">Country</option>
+                        <option value="Reggae/Ska">Reggae/Ska</option>
+                        <option value="Funk/R&B">Funk/R&B</option>
+                        <option value="Latin">Latin</option>
+                        <option value="Jazz">Jazz</option>
+                        <option value="World">World</option>
+                        <option value="Specialty">Specialty</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="difficulty-filter">Difficulty</label>
+                    <select id="difficulty-filter" class="filter-select">
+                        <option value="all">All Levels</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="time-sig-filter">Time Signature</label>
+                    <select id="time-sig-filter" class="filter-select">
+                        <option value="all">All Time Signatures</option>
+                        <option value="4/4">4/4</option>
+                        <option value="3/4">3/4</option>
+                        <option value="6/8">6/8</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-pattern-section">
+            <h2>🎯 Create Your Own Pattern</h2>
+            <div class="pattern-creator">
+                <div class="creator-controls">
+                    <div class="creator-settings">
+                        <div class="setting-group">
+                            <label for="custom-name">Pattern Name:</label>
+                            <input type="text" id="custom-name" placeholder="My Custom Pattern" class="custom-input">
+                        </div>
+                        <div class="setting-group">
+                            <label for="custom-time-sig">Time Signature:</label>
+                            <select id="custom-time-sig" class="custom-select">
+                                <option value="4/4">4/4</option>
+                                <option value="3/4">3/4</option>
+                                <option value="6/8">6/8</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="custom-category">Category:</label>
+                            <select id="custom-category" class="custom-select">
+                                <option value="Basic">Basic</option>
+                                <option value="Folk/Pop">Folk/Pop</option>
+                                <option value="Rock">Rock</option>
+                                <option value="Country">Country</option>
+                                <option value="Reggae/Ska">Reggae/Ska</option>
+                                <option value="Funk/R&B">Funk/R&B</option>
+                                <option value="Latin">Latin</option>
+                                <option value="Jazz">Jazz</option>
+                                <option value="World">World</option>
+                                <option value="Specialty">Specialty</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pattern-editor">
+                        <h3>Beat Editor</h3>
+                        <div class="editor-legend">
+                            <span class="legend-item">
+                                <span class="legend-btn d">D</span> Down strum
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-btn u">U</span> Up strum
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-btn x">X</span> Muted strum
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-btn rest">-</span> Rest/silence
+                            </span>
+                        </div>
+
+                        <div class="beat-editor" id="beat-editor">
+                            <!-- Beat slots will be generated here -->
+                        </div>
+
+                        <div class="creator-actions">
+                            <button class="creator-btn preview" id="preview-pattern">🔍 Preview Pattern</button>
+                            <button class="creator-btn save" id="save-pattern">💾 Save Pattern</button>
+                            <button class="creator-btn clear" id="clear-pattern">🗑️ Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pattern-display">
+            <h2>📋 Pattern Details</h2>
+            <div class="practice-metronome">
+                <div class="metronome-controls">
+                    <button class="metronome-btn" id="metronome-toggle">🥁 Start Metronome</button>
+                    <div class="tempo-controls">
+                        <button id="tempo-minus-10">-10</button>
+                        <button id="tempo-minus-5">-5</button>
+                        <span class="tempo-display" id="tempo-display">120 BPM</span>
+                        <button id="tempo-plus-5">+5</button>
+                        <button id="tempo-plus-10">+10</button>
+                    </div>
+                </div>
+                <div class="metronome-visual">
+                    <div class="metronome-flash" id="metronome-flash"></div>
+                    <div class="beat-counter" id="beat-counter">♪</div>
+                </div>
+            </div>
+            <div id="pattern-viewer" class="pattern-viewer">
+                <p>🎸 Select a strumming pattern below to see details and practice with the metronome</p>
+            </div>
+        </div>
+
+        <div id="patterns-container">
+            <!-- Patterns will be generated here -->
+        </div>
+    </div>
+
+    <script type="module">
+        // Import patterns from the original strumming patterns JavaScript
+        const patterns = {
+            // Basic Patterns
+            'down-strums': {
+                name: 'Down Strums',
+                category: 'Basic',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', '-', '-', '-', 'D', '-', '-', '-', 'D', '-', '-', '-', 'D', '-', '-', '-'],
+                timing: [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 4.25, 4.5, 4.75],
+                description: 'Four quarter note down strums per measure with rests between. Great for building basic timing.',
+                bpm: [80, 120]
+            },
+            'down-up': {
+                name: 'Down-Up Basic',
+                category: 'Basic',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Alternating down and up strums. Foundation of most strumming.',
+                bpm: [60, 100]
+            },
+            'eighth-notes': {
+                name: 'Eighth Note Strums',
+                category: 'Basic',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Eighth note alternating down-up strums. Foundation for steady rhythm.',
+                bpm: [60, 90]
+            },
+            'quarter-rest': {
+                name: 'Quarter Rest Pattern',
+                category: 'Basic',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', '-', '-', 'D', 'U', '-', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Down-up followed by quarter rest. Good for sparse arrangements.',
+                bpm: [80, 120]
+            },
+
+            // Folk/Pop Patterns
+            'folk-basic': {
+                name: 'Folk Strum',
+                category: 'Folk/Pop',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', '-', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Classic folk pattern: D-D-U-U-D-U. Very popular in acoustic music.',
+                bpm: [80, 140]
+            },
+            'pop-ballad': {
+                name: 'Pop Ballad',
+                category: 'Folk/Pop',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', '-', 'U', '-', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Gentle ballad pattern with emphasis on beat 1. Good for slow songs.',
+                bpm: [60, 100]
+            },
+            'country-pop': {
+                name: 'Country Pop',
+                category: 'Folk/Pop',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Driving country pattern with extra down strum on beat 3.',
+                bpm: [120, 160]
+            },
+            'campfire': {
+                name: 'Campfire',
+                category: 'Folk/Pop',
+                difficulty: 'Beginner',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', '-', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Classic campfire strum: D - D U - U D U. Perfect for folk songs.',
+                bpm: [70, 110]
+            },
+            'island-strum': {
+                name: 'Island Strum',
+                category: 'Folk/Pop',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', 'D', '-', 'U', 'D'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Relaxed tropical feel with syncopated rhythm.',
+                bpm: [90, 130]
+            },
+
+            // Rock Patterns
+            'rock-basic': {
+                name: 'Basic Rock',
+                category: 'Rock',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', '-', '-', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Classic rock pattern with strong downbeats and syncopated upstrokes.',
+                bpm: [100, 140]
+            },
+            'punk-rock': {
+                name: 'Punk Rock',
+                category: 'Rock',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', 'D', 'D', 'D', 'D', 'D', 'D', 'D'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'All down strums at eighth note speed. High energy and aggressive.',
+                bpm: [140, 180]
+            },
+            'alt-rock': {
+                name: 'Alternative Rock',
+                category: 'Rock',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', '-', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Syncopated rock pattern with emphasis on offbeats.',
+                bpm: [110, 150]
+            },
+
+            // Country Patterns
+            'country-basic': {
+                name: 'Country Basic',
+                category: 'Country',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', 'U', 'D', '-', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Classic country strum with strong downbeats.',
+                bpm: [120, 160]
+            },
+            'bluegrass': {
+                name: 'Bluegrass',
+                category: 'Country',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75],
+                description: 'Fast bluegrass picking pattern with even strokes.',
+                bpm: [140, 200]
+            },
+
+            // Reggae/Ska Patterns
+            'reggae': {
+                name: 'Reggae Skank',
+                category: 'Reggae/Ska',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['-', 'U', '-', 'U', '-', 'U', '-', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Classic reggae upstroke pattern on the offbeats.',
+                bpm: [70, 110]
+            },
+            'ska-upstroke': {
+                name: 'Ska Upstroke',
+                category: 'Reggae/Ska',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['U', 'U', 'U', 'U', 'U', 'U', 'U', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Fast ska upstrokes on every beat and off-beat.',
+                bpm: [140, 180]
+            },
+
+            // Specialty Patterns
+            'folk-waltz': {
+                name: 'Folk Waltz',
+                category: 'Folk/Pop',
+                difficulty: 'Intermediate',
+                timeSignature: '3/4',
+                pattern: ['D', '-', 'U', 'D', 'U', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5],
+                description: 'Folk style waltz with gentle up-strums.',
+                bpm: [80, 120]
+            },
+
+            // Additional Rock Patterns
+            'power-chord': {
+                name: 'Power Chord',
+                category: 'Rock',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', '-', '-', 'D', '-', '-', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Heavy emphasis on beats 1 and 3. Perfect for power chords.',
+                bpm: [80, 140]
+            },
+            'metal-palm': {
+                name: 'Metal Palm Mute',
+                category: 'Rock',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['X', 'X', 'D', 'X', 'X', 'X', 'D', 'X'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Palm muted pattern with accented down strums.',
+                bpm: [120, 180]
+            },
+            'grunge': {
+                name: 'Grunge',
+                category: 'Rock',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'X', 'U', 'D', 'X', 'U', 'D'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Raw grunge pattern with mixed dynamics and mutes.',
+                bpm: [100, 140]
+            },
+
+            // Additional Country Patterns
+            'country-shuffle': {
+                name: 'Country Shuffle',
+                category: 'Country',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', '-', 'D', 'U', 'D', '-'],
+                timing: [1, 1.33, 1.67, 2, 2.5, 2.83, 3.17, 3.5],
+                description: 'Shuffle rhythm common in country and blues.',
+                bpm: [100, 140]
+            },
+            'country-waltz': {
+                name: 'Country Waltz',
+                category: 'Country',
+                difficulty: 'Intermediate',
+                timeSignature: '3/4',
+                pattern: ['D', '-', '-', 'D', 'U', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5],
+                description: 'Traditional country waltz with bass-chord pattern.',
+                bpm: [90, 130]
+            },
+
+            // Additional Reggae/Ska Patterns
+            'dub-strum': {
+                name: 'Dub Strum',
+                category: 'Reggae/Ska',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['-', 'U', 'D', 'U', '-', 'U', 'D', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Dub-influenced pattern with syncopated accents.',
+                bpm: [80, 120]
+            },
+
+            // Funk/R&B Patterns
+            'funk-strum': {
+                name: 'Funk Strum',
+                category: 'Funk/R&B',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'X', 'U', 'D', 'U', 'X', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Funk pattern with muted strums (X) for percussive effect.',
+                bpm: [90, 130]
+            },
+            'r-and-b': {
+                name: 'R&B Groove',
+                category: 'Funk/R&B',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'X', 'U', 'X', 'D', 'X', 'U', 'D'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Smooth R&B groove with ghost notes.',
+                bpm: [80, 120]
+            },
+            'neo-soul': {
+                name: 'Neo-Soul',
+                category: 'Funk/R&B',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'X', '-', 'D', 'U', 'X', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Modern neo-soul pattern with syncopation.',
+                bpm: [70, 110]
+            },
+
+            // Latin Patterns
+            'bossa-nova': {
+                name: 'Bossa Nova',
+                category: 'Latin',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', '-', 'D', 'U', 'D', '-'],
+                timing: [1, 1.25, 1.75, 2, 2.5, 2.75, 3.25, 4],
+                description: 'Smooth Brazilian pattern with syncopated timing.',
+                bpm: [120, 140]
+            },
+            'samba': {
+                name: 'Samba',
+                category: 'Latin',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', '-', 'U', 'D'],
+                timing: [1, 1.5, 2, 2.25, 2.5, 3, 3.5, 4],
+                description: 'Energetic samba rhythm with Brazilian feel.',
+                bpm: [100, 140]
+            },
+            'rumba': {
+                name: 'Rumba',
+                category: 'Latin',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'D', '-', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Traditional rumba pattern with Latin rhythm.',
+                bpm: [80, 120]
+            },
+            'spanish-strum': {
+                name: 'Spanish Strum',
+                category: 'Latin',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'D'],
+                timing: [1, 1.33, 1.67, 2, 2.33, 2.67, 3, 3.5],
+                description: 'Flamenco-inspired pattern with triplet feel and strong ending.',
+                bpm: [100, 140]
+            },
+
+            // Jazz Patterns
+            'jazz-comping': {
+                name: 'Jazz Comping',
+                category: 'Jazz',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['-', 'U', '-', 'U', 'D', '-', 'U', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Jazz comping pattern with syncopated accents.',
+                bpm: [100, 160]
+            },
+            'swing-strum': {
+                name: 'Swing Strum',
+                category: 'Jazz',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'U', 'D', '-', 'U', 'D', '-'],
+                timing: [1, 1.33, 1.67, 2.33, 2.67, 3, 3.67, 4],
+                description: 'Swing rhythm with characteristic triplet feel.',
+                bpm: [120, 180]
+            },
+            'gypsy-jazz': {
+                name: 'Gypsy Jazz',
+                category: 'Jazz',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75],
+                description: 'Fast gypsy jazz style with even eighth notes.',
+                bpm: [150, 220]
+            },
+
+            // World Music Patterns
+            'irish-folk': {
+                name: 'Irish Folk',
+                category: 'World',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Traditional Irish folk pattern with even strumming.',
+                bpm: [110, 150]
+            },
+            'calypso': {
+                name: 'Calypso',
+                category: 'World',
+                difficulty: 'Intermediate',
+                timeSignature: '4/4',
+                pattern: ['D', '-', 'U', 'D', 'U', 'D', '-', 'U'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'Caribbean calypso rhythm with tropical feel.',
+                bpm: [120, 160]
+            },
+            'african-strum': {
+                name: 'African Strum',
+                category: 'World',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', 'U', 'D', '-', 'U', 'D', 'U', 'D'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+                description: 'African-inspired polyrhythmic pattern.',
+                bpm: [90, 130]
+            },
+
+            // Additional Specialty Patterns
+            'waltz': {
+                name: 'Waltz',
+                category: 'Specialty',
+                difficulty: 'Intermediate',
+                timeSignature: '3/4',
+                pattern: ['D', 'U', 'U', 'D', 'U', 'U'],
+                timing: [1, 2, 3, 1, 2, 3],
+                description: '3/4 time pattern for waltzes and country ballads.',
+                bpm: [80, 120]
+            },
+            'fast-waltz': {
+                name: 'Fast Waltz',
+                category: 'Specialty',
+                difficulty: 'Advanced',
+                timeSignature: '3/4',
+                pattern: ['D', '-', '-', 'D', '-', '-'],
+                timing: [1, 1.5, 2, 2.5, 3, 3.5],
+                description: 'Quick waltz with emphasis on beat 1.',
+                bpm: [150, 200]
+            },
+            'compound-time': {
+                name: 'Compound Time',
+                category: 'Specialty',
+                difficulty: 'Advanced',
+                timeSignature: '6/8',
+                pattern: ['D', '-', 'U', 'D', '-', 'U'],
+                timing: [1, 2, 3, 4, 5, 6],
+                description: '6/8 compound time: strong beats on 1 and 4, with triplet feel.',
+                bpm: [80, 140]
+            },
+            'six-eight-ballad': {
+                name: '6/8 Ballad',
+                category: 'Specialty',
+                difficulty: 'Intermediate',
+                timeSignature: '6/8',
+                pattern: ['D', 'U', 'U', 'D', 'U', 'U'],
+                timing: [1, 2, 3, 4, 5, 6],
+                description: '6/8 ballad pattern with gentle up-strums creating flowing feel.',
+                bpm: [60, 100]
+            },
+            'arpeggiated': {
+                name: 'Arpeggiated',
+                category: 'Specialty',
+                difficulty: 'Advanced',
+                timeSignature: '4/4',
+                pattern: ['D', '-', '-', '-', 'D', '-', '-', '-'],
+                timing: [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75],
+                description: 'Gentle arpeggiated pattern for ballads.',
+                bpm: [60, 100]
+            }
+        };
+
+        const chordSuggestions = {
+            'Basic': ['C', 'G', 'Am', 'F', 'D', 'Em'],
+            'Folk/Pop': ['G', 'C', 'D', 'Em', 'Am', 'F'],
+            'Rock': ['E', 'A', 'B', 'C#m', 'F#m', 'G#m'],
+            'Country': ['G', 'C', 'D', 'Em', 'Am', 'A'],
+            'Reggae/Ska': ['Am', 'F', 'C', 'G', 'Dm', 'Em'],
+            'Funk/R&B': ['Am7', 'Dm7', 'G7', 'Cmaj7', 'Fmaj7', 'Em7'],
+            'Latin': ['Am', 'Dm', 'G', 'C', 'F', 'E7'],
+            'Jazz': ['Cmaj7', 'Am7', 'Dm7', 'G7', 'Fmaj7', 'Em7b5'],
+            'World': ['Am', 'C', 'G', 'F', 'Dm', 'Em'],
+            'Specialty': ['Am', 'Dm', 'E7', 'C', 'F', 'G7']
+        };
+
+        let currentPattern = null;
+        let selectedCard = null;
+        let customPatterns = {}; // Store user-created patterns
+        let customPatternId = 0; // Counter for unique IDs
+
+        // Custom pattern creator state
+        let currentCustomPattern = {
+            pattern: [],
+            timing: [],
+            timeSignature: '4/4'
+        };
+
+        // Metronome functionality
+        let metronomeInterval = null;
+        let currentTempo = 120;
+        let audioContext = null;
+        let currentBeat = 0;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playClick() {
+            if (!audioContext) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Use different frequency for downbeat (beat 1)
+            oscillator.frequency.value = currentBeat === 0 ? 1000 : 800;
+            oscillator.type = 'square';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+
+            // Update visual indicator
+            flashMetronome();
+            updateBeatCounter();
+        }
+
+        function flashMetronome() {
+            const flashElement = document.getElementById('metronome-flash');
+            const beatCounter = document.getElementById('beat-counter');
+
+            if (flashElement) {
+                // Remove existing classes
+                flashElement.classList.remove('flash', 'downbeat');
+
+                // Force reflow
+                flashElement.offsetHeight;
+
+                // Add flash class
+                flashElement.classList.add('flash');
+
+                // Add downbeat class for beat 1
+                if (currentBeat === 0) {
+                    flashElement.classList.add('downbeat');
+                }
+
+                // Remove flash after animation
+                setTimeout(() => {
+                    flashElement.classList.remove('flash', 'downbeat');
+                }, 150);
+            }
+        }
+
+        function updateBeatCounter() {
+            const beatCounter = document.getElementById('beat-counter');
+
+            if (beatCounter) {
+                // Update beat number display (1-based for user display)
+                beatCounter.textContent = (currentBeat + 1).toString();
+
+                // Add active class
+                beatCounter.classList.add('active');
+
+                // Remove active class after animation
+                setTimeout(() => {
+                    beatCounter.classList.remove('active');
+                }, 150);
+            }
+
+            // Advance beat counter (assuming 4/4 time)
+            currentBeat = (currentBeat + 1) % 4;
+        }
+
+        function toggleMetronome() {
+            const toggleBtn = document.getElementById('metronome-toggle');
+
+            if (metronomeInterval) {
+                // Stop metronome
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+                toggleBtn.textContent = '🥁 Start Metronome';
+                toggleBtn.classList.remove('playing');
+
+                // Reset beat counter
+                currentBeat = 0;
+                const beatCounter = document.getElementById('beat-counter');
+                if (beatCounter) {
+                    beatCounter.textContent = '♪';
+                    beatCounter.classList.remove('active');
+                }
+            } else {
+                // Start metronome
+                initAudio();
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                // Reset beat counter
+                currentBeat = 0;
+
+                const interval = 60000 / currentTempo; // milliseconds per beat
+                metronomeInterval = setInterval(playClick, interval);
+                toggleBtn.textContent = '⏸️ Stop Metronome';
+                toggleBtn.classList.add('playing');
+            }
+        }
+
+        function adjustTempo(change) {
+            currentTempo = Math.max(40, Math.min(200, currentTempo + change));
+            document.getElementById('tempo-display').textContent = currentTempo + ' BPM';
+
+            // If metronome is running, restart with new tempo
+            if (metronomeInterval) {
+                toggleMetronome(); // Stop
+                toggleMetronome(); // Start with new tempo
+            }
+        }
+
+        function setTempoToPattern(useMax = false) {
+            if (!currentPattern) return;
+
+            const targetTempo = useMax ? currentPattern.bpm[1] : currentPattern.bpm[0];
+            currentTempo = targetTempo;
+            document.getElementById('tempo-display').textContent = currentTempo + ' BPM';
+
+            // If metronome is running, restart with new tempo
+            if (metronomeInterval) {
+                toggleMetronome(); // Stop
+                toggleMetronome(); // Start with new tempo
+            }
+        }
+
+        // Pattern display functions
+        function getStrokeSymbol(stroke) {
+            switch (stroke) {
+                case 'D': return '↓';
+                case 'U': return '↑';
+                case 'X': return '×';
+                case '-': return '•';
+                default: return stroke;
+            }
+        }
+
+        function convertTimingToCount(timing, timeSignature) {
+            if (timeSignature === '3/4') {
+                const countMap = {
+                    1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&'
+                };
+                return countMap[timing] || timing.toString();
+            } else if (timeSignature === '6/8') {
+                const countMap = {
+                    1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&',
+                    4: '4', 4.5: '&', 5: '5', 5.5: '&', 6: '6', 6.5: '&'
+                };
+                return countMap[timing] || timing.toString();
+            } else {
+                // Handle both regular eighth notes and triplets
+                const countMap = {
+                    // Regular eighth notes
+                    1: '1', 1.5: '&', 2: '2', 2.5: '&', 3: '3', 3.5: '&', 4: '4', 4.5: '&',
+                    // Triplet subdivisions
+                    1.25: '1e', 1.75: '1a', 2.25: '2e', 2.75: '2a',
+                    3.25: '3e', 3.75: '3a', 4.25: '4e', 4.75: '4a'
+                };
+                return countMap[timing] || timing.toString();
+            }
+        }
+
+        function getDifficultyColor(difficulty) {
+            switch (difficulty) {
+                case 'Beginner': return '#4ecdc4';
+                case 'Intermediate': return '#ffd93d';
+                case 'Advanced': return '#ff6b6b';
+                default: return '#666666';
+            }
+        }
+
+        function selectPattern(patternId) {
+            currentPattern = patterns[patternId];
+
+            // Update selected card visual
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            selectedCard = document.querySelector(`[data-pattern-id="${patternId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+
+            updatePatternDisplay();
+        }
+
+        function updatePatternDisplay() {
+            const viewer = document.getElementById('pattern-viewer');
+            if (!currentPattern) {
+                viewer.innerHTML = '<p>🎸 Select a strumming pattern below to see details and practice with the metronome</p>';
+                return;
+            }
+
+            const pattern = currentPattern;
+            const difficultyColor = getDifficultyColor(pattern.difficulty);
+
+            viewer.innerHTML = `
+                <div class="pattern-details">
+                    <div class="pattern-info">
+                        <div class="pattern-header">
+                            <h3>${pattern.name}</h3>
+                            <span class="pattern-difficulty" style="background-color: ${difficultyColor}; color: white;">
+                                ${pattern.difficulty}
+                            </span>
+                        </div>
+                        <div class="pattern-details-grid">
+                            <span class="pattern-category-tag">${pattern.category}</span>
+                            <span class="pattern-time-sig">${pattern.timeSignature}</span>
+                            <span class="pattern-bpm">Suggested BPM: ${pattern.bpm[0]}-${pattern.bpm[1]}</span>
+                        </div>
+                        <p class="pattern-description">${pattern.description}</p>
+                    </div>
+
+                    <div class="pattern-visualization">
+                        <div class="pattern-header-row">
+                            <span class="timing-label">Count:</span>
+                            <div class="pattern-beats">
+                                ${pattern.timing.map((beat, index) => `
+                                    <div class="beat-marker">${convertTimingToCount(beat, pattern.timeSignature)}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="pattern-strokes-row">
+                            <span class="strokes-label">Strum:</span>
+                            <div class="pattern-strokes">
+                                ${pattern.pattern.map((stroke, index) => `
+                                    <div class="stroke ${stroke === '-' ? 'rest' : stroke.toLowerCase()}">
+                                        ${getStrokeSymbol(stroke)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="pattern-legend">
+                        <div class="legend-item">
+                            <span class="legend-symbol d">↓</span>
+                            <span class="legend-text">Down strum</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-symbol u">↑</span>
+                            <span class="legend-text">Up strum</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-symbol x">×</span>
+                            <span class="legend-text">Muted strum</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-symbol rest">•</span>
+                            <span class="legend-text">Rest</span>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: var(--spacing-lg);">
+                        <button onclick="setTempoToPattern()" style="margin-right: var(--spacing-sm);" class="metronome-btn">
+                            Set Metronome to ${pattern.bpm[0]} BPM
+                        </button>
+                        <button onclick="setTempoToPattern(true)" class="metronome-btn">
+                            Set Metronome to ${pattern.bpm[1]} BPM
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPatternCard(patternId, pattern) {
+            return `
+                <div class="pattern-card" data-pattern-id="${patternId}" onclick="selectPattern('${patternId}')">
+                    <div class="card-header">
+                        <div class="pattern-name">${pattern.name}</div>
+                        <span class="difficulty ${pattern.difficulty.toLowerCase()}">${pattern.difficulty}</span>
+                    </div>
+                    <div class="pattern-preview">
+                        ${pattern.pattern.slice(0, 8).map(stroke => `
+                            <span class="preview-stroke ${stroke === '-' ? 'rest' : stroke.toLowerCase()}">${getStrokeSymbol(stroke)}</span>
+                        `).join('')}
+                    </div>
+                    <div class="pattern-meta">
+                        <span class="time-sig">${pattern.timeSignature}</span>
+                        <span class="bpm-range">${pattern.bpm[0]}-${pattern.bpm[1]} BPM</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPatternCategory(category, categoryPatterns) {
+            return `
+                <div class="pattern-category">
+                    <h3 class="category-title">${category}</h3>
+                    <div class="patterns-grid">
+                        ${Object.entries(categoryPatterns).map(([id, pattern]) =>
+                            renderPatternCard(id, pattern)
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterPatterns() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const difficultyFilter = document.getElementById('difficulty-filter').value;
+            const timeSigFilter = document.getElementById('time-sig-filter').value;
+
+            const filteredPatterns = {};
+
+            Object.entries(patterns).forEach(([id, pattern]) => {
+                let include = true;
+
+                if (categoryFilter !== 'all' && pattern.category !== categoryFilter) {
+                    include = false;
+                }
+                if (difficultyFilter !== 'all' && pattern.difficulty !== difficultyFilter) {
+                    include = false;
+                }
+                if (timeSigFilter !== 'all' && pattern.timeSignature !== timeSigFilter) {
+                    include = false;
+                }
+
+                if (include) {
+                    if (!filteredPatterns[pattern.category]) {
+                        filteredPatterns[pattern.category] = {};
+                    }
+                    filteredPatterns[pattern.category][id] = pattern;
+                }
+            });
+
+            return filteredPatterns;
+        }
+
+        function updateDisplay() {
+            const filteredPatterns = filterPatterns();
+            const container = document.getElementById('patterns-container');
+
+            const categories = ['Basic', 'Folk/Pop', 'Rock', 'Country', 'Reggae/Ska', 'Funk/R&B', 'Latin', 'Jazz', 'World', 'Specialty'];
+
+            container.innerHTML = categories.map(category => {
+                if (filteredPatterns[category] && Object.keys(filteredPatterns[category]).length > 0) {
+                    return renderPatternCategory(category, filteredPatterns[category]);
+                }
+                return '';
+            }).join('');
+        }
+
+        // Custom Pattern Creator Functions
+        function getTimingForTimeSignature(timeSignature) {
+            switch (timeSignature) {
+                case '4/4':
+                    return [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5];
+                case '3/4':
+                    return [1, 1.5, 2, 2.5, 3, 3.5];
+                case '6/8':
+                    return [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5];
+                default:
+                    return [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5];
+            }
+        }
+
+        function initBeatEditor(timeSignature = '4/4') {
+            const beatEditor = document.getElementById('beat-editor');
+            const timing = getTimingForTimeSignature(timeSignature);
+
+            currentCustomPattern.timing = timing;
+            currentCustomPattern.timeSignature = timeSignature;
+            currentCustomPattern.pattern = new Array(timing.length).fill('-');
+
+            beatEditor.innerHTML = `
+                <div class="beat-editor-header">
+                    <span class="beat-editor-label">Beats:</span>
+                </div>
+                <div class="beat-slots">
+                    ${timing.map((beat, index) => `
+                        <div class="beat-slot">
+                            <div class="beat-count">${convertTimingToCount(beat, timeSignature)}</div>
+                            <div class="stroke-selector">
+                                <button class="stroke-btn" data-beat="${index}" data-stroke="D">D</button>
+                                <button class="stroke-btn" data-beat="${index}" data-stroke="U">U</button>
+                                <button class="stroke-btn" data-beat="${index}" data-stroke="X">X</button>
+                                <button class="stroke-btn active rest" data-beat="${index}" data-stroke="-">-</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Add click handlers for stroke buttons
+            beatEditor.querySelectorAll('.stroke-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const beat = parseInt(e.target.dataset.beat);
+                    const stroke = e.target.dataset.stroke;
+
+                    // Remove active class from all buttons in this beat slot
+                    const beatSlot = e.target.closest('.beat-slot');
+                    beatSlot.querySelectorAll('.stroke-btn').forEach(b => {
+                        b.classList.remove('active', 'd', 'u', 'x', 'rest');
+                    });
+
+                    // Add active class and stroke type to clicked button
+                    e.target.classList.add('active');
+                    if (stroke === 'D') {
+                        e.target.classList.add('d');
+                    } else if (stroke === 'U') {
+                        e.target.classList.add('u');
+                    } else if (stroke === 'X') {
+                        e.target.classList.add('x');
+                    } else {
+                        e.target.classList.add('rest');
+                    }
+
+                    // Update pattern
+                    currentCustomPattern.pattern[beat] = stroke;
+                });
+            });
+        }
+
+        function previewCustomPattern() {
+            if (currentCustomPattern.pattern.every(stroke => stroke === '-')) {
+                alert('Please select at least one stroke before previewing.');
+                return;
+            }
+
+            const name = document.getElementById('custom-name').value || 'Custom Pattern';
+            const category = document.getElementById('custom-category').value;
+
+            const previewPattern = {
+                name: name,
+                category: category,
+                difficulty: 'Custom',
+                timeSignature: currentCustomPattern.timeSignature,
+                pattern: [...currentCustomPattern.pattern],
+                timing: [...currentCustomPattern.timing],
+                description: 'Custom pattern created by user.',
+                bpm: [80, 140]
+            };
+
+            // Temporarily set as current pattern for preview
+            const originalPattern = currentPattern;
+            currentPattern = previewPattern;
+            updatePatternDisplay();
+
+            // Restore original pattern after 3 seconds
+            setTimeout(() => {
+                currentPattern = originalPattern;
+                if (originalPattern) {
+                    updatePatternDisplay();
+                } else {
+                    document.getElementById('pattern-viewer').innerHTML = '<p>🎸 Select a strumming pattern below to see details and practice with the metronome</p>';
+                }
+            }, 3000);
+        }
+
+        function saveCustomPattern() {
+            if (currentCustomPattern.pattern.every(stroke => stroke === '-')) {
+                alert('Please select at least one stroke before saving.');
+                return;
+            }
+
+            const name = document.getElementById('custom-name').value.trim();
+            if (!name) {
+                alert('Please enter a pattern name before saving.');
+                return;
+            }
+
+            const category = document.getElementById('custom-category').value;
+            const patternId = `custom-${customPatternId++}`;
+
+            const newPattern = {
+                name: name,
+                category: category,
+                difficulty: 'Custom',
+                timeSignature: currentCustomPattern.timeSignature,
+                pattern: [...currentCustomPattern.pattern],
+                timing: [...currentCustomPattern.timing],
+                description: 'Custom pattern created by user.',
+                bpm: [80, 140]
+            };
+
+            // Add to patterns object
+            patterns[patternId] = newPattern;
+            customPatterns[patternId] = newPattern;
+
+            // Clear the creator
+            clearCustomPattern();
+
+            // Refresh display
+            updateDisplay();
+
+            alert(`Pattern "${name}" saved successfully!`);
+        }
+
+        function clearCustomPattern() {
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-category').value = 'Basic';
+            document.getElementById('custom-time-sig').value = '4/4';
+            initBeatEditor('4/4');
+        }
+
+        function onTimeSignatureChange() {
+            const timeSignature = document.getElementById('custom-time-sig').value;
+            initBeatEditor(timeSignature);
+        }
+
+        // Initialize page
+        function init() {
+            // Set up filter event listeners
+            document.getElementById('category-filter').addEventListener('change', updateDisplay);
+            document.getElementById('difficulty-filter').addEventListener('change', updateDisplay);
+            document.getElementById('time-sig-filter').addEventListener('change', updateDisplay);
+
+            // Set up metronome event listeners
+            document.getElementById('metronome-toggle').addEventListener('click', toggleMetronome);
+            document.getElementById('tempo-minus-10').addEventListener('click', () => adjustTempo(-10));
+            document.getElementById('tempo-minus-5').addEventListener('click', () => adjustTempo(-5));
+            document.getElementById('tempo-plus-5').addEventListener('click', () => adjustTempo(5));
+            document.getElementById('tempo-plus-10').addEventListener('click', () => adjustTempo(10));
+
+            // Set up custom pattern creator event listeners
+            document.getElementById('custom-time-sig').addEventListener('change', onTimeSignatureChange);
+            document.getElementById('preview-pattern').addEventListener('click', previewCustomPattern);
+            document.getElementById('save-pattern').addEventListener('click', saveCustomPattern);
+            document.getElementById('clear-pattern').addEventListener('click', clearCustomPattern);
+
+            // Initialize beat editor
+            initBeatEditor('4/4');
+
+            // Initial display
+            updateDisplay();
+        }
+
+        // Make functions globally available for inline onclick handlers
+        window.selectPattern = selectPattern;
+        window.setTempoToPattern = setTempoToPattern;
+
+        // Initialize when page loads
+        init();
+    </script>
+    </main>
+</body>
+</html>
