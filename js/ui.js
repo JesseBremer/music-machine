@@ -647,15 +647,23 @@ export function renderMelodyIdeas(melodyIdeas, container) {
             ${smartMelodyHTML}
             <div class="melody-builder-info">
                 <div class="melody-builder-description">
-                    <h4>🎼 Custom Melody Builder</h4>
-                    <p>Use the melody generator above to create unique melodies tailored to your song. Generate different styles and variations, then select the one that works best for your composition.</p>
-                    <div class="melody-tips">
-                        <h5>💡 Tips for Great Melodies:</h5>
+                    <h4>🎼 Primary Song Melody Builder</h4>
+                    <p>Create the <strong>main melody</strong> for your song. This will be your song's primary melodic theme used in exports, full arrangements, and song summaries.</p>
+                    <div class="melody-system-info">
+                        <h5>🎵 How the Melody System Works:</h5>
                         <ul>
-                            <li><strong>Start Simple:</strong> Try the "Smooth & Flowing" option first</li>
+                            <li><strong>Primary Melody:</strong> Created here - becomes your song's main melodic identity</li>
+                            <li><strong>Section Variations:</strong> Created later in songcraft - adapted to specific lyrics and sections</li>
+                            <li><strong>Promotion:</strong> Any section variation can be promoted to become the primary melody</li>
+                        </ul>
+                    </div>
+                    <div class="melody-tips">
+                        <h5>💡 Tips for Great Primary Melodies:</h5>
+                        <ul>
+                            <li><strong>Keep it Memorable:</strong> A strong primary melody should be catchy and easy to remember</li>
                             <li><strong>Match Your Genre:</strong> Use the advanced controls to select your song's genre</li>
-                            <li><strong>Add Lyrics:</strong> Enter lyrics to generate melody rhythms that match your words</li>
-                            <li><strong>Experiment:</strong> Generate multiple variations to find the perfect fit</li>
+                            <li><strong>Consider Vocals:</strong> Enter lyrics if you know them to create vocal-friendly rhythms</li>
+                            <li><strong>Think Versatile:</strong> This melody will work across different song sections</li>
                         </ul>
                     </div>
                 </div>
@@ -672,6 +680,10 @@ export function renderMelodyIdeas(melodyIdeas, container) {
     // Load melody theory explanation
     setTimeout(() => {
         renderMelodyTheoryTips(melodyIdeas, 'melody-theory');
+        // Update main melody display if there's a current primary melody
+        if (typeof updateMainMelodyDisplay === 'function') {
+            updateMainMelodyDisplay();
+        }
     }, 100);
 }
 

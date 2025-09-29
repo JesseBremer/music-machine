@@ -508,11 +508,17 @@ function displaySectionMelody(melodyResult, options, melodyDisplay, sectionId) {
                 <button class="play-section-melody-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
                     🎵 Play
                 </button>
+                <button class="use-as-main-melody-btn" onclick="promoteToMainMelody('${sectionId}', '${JSON.stringify(melodyResult).replace(/"/g, '&quot;')}', '${JSON.stringify(options).replace(/"/g, '&quot;')}')">
+                    ⭐ Use as Main Melody
+                </button>
                 <button class="regenerate-section-btn" onclick="generateSectionMelody('${sectionId}')">
                     🔄 New Variation
                 </button>
                 <button class="copy-section-melody-btn" onclick="copySectionMelody('${sectionId}')">
                     📋 Copy Notes
+                </button>
+                <button class="remove-section-melody-btn" onclick="removeSectionMelody('${sectionId}')">
+                    🗑️ Remove
                 </button>
             </div>
         </div>
@@ -580,6 +586,113 @@ window.copySectionMelody = function(sectionId) {
         console.error('Error copying section melody:', error);
     }
 };
+
+// Remove section melody
+window.removeSectionMelody = function(sectionId) {
+    try {
+        const sectionElement = document.getElementById(sectionId);
+        const melodyDisplay = sectionElement?.querySelector('.section-melody-display');
+
+        if (melodyDisplay) {
+            // Hide the melody display
+            melodyDisplay.style.display = 'none';
+            melodyDisplay.innerHTML = '';
+
+            // Show success message
+            UI.showMessage('Section melody removed', 'info');
+
+            console.log('Section melody removed from:', sectionId);
+        }
+    } catch (error) {
+        console.error('Error removing section melody:', error);
+    }
+};
+
+// Promote section melody to main melody
+window.promoteToMainMelody = function(sectionId, melodyResultStr, optionsStr) {
+    try {
+        // Fix HTML entity decoding
+        const decodedMelodyStr = melodyResultStr.replace(/&quot;/g, '"');
+        const decodedOptionsStr = optionsStr.replace(/&quot;/g, '"');
+        const melodyResult = JSON.parse(decodedMelodyStr);
+        const options = JSON.parse(decodedOptionsStr);
+
+        // Get section type for better naming
+        const sectionElement = document.getElementById(sectionId);
+        const sectionTypeElement = sectionElement?.querySelector('.section-header h4');
+        const sectionType = sectionTypeElement?.textContent?.split(' ')[0] || 'Section';
+
+        // Store as the main melody in app state
+        appState.songData.melodyIdea = {
+            name: `${sectionType} ${options.genre.charAt(0).toUpperCase() + options.genre.slice(1)} Melody`,
+            type: 'promoted-section',
+            originalSection: sectionId,
+            sectionType: sectionType,
+            genre: options.genre,
+            phraseStructure: options.phraseStructure,
+            lyrics: options.lyrics,
+            melody: melodyResult.melody,
+            phrases: melodyResult.phrases,
+            analysis: melodyResult.analysis,
+            features: melodyResult.features || {},
+            midiNotes: melodyResult.melody.map(n => n.midiNote),
+            noteNames: melodyResult.melody.map(n => `${n.note}${n.octave}`)
+        };
+
+        // Visual feedback for the button
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Now Main Melody!';
+        btn.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+        }, 3000);
+
+        // Show success message
+        UI.showMessage(`${sectionType} melody promoted to main song melody!`, 'success');
+
+        // Update the main melody step display if it exists
+        updateMainMelodyDisplay();
+
+        console.log('Section melody promoted to main melody:', appState.songData.melodyIdea);
+    } catch (error) {
+        console.error('Error promoting section melody:', error);
+        console.error('Melody result string:', melodyResultStr);
+        console.error('Options string:', optionsStr);
+        UI.showMessage('Error promoting melody. Please try again.', 'error');
+    }
+};
+
+// Update main melody display when a section melody is promoted
+window.updateMainMelodyDisplay = function() {
+    // Update the melody step if user goes back to it
+    if (document.getElementById('step-melody')?.style.display !== 'none') {
+        // Show a banner indicating the current main melody
+        const melodyContainer = document.getElementById('melody-suggestions');
+        if (melodyContainer) {
+            const existingBanner = melodyContainer.querySelector('.current-main-melody-banner');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+
+            if (appState.songData.melodyIdea) {
+                const banner = document.createElement('div');
+                banner.className = 'current-main-melody-banner';
+                banner.innerHTML = `
+                    <div class="main-melody-status">
+                        <h4>⭐ Current Primary Melody: ${appState.songData.melodyIdea.name}</h4>
+                        <p>This melody will be used in song exports and full arrangements.</p>
+                        ${appState.songData.melodyIdea.type === 'promoted-section' ?
+                          `<small>📍 Promoted from ${appState.songData.melodyIdea.sectionType} section</small>` :
+                          ''}
+                    </div>
+                `;
+                melodyContainer.insertBefore(banner, melodyContainer.firstChild);
+            }
+        }
+    }
+}
 
 // Initialize the application
 async function initializeApp() {
@@ -1539,10 +1652,72 @@ async function loadExportStep() {
         const chordInput = section.querySelector('.chord-progression-input');
         const lyricsInput = section.querySelector('.lyrics-input');
 
+        // Check if this section has a generated melody
+        const melodyDisplay = section.querySelector('.section-melody-display');
+        let sectionMelody = null;
+
+        if (melodyDisplay && melodyDisplay.style.display !== 'none') {
+            // Extract melody information from the display
+            const melodyHeader = melodyDisplay.querySelector('.melody-header h5');
+            const melodyNotes = Array.from(melodyDisplay.querySelectorAll('.melody-note')).map(note => {
+                // Get just the direct text content of the note span, excluding child elements
+                let noteText = '';
+                for (let child of note.childNodes) {
+                    if (child.nodeType === Node.TEXT_NODE) {
+                        noteText += child.textContent;
+                    }
+                }
+
+                // Clean the text
+                const cleanText = noteText.replace(/\s+/g, '').replace(/●/g, '').trim();
+
+                // Extract note name and octave using regex
+                const noteMatch = cleanText.match(/^([A-G][#b]?)(\d)/);
+                let noteName = 'C';
+                let octave = '5';
+
+                if (noteMatch) {
+                    noteName = noteMatch[1];
+                    octave = noteMatch[2];
+                } else {
+                    // Fallback: try to extract just the note
+                    const noteOnlyMatch = cleanText.match(/^([A-G][#b]?)/);
+                    if (noteOnlyMatch) {
+                        noteName = noteOnlyMatch[1];
+                        octave = '5'; // default octave
+                    }
+
+                    console.warn('Could not parse melody note:', cleanText, 'from element:', note.outerHTML);
+                }
+
+                return {
+                    note: noteName,
+                    octave: octave,
+                    chord: note.querySelector('small')?.textContent || '',
+                    isChordTone: note.classList.contains('chord-tone'),
+                    isStrongBeat: note.classList.contains('strong-beat'),
+                    isDownbeat: note.classList.contains('downbeat')
+                };
+            });
+
+            if (melodyNotes.length > 0) {
+                // Clean up the melody name - remove emoji and extra text
+                let melodyName = melodyHeader?.textContent || 'Section Melody';
+                melodyName = melodyName.replace(/^🎵\s*/, '').replace(/^Generated Melody - /, '').trim();
+
+                sectionMelody = {
+                    name: melodyName,
+                    notes: melodyNotes,
+                    noteNames: melodyNotes.map(n => `${n.note}${n.octave}`)
+                };
+            }
+        }
+
         return {
             type: sectionTypeSelect?.value || 'Verse',
             chords: chordInput?.value || '',
-            lyrics: lyricsInput?.value || ''
+            lyrics: lyricsInput?.value || '',
+            melody: sectionMelody
         };
     });
 

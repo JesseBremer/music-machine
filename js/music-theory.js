@@ -1877,6 +1877,10 @@ export function exportAsText(songData) {
             if (section.chords && section.chords.trim()) {
                 text += `   🎸 Chords: ${section.chords}\n`;
             }
+            if (section.melody) {
+                text += `   🎵 Section Melody: ${section.melody.name}\n`;
+                text += `      Notes: ${section.melody.noteNames.join(' → ')}\n`;
+            }
             if (section.lyrics && section.lyrics.trim()) {
                 text += `   🎤 Lyrics:\n`;
                 const lyricsLines = section.lyrics.split('\n');

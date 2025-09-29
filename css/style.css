@@ -3191,6 +3191,79 @@ body {
     font-weight: 600;
 }
 
+/* Melody System Info Styles */
+.melody-system-info {
+    background: rgba(78, 205, 196, 0.1);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+    margin: var(--spacing-md) 0;
+}
+
+.melody-system-info h5 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.melody-system-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.melody-system-info li {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xs);
+    padding-left: var(--spacing-md);
+    position: relative;
+}
+
+.melody-system-info li::before {
+    content: '🎵';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.melody-system-info strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Current Main Melody Banner */
+.current-main-melody-banner {
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(230, 126, 34, 0.15));
+    border: 1px solid rgba(243, 156, 18, 0.3);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.main-melody-status h4 {
+    color: #f39c12;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.main-melody-status p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.5;
+}
+
+.main-melody-status small {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
 /* Advanced Melody Generator Styles */
 .melody-section {
     margin-bottom: var(--spacing-lg);
@@ -3512,8 +3585,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
 }
+
 
 .melody-section-header h4 {
     color: var(--primary-color);
@@ -3633,7 +3707,9 @@ body {
 
 .play-section-melody-btn,
 .regenerate-section-btn,
-.copy-section-melody-btn {
+.copy-section-melody-btn,
+.use-as-main-melody-btn,
+.remove-section-melody-btn {
     background: rgba(78, 205, 196, 0.2);
     border: 1px solid rgba(78, 205, 196, 0.4);
     color: var(--text-primary);
@@ -3644,11 +3720,35 @@ body {
     transition: all 0.3s ease;
 }
 
+.use-as-main-melody-btn {
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.3), rgba(230, 126, 34, 0.3));
+    border: 1px solid rgba(243, 156, 18, 0.6);
+    font-weight: 600;
+}
+
+.remove-section-melody-btn {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    color: #e74c3c;
+}
+
 .play-section-melody-btn:hover,
 .regenerate-section-btn:hover,
 .copy-section-melody-btn:hover {
     background: rgba(78, 205, 196, 0.3);
     transform: translateY(-1px);
+}
+
+.use-as-main-melody-btn:hover {
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.5), rgba(230, 126, 34, 0.5));
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.remove-section-melody-btn:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.4), rgba(192, 57, 43, 0.4));
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 /* Responsive adjustments for section melody */
