@@ -1827,8 +1827,46 @@ export function exportAsText(songData) {
     if (data.melodyIdea) {
         text += `═══ MELODY ═══\n`;
         text += `♫ Melody Idea: ${data.melodyIdea.name}\n`;
-        text += `  └─ ${data.melodyIdea.description}\n`;
-        text += `♪ Notes: ${data.melodyIdea.pattern.join(' → ')}\n\n`;
+
+        // Handle different melody formats (old preset vs new generated)
+        if (data.melodyIdea.description) {
+            text += `  └─ ${data.melodyIdea.description}\n`;
+        }
+
+        // Handle different note formats
+        let melodyNotes = '';
+        if (data.melodyIdea.noteNames && Array.isArray(data.melodyIdea.noteNames)) {
+            melodyNotes = data.melodyIdea.noteNames.join(' → ');
+        } else if (data.melodyIdea.pattern && Array.isArray(data.melodyIdea.pattern)) {
+            melodyNotes = data.melodyIdea.pattern.join(' → ');
+        } else if (data.melodyIdea.melody && Array.isArray(data.melodyIdea.melody)) {
+            melodyNotes = data.melodyIdea.melody.map(n => `${n.note}${n.octave}`).join(' → ');
+        }
+
+        if (melodyNotes) {
+            text += `♪ Notes: ${melodyNotes}\n`;
+        }
+
+        // Add melody type and style info for generated melodies
+        if (data.melodyIdea.type) {
+            text += `♪ Type: ${data.melodyIdea.type}\n`;
+        }
+        if (data.melodyIdea.style) {
+            text += `♪ Style: ${data.melodyIdea.style}\n`;
+        }
+        if (data.melodyIdea.genre) {
+            text += `♪ Genre Style: ${data.melodyIdea.genre}\n`;
+        }
+
+        // Add analysis for generated melodies
+        if (data.melodyIdea.analysis && Array.isArray(data.melodyIdea.analysis)) {
+            text += `♪ Analysis:\n`;
+            data.melodyIdea.analysis.forEach(tip => {
+                text += `  • ${tip}\n`;
+            });
+        }
+
+        text += '\n';
     }
     
     // Detailed song sections (from songcraft)
@@ -2107,10 +2145,20 @@ function generateBassClipNotes(bassLine) {
 }
 
 function generateMelodyClipNotes(melodyIdea) {
-    if (!melodyIdea?.pattern) return [];
-    
-    return melodyIdea.pattern.map((note, index) => ({
-        pitch: Tonal.Midi.toMidi(note + '5'),
+    if (!melodyIdea) return [];
+
+    // Get melody notes from different formats
+    let melodyNotes = [];
+    if (melodyIdea.noteNames && Array.isArray(melodyIdea.noteNames)) {
+        melodyNotes = melodyIdea.noteNames;
+    } else if (melodyIdea.pattern && Array.isArray(melodyIdea.pattern)) {
+        melodyNotes = melodyIdea.pattern.map(note => note + '5');
+    } else if (melodyIdea.melody && Array.isArray(melodyIdea.melody)) {
+        melodyNotes = melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+    }
+
+    return melodyNotes.map((note, index) => ({
+        pitch: Tonal.Midi.toMidi(note),
         velocity: 75,
         start: index * 0.125,
         duration: 0.1
@@ -2261,8 +2309,18 @@ function createSimpleMelodyMIDI(songData) {
         const quarterNote = MIDIUtils.durationToTicks('quarter', songData.tempo || 120);
         let currentTime = 0;
 
-        songData.melodyIdea.pattern.forEach(note => {
-            const midiNote = Tonal.Midi.toMidi(note + '5') || 72; // fallback to high C
+        // Get melody notes from different formats
+        let melodyNotes = [];
+        if (songData.melodyIdea.noteNames && Array.isArray(songData.melodyIdea.noteNames)) {
+            melodyNotes = songData.melodyIdea.noteNames;
+        } else if (songData.melodyIdea.pattern && Array.isArray(songData.melodyIdea.pattern)) {
+            melodyNotes = songData.melodyIdea.pattern.map(note => note + '5');
+        } else if (songData.melodyIdea.melody && Array.isArray(songData.melodyIdea.melody)) {
+            melodyNotes = songData.melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+        }
+
+        melodyNotes.forEach(note => {
+            const midiNote = Tonal.Midi.toMidi(note) || 72; // fallback to high C
             track.addNote(0, midiNote, 75, currentTime, quarterNote);
             currentTime += quarterNote;
         });
@@ -2647,7 +2705,7 @@ function generateBassTrack(songData, arrangement, options) {
 }
 
 function generateMelodyTrack(songData, arrangement, options) {
-    if (!songData.melodyIdea || !songData.melodyIdea.pattern) return null;
+    if (!songData.melodyIdea) return null;
 
     const midi = new SimpleMIDI();
     const track = midi.addTrack('Melody');
@@ -2658,12 +2716,22 @@ function generateMelodyTrack(songData, arrangement, options) {
     let currentTime = 0;
     const eighthNote = MIDIUtils.durationToTicks('eighth', songData.tempo || 120);
 
+    // Get melody notes from different formats
+    let melodyNotes = [];
+    if (songData.melodyIdea.noteNames && Array.isArray(songData.melodyIdea.noteNames)) {
+        melodyNotes = songData.melodyIdea.noteNames;
+    } else if (songData.melodyIdea.pattern && Array.isArray(songData.melodyIdea.pattern)) {
+        melodyNotes = songData.melodyIdea.pattern.map(note => note + '5');
+    } else if (songData.melodyIdea.melody && Array.isArray(songData.melodyIdea.melody)) {
+        melodyNotes = songData.melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+    }
+
     arrangement.sections.forEach(section => {
         const sectionBars = section.bars;
 
         for (let bar = 0; bar < sectionBars; bar++) {
-            songData.melodyIdea.pattern.forEach((note, index) => {
-                const midiNote = Tonal.Midi.toMidi(note + '5');
+            melodyNotes.forEach((note, index) => {
+                const midiNote = Tonal.Midi.toMidi(note);
                 if (midiNote) {
                     track.addNote(0, midiNote, 75, currentTime, eighthNote);
                 }
@@ -2967,10 +3035,23 @@ function generateMelodyInfo(melodyIdea, midiInfo) {
 Key: ${midiInfo.key}
 Tempo: ${midiInfo.tempo} BPM
 Melody: ${melodyIdea.name}
-Pattern: ${melodyIdea.pattern.join(' - ')}
 
-MIDI Notes (High Octave):
-${melodyIdea.pattern.map((note, i) => `Beat ${i + 1}: ${note}5 (MIDI note ${Tonal.Midi.toMidi(note + '5') || 72})`).join('\n')}
+${(() => {
+    // Get melody notes from different formats
+    let melodyNotes = [];
+    if (melodyIdea.noteNames && Array.isArray(melodyIdea.noteNames)) {
+        melodyNotes = melodyIdea.noteNames;
+    } else if (melodyIdea.pattern && Array.isArray(melodyIdea.pattern)) {
+        melodyNotes = melodyIdea.pattern.map(note => note + '5');
+    } else if (melodyIdea.melody && Array.isArray(melodyIdea.melody)) {
+        melodyNotes = melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+    }
+
+    return `Pattern: ${melodyNotes.join(' - ')}
+
+MIDI Notes:
+${melodyNotes.map((note, i) => `Beat ${i + 1}: ${note} (MIDI note ${Tonal.Midi.toMidi(note) || 72})`).join('\n')}`;
+})()}
 
 Instructions for DAW import:
 1. Create a lead/melody track

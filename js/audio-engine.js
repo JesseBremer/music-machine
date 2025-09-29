@@ -575,16 +575,26 @@ class AudioEngine {
     }
 
     playMelodyIdea(melodyIdea, tempo = 120) {
-        if (!melodyIdea || !melodyIdea.pattern) return;
+        if (!melodyIdea) return;
 
         this.resumeAudioContext();
         this.tempo = tempo;
 
-        const noteDuration = this.getNoteDuration(melodyIdea.rhythm, tempo);
+        const noteDuration = this.getNoteDuration(melodyIdea.rhythm || 'quarter', tempo);
         let currentTime = this.audioContext.currentTime + 0.1;
 
+        // Get melody notes from different formats
+        let melodyNotes = [];
+        if (melodyIdea.noteNames && Array.isArray(melodyIdea.noteNames)) {
+            melodyNotes = melodyIdea.noteNames;
+        } else if (melodyIdea.pattern && Array.isArray(melodyIdea.pattern)) {
+            melodyNotes = melodyIdea.pattern;
+        } else if (melodyIdea.melody && Array.isArray(melodyIdea.melody)) {
+            melodyNotes = melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+        }
+
         // Filter out undefined notes and play the melody
-        melodyIdea.pattern.filter(note => note && typeof note === 'string').forEach(note => {
+        melodyNotes.filter(note => note && typeof note === 'string').forEach(note => {
             const frequency = this.noteToFrequency(note, 5); // Higher octave for melody
             this.playMelodyNote(frequency, noteDuration, currentTime);
             currentTime += noteDuration;
@@ -821,7 +831,7 @@ class AudioEngine {
     }
 
     playArrangementMelody(songData, startTime, tempo, bars) {
-        if (!songData.melodyIdea || !songData.melodyIdea.pattern) return;
+        if (!songData.melodyIdea) return;
 
         const beatDuration = 60 / tempo;
         const barDuration = beatDuration * 4;
@@ -832,9 +842,19 @@ class AudioEngine {
 
         const noteDuration = this.getNoteDuration(songData.melodyIdea.rhythm || 'eighth', tempo);
 
+        // Get melody notes from different formats
+        let melodyNotes = [];
+        if (songData.melodyIdea.noteNames && Array.isArray(songData.melodyIdea.noteNames)) {
+            melodyNotes = songData.melodyIdea.noteNames;
+        } else if (songData.melodyIdea.pattern && Array.isArray(songData.melodyIdea.pattern)) {
+            melodyNotes = songData.melodyIdea.pattern;
+        } else if (songData.melodyIdea.melody && Array.isArray(songData.melodyIdea.melody)) {
+            melodyNotes = songData.melodyIdea.melody.map(n => `${n.note}${n.octave}`);
+        }
+
         // Play melody for remaining bars
         for (let bar = 1; bar < bars; bar++) {
-            songData.melodyIdea.pattern.forEach(note => {
+            melodyNotes.forEach(note => {
                 if (currentTime >= startTime + bars * barDuration) return;
 
                 const frequency = this.noteToFrequency(note, 5); // Higher octave for melody

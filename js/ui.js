@@ -645,7 +645,21 @@ export function renderMelodyIdeas(melodyIdeas, container) {
     melodyContainer.innerHTML = `
         <div class="melody-ideas-wrapper">
             ${smartMelodyHTML}
-            <div class="melody-options" id="melody-options"></div>
+            <div class="melody-builder-info">
+                <div class="melody-builder-description">
+                    <h4>🎼 Custom Melody Builder</h4>
+                    <p>Use the melody generator above to create unique melodies tailored to your song. Generate different styles and variations, then select the one that works best for your composition.</p>
+                    <div class="melody-tips">
+                        <h5>💡 Tips for Great Melodies:</h5>
+                        <ul>
+                            <li><strong>Start Simple:</strong> Try the "Smooth & Flowing" option first</li>
+                            <li><strong>Match Your Genre:</strong> Use the advanced controls to select your song's genre</li>
+                            <li><strong>Add Lyrics:</strong> Enter lyrics to generate melody rhythms that match your words</li>
+                            <li><strong>Experiment:</strong> Generate multiple variations to find the perfect fit</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <button class="theory-toggle" onclick="toggleTheoryExplanation('melody-theory')">
                 🎓 Learn Melody Theory
             </button>
@@ -654,36 +668,6 @@ export function renderMelodyIdeas(melodyIdeas, container) {
             </div>
         </div>
     `;
-
-    const melodyOptionsContainer = document.getElementById('melody-options');
-
-    melodyIdeas.forEach((idea, index) => {
-        const melodyCard = document.createElement('div');
-        melodyCard.className = 'melody-card';
-        melodyCard.dataset.melodyIndex = index;
-
-        // Add genre and difficulty classes for styling
-        if (idea.genre) melodyCard.classList.add(`genre-${idea.genre}`);
-        if (idea.difficulty) melodyCard.classList.add(`difficulty-${idea.difficulty}`);
-
-        melodyCard.innerHTML = `
-            <h4>${idea.name}</h4>
-            <p>${idea.description}</p>
-            <div class="melody-preview">${idea.pattern.join(' - ')}</div>
-            <div class="melody-tags">
-                ${idea.genre ? `<span class="genre-badge genre-${idea.genre}">${idea.genre}</span>` : ''}
-                ${idea.difficulty ? `<span class="difficulty-badge difficulty-${idea.difficulty}">${idea.difficulty}</span>` : ''}
-                ${idea.rhythm ? `<span class="rhythm-badge">${idea.rhythm}</span>` : ''}
-            </div>
-        `;
-
-        melodyCard.addEventListener('click', () => {
-            selectOption(melodyCard, 'melody-idea');
-            displayMelody(idea);
-        });
-
-        melodyOptionsContainer.appendChild(melodyCard);
-    });
 
     // Load melody theory explanation
     setTimeout(() => {
@@ -695,11 +679,21 @@ export function displayMelody(melodyIdea) {
     const melodyDisplay = document.getElementById('melody-display');
     if (!melodyDisplay || !melodyIdea) return;
 
+    // Get melody notes from different formats
+    let melodyNotes = '';
+    if (melodyIdea.noteNames && Array.isArray(melodyIdea.noteNames)) {
+        melodyNotes = melodyIdea.noteNames.join(' - ');
+    } else if (melodyIdea.pattern && Array.isArray(melodyIdea.pattern)) {
+        melodyNotes = melodyIdea.pattern.join(' - ');
+    } else if (melodyIdea.melody && Array.isArray(melodyIdea.melody)) {
+        melodyNotes = melodyIdea.melody.map(n => `${n.note}${n.octave}`).join(' - ');
+    }
+
     melodyDisplay.innerHTML = `
         <div class="melody-display">
             <h5>${melodyIdea.name}</h5>
-            <div class="melody-notes">${melodyIdea.pattern.join(' - ')}</div>
-            <div class="rhythm-info">Rhythm: ${melodyIdea.rhythm} notes</div>
+            <div class="melody-notes">${melodyNotes}</div>
+            <div class="rhythm-info">Rhythm: ${melodyIdea.rhythm || 'quarter'} notes</div>
             <div class="audio-controls">
                 <button class="play-btn" onclick="playMelodyIdea()">
                     🎵 Play Melody

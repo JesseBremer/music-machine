@@ -109,6 +109,9 @@ function displayGeneratedMelody(melodyResult, style) {
                 <button class="play-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
                     🎵 Play Generated Melody
                 </button>
+                <button class="use-melody-btn" onclick="useGeneratedMelody('${style}', '${JSON.stringify(melodyResult).replace(/"/g, '&quot;')}')">
+                    ✅ Use This Melody
+                </button>
                 <button class="regenerate-btn" onclick="generateSmartMelody('${style}')">
                     🔄 Generate New Variation
                 </button>
@@ -237,6 +240,9 @@ function displayAdvancedMelody(melodyResult, options) {
                 <button class="play-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
                     🎵 Play Advanced Melody
                 </button>
+                <button class="use-melody-btn" onclick="useAdvancedMelody('${JSON.stringify(melodyResult).replace(/"/g, '&quot;')}', '${JSON.stringify(options).replace(/"/g, '&quot;')}')">
+                    ✅ Use This Melody
+                </button>
                 <button class="regenerate-btn" onclick="generateAdvancedMelody()">
                     🔄 Generate New Variation
                 </button>
@@ -284,6 +290,94 @@ window.exportMelodyToClipboard = function(melodyNotesStr) {
         }
     } catch (error) {
         console.error('Error copying melody to clipboard:', error);
+    }
+};
+
+// Use generated smart melody as the song's melody
+window.useGeneratedMelody = function(style, melodyResultStr) {
+    try {
+        // Fix HTML entity decoding
+        const decodedStr = melodyResultStr.replace(/&quot;/g, '"');
+        const melodyResult = JSON.parse(decodedStr);
+
+        // Store the generated melody as the selected melody in app state
+        appState.songData.melodyIdea = {
+            name: `Generated ${style.charAt(0).toUpperCase() + style.slice(1)} Melody`,
+            type: 'generated',
+            style: style,
+            melody: melodyResult.melody,
+            analysis: melodyResult.analysis,
+            features: melodyResult.features || {},
+            midiNotes: melodyResult.melody.map(n => n.midiNote),
+            noteNames: melodyResult.melody.map(n => `${n.note}${n.octave}`)
+        };
+
+        // Enable the next step button
+        UI.enableButton('melody-next-top');
+
+        // Visual feedback
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Selected!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 3000);
+
+        // Show success message
+        UI.showMessage(`${style.charAt(0).toUpperCase() + style.slice(1)} melody selected for your song!`, 'success');
+
+        console.log('Generated melody selected:', appState.songData.melodyIdea);
+    } catch (error) {
+        console.error('Error using generated melody:', error);
+        console.error('Melody result string:', melodyResultStr);
+        UI.showMessage('Error selecting melody. Please try again.', 'error');
+    }
+};
+
+// Use advanced generated melody as the song's melody
+window.useAdvancedMelody = function(melodyResultStr, optionsStr) {
+    try {
+        // Fix HTML entity decoding
+        const decodedMelodyStr = melodyResultStr.replace(/&quot;/g, '"');
+        const decodedOptionsStr = optionsStr.replace(/&quot;/g, '"');
+        const melodyResult = JSON.parse(decodedMelodyStr);
+        const options = JSON.parse(decodedOptionsStr);
+
+        // Store the advanced melody as the selected melody in app state
+        appState.songData.melodyIdea = {
+            name: `Advanced ${options.genre.charAt(0).toUpperCase() + options.genre.slice(1)} Melody`,
+            type: 'advanced',
+            genre: options.genre,
+            phraseStructure: options.phraseStructure,
+            lyrics: options.lyrics,
+            melody: melodyResult.melody,
+            phrases: melodyResult.phrases,
+            analysis: melodyResult.analysis,
+            features: melodyResult.features || {},
+            midiNotes: melodyResult.melody.map(n => n.midiNote),
+            noteNames: melodyResult.melody.map(n => `${n.note}${n.octave}`)
+        };
+
+        // Enable the next step button
+        UI.enableButton('melody-next-top');
+
+        // Visual feedback
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Selected!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 3000);
+
+        // Show success message
+        UI.showMessage(`Advanced ${options.genre} melody selected for your song!`, 'success');
+
+        console.log('Advanced melody selected:', appState.songData.melodyIdea);
+    } catch (error) {
+        console.error('Error using advanced melody:', error);
+        console.error('Melody result string:', melodyResultStr);
+        console.error('Options string:', optionsStr);
+        UI.showMessage('Error selecting melody. Please try again.', 'error');
     }
 };
 
