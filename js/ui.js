@@ -510,19 +510,67 @@ export function displayBassLine(bassLine) {
     const bassDisplay = document.getElementById('bass-display');
     if (!bassDisplay || !bassLine) return;
 
-    const bassNotes = bassLine.map(note => note.note).join(' - ');
+    const noteEntries = Array.isArray(bassLine)
+        ? bassLine
+        : (Array.isArray(bassLine.notes) ? bassLine.notes : []);
+
+    const patternId = window.appState?.songData?.bassPattern;
+    const availablePatterns = window.MusicTheory?.getAvailableBassPatterns?.() || [];
+    const patternInfo = availablePatterns.find(pattern => pattern.id === patternId);
+
+    if (!noteEntries.length) {
+        const emptyMessage = patternInfo?.description
+            ? `Select a bass style to hear it in action. ${patternInfo.description}`
+            : 'Select a bass style to generate a groove preview.';
+        bassDisplay.innerHTML = `
+            <div class="bass-line-display">
+                <div class="bass-line-empty">${emptyMessage}</div>
+                <div class="audio-controls">
+                    <button class="play-btn" onclick="playBassLine()">🎸 Play Bass</button>
+                    <button class="stop-btn" onclick="stopAudio()">⏹️ Stop</button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const formatBeat = (beat) => {
+        if (typeof beat !== 'number') return '—';
+        return Number.isInteger(beat) ? beat : beat.toFixed(2).replace(/\.00$/, '');
+    };
+
+    const noteGrid = noteEntries.map(note => {
+        const noteName = `${note.note || '—'}${note.octave === 'high' ? '↑' : note.octave === 'low' ? '↓' : ''}`;
+        const infoParts = [];
+        if (note.measure) infoParts.push(`Measure ${note.measure}`);
+        if (note.beat) infoParts.push(`Beat ${formatBeat(note.beat)}`);
+        if (note.rhythm) infoParts.push(note.rhythm.charAt(0).toUpperCase() + note.rhythm.slice(1));
+
+        return `
+            <div class="bass-note">
+                <div class="bass-note-name">${noteName}</div>
+                <div class="bass-note-info">${infoParts.join(' • ')}</div>
+            </div>
+        `;
+    }).join('');
+
+    const patternLabel = patternInfo?.name || 'Custom Bass Line';
+    const patternDescription = patternInfo?.description
+        ? `<div class="bass-line-description">${patternInfo.description}</div>`
+        : '';
 
     bassDisplay.innerHTML = `
         <div class="bass-line-display">
-            <h5>Bass Line</h5>
-            <div class="bass-notes">${bassNotes}</div>
+            <div class="bass-line-heading">
+                <div class="bass-line-pattern">${patternLabel}</div>
+                ${patternDescription}
+            </div>
+            <div class="bass-note-grid">
+                ${noteGrid}
+            </div>
             <div class="audio-controls">
-                <button class="play-btn" onclick="playBassLine()">
-                    🎸 Play Bass
-                </button>
-                <button class="stop-btn" onclick="stopAudio()">
-                    ⏹️ Stop
-                </button>
+                <button class="play-btn" onclick="playBassLine()">🎸 Play Bass</button>
+                <button class="stop-btn" onclick="stopAudio()">⏹️ Stop</button>
             </div>
         </div>
     `;
