@@ -3,25 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Machine - Song Creation Guide</title>
+    <title>Music Machine - Professional Songwriter's Studio</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
 </head>
 <body>
-    <main class="app-container">
+    <!-- Landing Page -->
+    <div id="landing-page" class="landing-page">
+        <header class="landing-header">
+            <h1 class="landing-title">Music Machine</h1>
+            <p class="landing-subtitle">Professional Songwriter's Studio</p>
+        </header>
+
+        <section class="landing-hero">
+            <p class="hero-text">
+                Your complete toolkit for crafting songs. Whether you're starting from scratch
+                or looking for instant inspiration, Music Machine gives you everything you need
+                to bring your musical ideas to life.
+            </p>
+        </section>
+
+        <section class="entry-cards">
+            <div class="entry-card entry-card-studio" onclick="window.location.href='studio.html'">
+                <div class="entry-icon">🎛️</div>
+                <h2>Open Studio</h2>
+                <p class="entry-description">
+                    Full reference mode with instant access to chords, scales, progressions,
+                    and melody tools. Build songs your way with a split-panel workspace.
+                </p>
+                <ul class="entry-features">
+                    <li>Instant Chord Reference with 400+ voicings</li>
+                    <li>Drag-and-Drop Progression Builder</li>
+                    <li>Smart Melody Companion</li>
+                    <li>Genre & Mood-Aware Suggestions</li>
+                </ul>
+                <span class="entry-cta">Launch Studio →</span>
+            </div>
+
+            <div class="entry-card entry-card-wizard" onclick="startWizardMode()">
+                <div class="entry-icon">🎯</div>
+                <h2>Start Creating</h2>
+                <p class="entry-description">
+                    Guided step-by-step experience. Perfect for beginners or when you want
+                    structured guidance from mood to finished song.
+                </p>
+                <ul class="entry-features">
+                    <li>7-Step Song Creation Process</li>
+                    <li>Mood & Genre Selection</li>
+                    <li>Auto-Suggested Progressions</li>
+                    <li>Lyrics & Structure Builder</li>
+                </ul>
+                <span class="entry-cta">Begin Journey →</span>
+            </div>
+        </section>
+
+        <section class="feature-highlights">
+            <h3>Powered by Professional Music Theory</h3>
+            <div class="highlights-grid">
+                <div class="highlight-item">
+                    <span class="highlight-icon">🎸</span>
+                    <span class="highlight-text">Guitar, Piano & Bass Diagrams</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">🎵</span>
+                    <span class="highlight-text">40+ Genres & 19 Moods</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">🥁</span>
+                    <span class="highlight-text">100+ Strumming Patterns</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">🎹</span>
+                    <span class="highlight-text">Real-Time Audio Preview</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <div class="quick-links">
+                <a href="chords.html">Chord Reference</a>
+                <a href="scales.html">Scale Reference</a>
+                <a href="strumming.html">Strumming Patterns</a>
+                <a href="circle-of-fifths.html">Circle of Fifths</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Wizard Mode (hidden by default, shown when ?mode=wizard or entry clicked) -->
+    <main class="app-container" id="wizard-container" style="display: none;">
         <header class="app-header">
             <h1>Music Machine</h1>
             <p>Your guided journey from mood to complete song</p>
 
             <nav class="main-nav">
-                <a href="chords.html" class="nav-link">🎸 Chords</a>
-                <a href="scales.html" class="nav-link">🎵 Scales</a>
-                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
-                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
-                <button class="nav-link tool-btn" onclick="toggleTuner()">🎛️ Tuner</button>
-                <button class="nav-link tool-btn" onclick="toggleMetronome()">🥁 Metronome</button>
+                <a href="index.html" class="nav-link home-link" onclick="showLandingPage(); return false;">Home</a>
+                <a href="studio.html" class="nav-link">Studio Mode</a>
+                <a href="chords.html" class="nav-link">Chords</a>
+                <a href="scales.html" class="nav-link">Scales</a>
+                <a href="strumming.html" class="nav-link">Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">Circle of Fifths</a>
+                <button class="nav-link tool-btn" onclick="toggleTuner()">Tuner</button>
+                <button class="nav-link tool-btn" onclick="toggleMetronome()">Metronome</button>
             </nav>
 
             <div class="song-management">
@@ -542,17 +626,53 @@
                 const metronomeOverlay = document.getElementById('metronome-overlay');
                 const strummingOverlay = document.getElementById('strumming-overlay');
 
-                if (tunerOverlay.style.display !== 'none') {
+                if (tunerOverlay && tunerOverlay.style.display !== 'none') {
                     toggleTuner();
                 }
 
-                if (metronomeOverlay.style.display !== 'none') {
+                if (metronomeOverlay && metronomeOverlay.style.display !== 'none') {
                     toggleMetronome();
                 }
 
-                if (strummingOverlay.style.display !== 'none') {
+                if (strummingOverlay && strummingOverlay.style.display !== 'none') {
                     toggleStrummingPatterns();
                 }
+            }
+        });
+
+        // Mode switching functions
+        function startWizardMode() {
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('wizard-container').style.display = 'block';
+            // Update URL without reload
+            history.pushState({mode: 'wizard'}, '', '?mode=wizard');
+        }
+
+        function showLandingPage() {
+            document.getElementById('landing-page').style.display = 'block';
+            document.getElementById('wizard-container').style.display = 'none';
+            history.pushState({mode: 'landing'}, '', window.location.pathname);
+        }
+
+        // Check URL on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+
+            if (mode === 'wizard') {
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('wizard-container').style.display = 'block';
+            }
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.mode === 'wizard') {
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('wizard-container').style.display = 'block';
+            } else {
+                document.getElementById('landing-page').style.display = 'block';
+                document.getElementById('wizard-container').style.display = 'none';
             }
         });
     </script>
