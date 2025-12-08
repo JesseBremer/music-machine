@@ -122,6 +122,161 @@ function displayGeneratedMelody(melodyResult, style) {
     generatedMelodyDiv.style.display = 'block';
 }
 
+// Global function for showing melody generator (redesigned melody page)
+window.showMelodyGenerator = function() {
+    const generatorSection = document.getElementById('melody-generator-section');
+    if (generatorSection) {
+        generatorSection.style.display = 'block';
+        generatorSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+};
+
+// Global function for generating simple melodies with style presets
+window.generateSimpleMelody = function(style) {
+    try {
+        // Ensure we have the required data
+        let currentChordProgression = appState?.songData?.chordProgression;
+        let currentKey = appState?.songData?.key;
+
+        // Provide defaults if not available
+        if (!currentChordProgression) {
+            currentChordProgression = {
+                id: 'I-V-vi-IV',
+                name: 'Pop Magic',
+                numerals: ['I', 'V', 'vi', 'IV'],
+                chords: ['C', 'G', 'Am', 'F']
+            };
+            appState.songData.chordProgression = currentChordProgression;
+        }
+
+        if (!currentKey) {
+            currentKey = 'C';
+            appState.songData.key = currentKey;
+        }
+
+        if (!MusicTheory?.generateSmartMelody) {
+            console.warn('Melody generation not available');
+            const resultDiv = document.getElementById('melody-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <p>❌ Melody generation is not available. Please make sure all required scripts are loaded.</p>
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+            }
+            return;
+        }
+
+        // Map simple style names to generation options
+        const styleConfig = {
+            'simple': {
+                style: 'balanced',
+                preferChordTones: true,
+                avoidLargeLeaps: true,
+                octave: 5
+            },
+            'flowing': {
+                style: 'smooth',
+                preferChordTones: false,
+                avoidLargeLeaps: true,
+                stepwiseMotion: true,
+                octave: 5
+            },
+            'dramatic': {
+                style: 'angular',
+                preferChordTones: true,
+                avoidLargeLeaps: false,
+                allowLargeLeaps: true,
+                octave: 5
+            },
+            'rhythmic': {
+                style: 'rhythmic',
+                preferChordTones: true,
+                avoidLargeLeaps: false,
+                emphasisOnRhythm: true,
+                octave: 5
+            }
+        };
+
+        const options = styleConfig[style] || styleConfig['simple'];
+
+        const melodyResult = MusicTheory.generateSmartMelody(currentChordProgression, currentKey, options);
+
+        if (melodyResult) {
+            displaySimpleMelody(melodyResult, style);
+        } else {
+            console.error('Failed to generate melody');
+            const resultDiv = document.getElementById('melody-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <p>❌ Failed to generate melody. Please try again.</p>
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        console.error('Error generating simple melody:', error);
+        const resultDiv = document.getElementById('melody-result');
+        if (resultDiv) {
+            resultDiv.innerHTML = `
+                <div class="error-message">
+                    <p>❌ Error: ${error.message}</p>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+    }
+};
+
+// Display function for simple melody generator
+function displaySimpleMelody(melodyResult, style) {
+    const resultDiv = document.getElementById('melody-result');
+    if (!resultDiv) return;
+
+    const styleNames = {
+        'simple': 'Simple & Catchy',
+        'flowing': 'Smooth & Flowing',
+        'dramatic': 'Bold & Dramatic',
+        'rhythmic': 'Rhythmic & Punchy'
+    };
+
+    resultDiv.innerHTML = `
+        <div class="generated-melody-content">
+            <h4>✨ ${styleNames[style] || style} Melody</h4>
+            <div class="melody-sequence">
+                ${melodyResult.melody.map((note, i) => `
+                    <span class="melody-note ${note.isChordTone ? 'chord-tone' : 'scale-tone'}" title="${note.isChordTone ? 'Chord Tone' : 'Scale Tone'}">
+                        ${note.note}${note.octave}
+                        <small>${note.chord}</small>
+                    </span>
+                `).join('')}
+            </div>
+            ${melodyResult.analysis && melodyResult.analysis.length > 0 ? `
+                <div class="melody-analysis">
+                    ${melodyResult.analysis.map(tip => `<div class="analysis-tip">💡 ${tip}</div>`).join('')}
+                </div>
+            ` : ''}
+            <div class="melody-controls">
+                <button class="play-btn" onclick="playGeneratedMelody('${JSON.stringify(melodyResult.melody.map(n => n.midiNote)).replace(/"/g, '&quot;')}')">
+                    🎵 Play Melody
+                </button>
+                <button class="use-melody-btn" onclick="useGeneratedMelody('${style}', '${JSON.stringify(melodyResult).replace(/"/g, '&quot;')}')">
+                    ✅ Use This Melody
+                </button>
+                <button class="regenerate-btn" onclick="generateSimpleMelody('${style}')">
+                    🔄 Try Another
+                </button>
+            </div>
+        </div>
+    `;
+
+    resultDiv.style.display = 'block';
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 window.playGeneratedMelody = function(midiNotesStr) {
     try {
         const midiNotes = JSON.parse(midiNotesStr);
@@ -2055,8 +2210,10 @@ function checkLibraries() {
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize the main app immediately
     initializeApp();
-    
-    
+
+    // Setup progress bar navigation
+    setupProgressBarNavigation();
+
     // Log library status for debugging immediately and after delay
     checkLibraries();
     setTimeout(() => {
@@ -2316,6 +2473,244 @@ let autoSaveTimer;
 function scheduleAutoSave() {
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(autoSave, 5000); // Auto-save after 5 seconds of inactivity
+}
+
+// Setup progress bar navigation - allow clicking steps to jump
+function setupProgressBarNavigation() {
+    const progressSteps = document.querySelectorAll('.progress-step');
+
+    // Map step numbers to step IDs
+    const stepMap = {
+        1: 'step-mood',
+        2: 'step-key-tempo',
+        3: 'step-chords',
+        4: 'step-rhythm',
+        5: 'step-melody',
+        6: 'step-songcraft',
+        7: 'step-export'
+    };
+
+    progressSteps.forEach((step, index) => {
+        const stepNumber = parseInt(step.dataset.step);
+        const stepId = stepMap[stepNumber];
+
+        step.addEventListener('click', () => {
+            console.log('Progress step clicked:', stepNumber, stepId);
+            jumpToStep(stepId, stepNumber);
+        });
+
+        // Add tooltip
+        step.title = 'Click to jump to this step';
+    });
+
+    console.log('Progress bar navigation setup complete');
+}
+
+// Jump to a specific step (with skip validation flag)
+async function jumpToStep(stepId, stepNumber) {
+    console.log(`Jumping to step ${stepNumber}: ${stepId}`);
+
+    // Update app state
+    appState.currentStep = stepId;
+
+    // Load the appropriate step
+    switch(stepId) {
+        case 'step-mood':
+            await loadMoodStep();
+            break;
+        case 'step-key-tempo':
+            await loadKeyTempoStepDirect();
+            break;
+        case 'step-chords':
+            await loadChordsStepDirect();
+            break;
+        case 'step-rhythm':
+            await loadRhythmStepDirect();
+            break;
+        case 'step-melody':
+            await loadMelodyStepDirect();
+            break;
+        case 'step-songcraft':
+            // Songcraft is lyrics/structure - just show it
+            UI.showStep('step-songcraft');
+            UI.updateProgressBar('step-songcraft');
+            break;
+        case 'step-export':
+            await loadExportStep();
+            break;
+        default:
+            console.error('Unknown step:', stepId);
+    }
+
+    // Update progress bar
+    UI.updateProgressBar(stepId);
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Direct jump versions of step loaders (skip validation, show all options)
+async function loadKeyTempoStepDirect() {
+    // Get all keys as an array
+    const allKeysObj = MusicTheory.getAllKeys();
+    const allKeysArray = allKeysObj.all; // Use the 'all' property which is an array
+
+    // If no mood/genre selected, show all options
+    const mood = appState.songData.mood || { suggestedKeys: allKeysArray, tempoRange: [60, 180] };
+    const genre = appState.songData.genre || { typicalTempo: [120, 120] };
+
+    // Get suggested keys (or all keys if no mood)
+    const suggestedKeys = appState.songData.mood && appState.songData.genre
+        ? MusicTheory.getSuggestedKeysForMoodAndGenre(mood, genre)
+        : allKeysArray;
+
+    // Get suggested tempo range (or default)
+    const tempoRange = appState.songData.mood && appState.songData.genre
+        ? MusicTheory.getSuggestedTempo(mood, genre)
+        : [60, 180];
+
+    // Get suggested scales (or all scales)
+    const allScales = [
+        { name: 'Major (Ionian)', type: 'major', description: 'Bright, happy, stable' },
+        { name: 'Natural Minor (Aeolian)', type: 'minor', description: 'Melancholic, introspective' },
+        { name: 'Dorian', type: 'dorian', description: 'Jazzy, sophisticated minor' },
+        { name: 'Phrygian', type: 'phrygian', description: 'Spanish, exotic, dark' },
+        { name: 'Lydian', type: 'lydian', description: 'Dreamy, ethereal, bright' },
+        { name: 'Mixolydian', type: 'mixolydian', description: 'Bluesy, rock-oriented' },
+        { name: 'Harmonic Minor', type: 'harmonic minor', description: 'Classical, dramatic' },
+        { name: 'Melodic Minor', type: 'melodic minor', description: 'Jazz, sophisticated' },
+        { name: 'Major Pentatonic', type: 'major pentatonic', description: 'Simple, folk, country' },
+        { name: 'Minor Pentatonic', type: 'minor pentatonic', description: 'Blues, rock, simple' },
+        { name: 'Blues Scale', type: 'blues', description: 'Blues, rock, soulful' }
+    ];
+
+    const suggestedScales = appState.songData.mood && appState.songData.genre
+        ? MusicTheory.getSuggestedScalesForMoodAndGenre(mood, genre)
+        : allScales;
+
+    // Render keys
+    UI.renderKeys(suggestedKeys, 'key-options');
+
+    // Render scales
+    UI.renderScales(suggestedScales, 'scale-options');
+
+    // Render tempos
+    UI.renderTempos(tempoRange, 'tempo-options');
+
+    UI.showStep('step-key-tempo');
+}
+
+async function loadChordsStepDirect() {
+    // Ensure data is loaded
+    if (!appState.loadedData.chordProgressions || Object.keys(appState.loadedData.chordProgressions).length === 0) {
+        console.log('Loading chord progressions data...');
+        appState.loadedData.chordProgressions = await MusicTheory.getChordProgressionsData();
+    }
+
+    // If no key/scale/genre, provide defaults and show all progressions
+    if (!appState.songData.key) {
+        appState.songData.key = 'C';
+    }
+    if (!appState.songData.scale) {
+        appState.songData.scale = 'major';
+    }
+    if (!appState.songData.genre) {
+        // Load genres if needed
+        if (!appState.loadedData.genres || appState.loadedData.genres.length === 0) {
+            appState.loadedData.genres = await MusicTheory.getGenresData();
+        }
+        // Use first genre as default, or create a simple pop genre
+        appState.songData.genre = appState.loadedData.genres[0] || { id: 'pop', name: 'Pop' };
+    }
+
+    console.log('Chord step - Key:', appState.songData.key, 'Scale:', appState.songData.scale, 'Genre:', appState.songData.genre);
+
+    const chordProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
+        appState.songData.key,
+        appState.songData.scale,
+        appState.songData.genre,
+        appState.loadedData.chordProgressions
+    );
+
+    console.log('Found chord progressions:', chordProgressions ? chordProgressions.length : 0);
+
+    UI.renderChordProgressions(chordProgressions, 'chord-progressions');
+
+    // Load strumming patterns
+    loadStrummingPatterns();
+
+    // Setup chord guide toggle
+    setupChordGuideToggle();
+
+    UI.showStep('step-chords');
+}
+
+async function loadRhythmStepDirect() {
+    // Provide defaults if needed
+    if (!appState.songData.genre) {
+        // Load genres if needed
+        if (!appState.loadedData.genres || appState.loadedData.genres.length === 0) {
+            appState.loadedData.genres = await MusicTheory.getGenresData();
+        }
+        appState.songData.genre = appState.loadedData.genres[0] || { id: 'pop', name: 'Pop' };
+    }
+    if (!appState.songData.tempo) {
+        appState.songData.tempo = 120;
+    }
+    if (!appState.songData.strummingPattern) {
+        // Provide default strumming pattern
+        appState.songData.strummingPattern = {
+            id: 'down-down-up-up-down-up',
+            name: 'Classic Strumming',
+            pattern: ['D', 'D', 'U', 'U', 'D', 'U']
+        };
+    }
+
+    console.log('Rhythm step - Genre:', appState.songData.genre, 'Tempo:', appState.songData.tempo);
+
+    // Update rhythm context display
+    updateRhythmContext();
+
+    // Generate rhythm templates based on current song data
+    const rhythmTemplates = generateRhythmTemplates();
+    console.log('Generated rhythm templates:', rhythmTemplates ? rhythmTemplates.length : 0);
+
+    renderRhythmTemplates(rhythmTemplates);
+
+    UI.showStep('step-rhythm');
+}
+
+async function loadMelodyStepDirect() {
+    // Provide defaults if needed
+    if (!appState.songData.key) {
+        appState.songData.key = 'C';
+    }
+    if (!appState.songData.scale) {
+        appState.songData.scale = 'major';
+    }
+    if (!appState.songData.chordProgression) {
+        appState.songData.chordProgression = {
+            id: 'I-V-vi-IV',
+            name: 'Pop Magic',
+            numerals: ['I', 'V', 'vi', 'IV'],
+            chords: ['C', 'G', 'Am', 'F']
+        };
+    }
+
+    console.log('Melody step - Key:', appState.songData.key, 'Scale:', appState.songData.scale);
+    console.log('Chord progression:', appState.songData.chordProgression);
+
+    const melodyIdeas = MusicTheory.generateMelodyIdeas(
+        appState.songData.key,
+        appState.songData.chordProgression,
+        appState.songData.scale
+    );
+
+    console.log('Generated melody ideas:', melodyIdeas ? melodyIdeas.length : 0);
+
+    UI.renderMelodyIdeas(melodyIdeas, 'melody-ideas');
+
+    UI.showStep('step-melody');
 }
 
 // Set up event listeners for song management
