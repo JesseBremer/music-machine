@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Machine Studio - Songwriter's Workspace</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/studio.css">
+    <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+</head>
+<body class="studio-body">
+    <div class="studio-container">
+        <!-- Studio Header -->
+        <header class="studio-header">
+            <div class="studio-brand">
+                <a href="index.html" class="brand-link">Music Machine</a>
+                <span class="mode-badge">Studio</span>
+            </div>
+
+            <div class="global-controls">
+                <div class="control-group">
+                    <label for="global-key">Key</label>
+                    <select id="global-key" onchange="updateKey()">
+                        <option value="C">C</option>
+                        <option value="G">G</option>
+                        <option value="D">D</option>
+                        <option value="A">A</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="Bb">Bb</option>
+                        <option value="Eb">Eb</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="global-scale">Scale</label>
+                    <select id="global-scale" onchange="updateKey()">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="global-tempo">BPM</label>
+                    <input type="number" id="global-tempo" value="120" min="40" max="220">
+                </div>
+            </div>
+
+            <nav class="studio-nav">
+                <a href="index.html" class="nav-link-btn">Home</a>
+                <a href="index.html?mode=wizard" class="nav-link-btn">Guided Mode</a>
+            </nav>
+        </header>
+
+        <!-- Main Studio Content -->
+        <div class="studio-main">
+            <!-- Chord Selection Panel -->
+            <section class="chord-selection-panel">
+                <h3>Select Chords</h3>
+                <p class="panel-hint">Click a chord to add it to your progression</p>
+
+                <div class="chord-section">
+                    <h4>Diatonic Chords (In Key)</h4>
+                    <div id="diatonic-chords" class="chord-button-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="chord-section">
+                    <h4>Extended Chords</h4>
+                    <div id="extended-chords" class="chord-button-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="chord-section">
+                    <h4>Borrowed / Color Chords</h4>
+                    <div id="color-chords" class="chord-button-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progression Builder -->
+            <section class="progression-panel">
+                <div class="panel-header">
+                    <h3>Your Progression</h3>
+                    <div class="panel-actions">
+                        <button onclick="playProgression()" class="action-btn play-btn">▶ Play</button>
+                        <button onclick="clearProgression()" class="action-btn">Clear All</button>
+                    </div>
+                </div>
+
+                <div id="progression-display" class="progression-display">
+                    <p class="empty-message">Click chords above to build your progression</p>
+                </div>
+
+                <div id="progression-analysis" class="progression-analysis"></div>
+            </section>
+
+            <!-- Suggestions Panel -->
+            <section class="suggestions-panel">
+                <h3>Suggestions</h3>
+
+                <div class="suggestion-section">
+                    <h4>Common Progressions</h4>
+                    <div id="common-progressions" class="suggestion-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="suggestion-section">
+                    <h4>Section Variations</h4>
+                    <p class="panel-hint">Based on your current progression</p>
+                    <div class="variation-buttons">
+                        <button onclick="generateVariation('chorus')" class="variation-btn">Chorus</button>
+                        <button onclick="generateVariation('bridge')" class="variation-btn">Bridge</button>
+                        <button onclick="generateVariation('breakdown')" class="variation-btn">Breakdown</button>
+                    </div>
+                    <div id="variation-output" class="variation-output"></div>
+                </div>
+
+                <div class="suggestion-section">
+                    <h4>Melody Notes</h4>
+                    <div id="melody-suggestions" class="melody-suggestions">
+                        <p class="panel-hint">Add chords to see suggested melody notes</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Song Structure -->
+            <section class="song-structure-panel">
+                <div class="panel-header">
+                    <h3>Song Structure</h3>
+                    <div class="panel-actions">
+                        <button onclick="addSection('verse')" class="section-btn">+ Verse</button>
+                        <button onclick="addSection('chorus')" class="section-btn">+ Chorus</button>
+                        <button onclick="addSection('bridge')" class="section-btn">+ Bridge</button>
+                    </div>
+                </div>
+                <div id="song-sections" class="song-sections">
+                    <p class="empty-message">Add sections to structure your song</p>
+                </div>
+                <div class="export-section">
+                    <button onclick="exportSong()" class="export-btn">Export Song</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <style>
+        /* Additional inline styles for the new layout */
+        .studio-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .chord-selection-panel,
+        .progression-panel,
+        .suggestions-panel,
+        .song-structure-panel {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .chord-selection-panel { grid-column: 1; grid-row: 1; }
+        .progression-panel { grid-column: 2; grid-row: 1; }
+        .suggestions-panel { grid-column: 1; grid-row: 2; }
+        .song-structure-panel { grid-column: 2; grid-row: 2; }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: var(--font-size-large);
+        }
+
+        .panel-hint {
+            font-size: var(--font-size-small);
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .chord-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chord-section h4 {
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .chord-button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .chord-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .chord-btn:hover {
+            background: var(--secondary-color);
+            color: var(--background-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-secondary);
+        }
+
+        .chord-btn.minor {
+            color: var(--text-secondary);
+        }
+
+        .chord-btn.seventh {
+            border-color: var(--accent-color);
+        }
+
+        /* Progression Display */
+        .progression-display {
+            min-height: 80px;
+            background: var(--surface-elevated);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .progression-display.has-chords {
+            border-style: solid;
+        }
+
+        .progression-chord {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--gradient-surface);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .progression-chord-name {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-large);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progression-chord-numeral {
+            font-size: var(--font-size-small);
+            color: var(--secondary-color);
+        }
+
+        .remove-chord-btn {
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            background: var(--error-color);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.15s;
+        }
+
+        .remove-chord-btn:hover {
+            opacity: 1;
+        }
+
+        .empty-message {
+            width: 100%;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: var(--font-size-small);
+        }
+
+        .progression-analysis {
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-small);
+            color: var(--text-muted);
+        }
+
+        /* Suggestions */
+        .suggestion-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .suggestion-section h4 {
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .suggestion-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .suggestion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .suggestion-item:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .suggestion-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .suggestion-chords {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-small);
+            color: var(--secondary-color);
+        }
+
+        .variation-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .variation-btn {
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .variation-btn:hover {
+            border-style: solid;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .variation-output {
+            padding: var(--spacing-sm);
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            min-height: 40px;
+        }
+
+        .variation-chords {
+            font-family: var(--font-family-mono);
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .use-variation-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            font-size: var(--font-size-small);
+            cursor: pointer;
+        }
+
+        /* Melody Suggestions */
+        .melody-suggestions .note-group {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .note-group-label {
+            font-size: var(--font-size-small);
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .note-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .note-pill {
+            padding: 4px 10px;
+            border-radius: var(--border-radius);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-small);
+            font-weight: 600;
+        }
+
+        .note-pill.strong {
+            background: var(--secondary-color);
+            color: var(--background-color);
+        }
+
+        .note-pill.passing {
+            background: var(--surface-color);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Song Sections */
+        .section-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+            font-size: var(--font-size-small);
+            cursor: pointer;
+        }
+
+        .section-btn:hover {
+            border-style: solid;
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .song-sections {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            min-height: 100px;
+        }
+
+        .song-section-item {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .section-type {
+            font-weight: 600;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: var(--font-size-small);
+        }
+
+        .section-chords {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-small);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .section-lyrics {
+            width: 100%;
+            min-height: 60px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: var(--font-size-small);
+            resize: vertical;
+        }
+
+        .remove-section-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .remove-section-btn:hover {
+            color: var(--error-color);
+        }
+
+        .export-section {
+            text-align: center;
+        }
+
+        .export-btn {
+            padding: var(--spacing-sm) var(--spacing-xl);
+            background: var(--gradient-active);
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            box-shadow: var(--glow-primary);
+        }
+
+        .action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+            font-size: var(--font-size-small);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            border-color: var(--secondary-color);
+            color: var(--text-primary);
+        }
+
+        .play-btn {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .play-btn:hover {
+            box-shadow: var(--glow-primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 1024px) {
+            .studio-main {
+                grid-template-columns: 1fr;
+            }
+            .chord-selection-panel,
+            .progression-panel,
+            .suggestions-panel,
+            .song-structure-panel {
+                grid-column: 1;
+            }
+        }
+    </style>
+
+    <script>
+        // =====================
+        // STATE
+        // =====================
+        const state = {
+            key: 'C',
+            scale: 'major',
+            tempo: 120,
+            progression: [],
+            sections: []
+        };
+
+        // =====================
+        // KEY DATA
+        // =====================
+        const KEY_DATA = {
+            'C': {
+                major: { diatonic: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Cm', 'Ddim', 'Eb', 'Fm', 'Gm', 'Ab', 'Bb'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'G': {
+                major: { diatonic: ['G', 'Am', 'Bm', 'C', 'D', 'Em', 'F#dim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Gm', 'Adim', 'Bb', 'Cm', 'Dm', 'Eb', 'F'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'D': {
+                major: { diatonic: ['D', 'Em', 'F#m', 'G', 'A', 'Bm', 'C#dim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Dm', 'Edim', 'F', 'Gm', 'Am', 'Bb', 'C'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'A': {
+                major: { diatonic: ['A', 'Bm', 'C#m', 'D', 'E', 'F#m', 'G#dim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Am', 'Bdim', 'C', 'Dm', 'Em', 'F', 'G'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'E': {
+                major: { diatonic: ['E', 'F#m', 'G#m', 'A', 'B', 'C#m', 'D#dim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Em', 'F#dim', 'G', 'Am', 'Bm', 'C', 'D'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'F': {
+                major: { diatonic: ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm', 'Edim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Fm', 'Gdim', 'Ab', 'Bbm', 'Cm', 'Db', 'Eb'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'Bb': {
+                major: { diatonic: ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm', 'Adim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Bbm', 'Cdim', 'Db', 'Ebm', 'Fm', 'Gb', 'Ab'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            },
+            'Eb': {
+                major: { diatonic: ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm', 'Ddim'], numerals: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'] },
+                minor: { diatonic: ['Ebm', 'Fdim', 'Gb', 'Abm', 'Bbm', 'Cb', 'Db'], numerals: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'] }
+            }
+        };
+
+        // Extended chords for each key
+        const EXTENDED_CHORDS = {
+            'C': ['Cmaj7', 'Dm7', 'Em7', 'Fmaj7', 'G7', 'Am7'],
+            'G': ['Gmaj7', 'Am7', 'Bm7', 'Cmaj7', 'D7', 'Em7'],
+            'D': ['Dmaj7', 'Em7', 'F#m7', 'Gmaj7', 'A7', 'Bm7'],
+            'A': ['Amaj7', 'Bm7', 'C#m7', 'Dmaj7', 'E7', 'F#m7'],
+            'E': ['Emaj7', 'F#m7', 'G#m7', 'Amaj7', 'B7', 'C#m7'],
+            'F': ['Fmaj7', 'Gm7', 'Am7', 'Bbmaj7', 'C7', 'Dm7'],
+            'Bb': ['Bbmaj7', 'Cm7', 'Dm7', 'Ebmaj7', 'F7', 'Gm7'],
+            'Eb': ['Ebmaj7', 'Fm7', 'Gm7', 'Abmaj7', 'Bb7', 'Cm7']
+        };
+
+        // Color/borrowed chords
+        const COLOR_CHORDS = {
+            'C': ['Fm', 'Ab', 'Bb', 'Eb', 'Db'],
+            'G': ['Cm', 'Eb', 'F', 'Bb', 'Ab'],
+            'D': ['Gm', 'Bb', 'C', 'F', 'Eb'],
+            'A': ['Dm', 'F', 'G', 'C', 'Bb'],
+            'E': ['Am', 'C', 'D', 'G', 'F'],
+            'F': ['Bbm', 'Db', 'Eb', 'Ab', 'Gb'],
+            'Bb': ['Ebm', 'Gb', 'Ab', 'Db', 'Cb'],
+            'Eb': ['Abm', 'Cb', 'Db', 'Gb', 'Fb']
+        };
+
+        // Common progressions
+        const COMMON_PROGRESSIONS = [
+            { name: 'Pop (I-V-vi-IV)', pattern: [0, 4, 5, 3] },
+            { name: 'Classic (I-IV-V-I)', pattern: [0, 3, 4, 0] },
+            { name: '50s (I-vi-IV-V)', pattern: [0, 5, 3, 4] },
+            { name: 'Sensitive (vi-IV-I-V)', pattern: [5, 3, 0, 4] },
+            { name: 'Andalusian (i-VII-VI-V)', pattern: [0, 6, 5, 4] }
+        ];
+
+        // =====================
+        // INITIALIZATION
+        // =====================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateKey();
+            renderCommonProgressions();
+            loadState();
+        });
+
+        // =====================
+        // KEY CHANGE
+        // =====================
+        function updateKey() {
+            state.key = document.getElementById('global-key').value;
+            state.scale = document.getElementById('global-scale').value;
+            renderChords();
+            renderCommonProgressions();
+            updateMelodySuggestions();
+        }
+
+        // =====================
+        // RENDER CHORDS
+        // =====================
+        function renderChords() {
+            const keyData = KEY_DATA[state.key]?.[state.scale];
+            if (!keyData) return;
+
+            // Diatonic chords
+            const diatonicContainer = document.getElementById('diatonic-chords');
+            diatonicContainer.innerHTML = keyData.diatonic.map((chord, i) => `
+                <button class="chord-btn ${chord.includes('m') && !chord.includes('maj') ? 'minor' : ''}"
+                        onclick="addChord('${chord}')">
+                    ${chord}
+                    <small style="display:block;font-size:10px;opacity:0.7">${keyData.numerals[i]}</small>
+                </button>
+            `).join('');
+
+            // Extended chords
+            const extendedContainer = document.getElementById('extended-chords');
+            const extChords = EXTENDED_CHORDS[state.key] || [];
+            extendedContainer.innerHTML = extChords.map(chord => `
+                <button class="chord-btn seventh" onclick="addChord('${chord}')">${chord}</button>
+            `).join('');
+
+            // Color chords
+            const colorContainer = document.getElementById('color-chords');
+            const colorChords = COLOR_CHORDS[state.key] || [];
+            colorContainer.innerHTML = colorChords.map(chord => `
+                <button class="chord-btn" onclick="addChord('${chord}')">${chord}</button>
+            `).join('');
+        }
+
+        // =====================
+        // PROGRESSION MANAGEMENT
+        // =====================
+        function addChord(chord) {
+            state.progression.push(chord);
+            renderProgression();
+            updateMelodySuggestions();
+            saveState();
+        }
+
+        function removeChord(index) {
+            state.progression.splice(index, 1);
+            renderProgression();
+            updateMelodySuggestions();
+            saveState();
+        }
+
+        function clearProgression() {
+            state.progression = [];
+            renderProgression();
+            updateMelodySuggestions();
+            saveState();
+        }
+
+        function useProgression(chords) {
+            state.progression = [...chords];
+            renderProgression();
+            updateMelodySuggestions();
+            saveState();
+        }
+
+        function renderProgression() {
+            const container = document.getElementById('progression-display');
+            const analysisContainer = document.getElementById('progression-analysis');
+
+            if (state.progression.length === 0) {
+                container.innerHTML = '<p class="empty-message">Click chords above to build your progression</p>';
+                container.classList.remove('has-chords');
+                analysisContainer.innerHTML = '';
+                return;
+            }
+
+            container.classList.add('has-chords');
+            container.innerHTML = state.progression.map((chord, i) => `
+                <div class="progression-chord">
+                    <span class="progression-chord-name">${chord}</span>
+                    <span class="progression-chord-numeral">${getNumeral(chord)}</span>
+                    <button class="remove-chord-btn" onclick="removeChord(${i})" title="Remove">×</button>
+                </div>
+            `).join('');
+
+            // Analysis
+            const numerals = state.progression.map(c => getNumeral(c)).join(' - ');
+            analysisContainer.innerHTML = `<strong>Analysis:</strong> ${numerals}`;
+        }
+
+        function getNumeral(chord) {
+            const keyData = KEY_DATA[state.key]?.[state.scale];
+            if (!keyData) return '?';
+            const idx = keyData.diatonic.indexOf(chord);
+            return idx >= 0 ? keyData.numerals[idx] : '?';
+        }
+
+        // =====================
+        // AUDIO PLAYBACK
+        // =====================
+        async function playProgression() {
+            if (state.progression.length === 0) return;
+
+            const tempo = parseInt(document.getElementById('global-tempo').value) || 120;
+            const beatDuration = (60 / tempo) * 1000 * 2;
+
+            for (const chord of state.progression) {
+                playChord(chord);
+                await new Promise(r => setTimeout(r, beatDuration));
+            }
+        }
+
+        function playChord(chordName) {
+            if (window.Tone) {
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+
+                // Get chord notes using Tonal
+                if (window.Tonal) {
+                    const chord = Tonal.Chord.get(chordName);
+                    if (chord.notes && chord.notes.length > 0) {
+                        const notes = chord.notes.map(n => n + '4');
+                        synth.triggerAttackRelease(notes, '2n');
+                    }
+                }
+            }
+        }
+
+        // =====================
+        // COMMON PROGRESSIONS
+        // =====================
+        function renderCommonProgressions() {
+            const container = document.getElementById('common-progressions');
+            const keyData = KEY_DATA[state.key]?.[state.scale];
+            if (!keyData) return;
+
+            container.innerHTML = COMMON_PROGRESSIONS.map(prog => {
+                const chords = prog.pattern.map(i => keyData.diatonic[i] || keyData.diatonic[0]);
+                return `
+                    <div class="suggestion-item" onclick="useProgression(${JSON.stringify(chords)})">
+                        <span class="suggestion-name">${prog.name}</span>
+                        <span class="suggestion-chords">${chords.join(' - ')}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =====================
+        // VARIATIONS
+        // =====================
+        function generateVariation(type) {
+            const container = document.getElementById('variation-output');
+            const keyData = KEY_DATA[state.key]?.[state.scale];
+            if (!keyData) return;
+
+            let variation = [];
+            let desc = '';
+
+            const d = keyData.diatonic;
+
+            switch(type) {
+                case 'chorus':
+                    variation = [d[3], d[4], d[0], d[0]]; // IV-V-I-I
+                    desc = 'Chorus: Starts on IV for lift';
+                    break;
+                case 'bridge':
+                    variation = [d[5], d[3], d[4], d[4]]; // vi-IV-V-V
+                    desc = 'Bridge: Starts on vi for contrast';
+                    break;
+                case 'breakdown':
+                    variation = [d[0], d[4]]; // I-V
+                    desc = 'Breakdown: Simplified for dynamics';
+                    break;
+            }
+
+            container.innerHTML = `
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${desc}</p>
+                <div class="variation-chords">${variation.join(' - ')}</div>
+                <button class="use-variation-btn" onclick="useProgression(${JSON.stringify(variation)})">Use This</button>
+            `;
+        }
+
+        // =====================
+        // MELODY SUGGESTIONS
+        // =====================
+        function updateMelodySuggestions() {
+            const container = document.getElementById('melody-suggestions');
+
+            if (state.progression.length === 0) {
+                container.innerHTML = '<p class="panel-hint">Add chords to see suggested melody notes</p>';
+                return;
+            }
+
+            // Get unique notes from progression
+            const allNotes = new Set();
+            const chordTones = new Set();
+
+            state.progression.forEach(chordName => {
+                if (window.Tonal) {
+                    const chord = Tonal.Chord.get(chordName);
+                    if (chord.notes) {
+                        chord.notes.forEach(n => {
+                            chordTones.add(n);
+                            allNotes.add(n);
+                        });
+                    }
+                }
+            });
+
+            // Get scale notes
+            let scaleNotes = [];
+            if (window.Tonal) {
+                const scale = Tonal.Scale.get(`${state.key} ${state.scale}`);
+                scaleNotes = scale.notes || [];
+            }
+
+            const passingNotes = scaleNotes.filter(n => !chordTones.has(n));
+
+            container.innerHTML = `
+                <div class="note-group">
+                    <div class="note-group-label">Strong (Chord Tones) - Land here:</div>
+                    <div class="note-pills">
+                        ${[...chordTones].map(n => `<span class="note-pill strong">${n}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="note-group">
+                    <div class="note-group-label">Passing Notes - Use for movement:</div>
+                    <div class="note-pills">
+                        ${passingNotes.map(n => `<span class="note-pill passing">${n}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // =====================
+        // SONG SECTIONS
+        // =====================
+        function addSection(type) {
+            if (state.progression.length === 0) {
+                alert('Add chords to your progression first!');
+                return;
+            }
+
+            state.sections.push({
+                id: Date.now(),
+                type: type,
+                chords: [...state.progression],
+                lyrics: ''
+            });
+            renderSections();
+            saveState();
+        }
+
+        function removeSection(id) {
+            state.sections = state.sections.filter(s => s.id !== id);
+            renderSections();
+            saveState();
+        }
+
+        function updateLyrics(id, lyrics) {
+            const section = state.sections.find(s => s.id === id);
+            if (section) section.lyrics = lyrics;
+            saveState();
+        }
+
+        function renderSections() {
+            const container = document.getElementById('song-sections');
+
+            if (state.sections.length === 0) {
+                container.innerHTML = '<p class="empty-message">Add sections to structure your song</p>';
+                return;
+            }
+
+            container.innerHTML = state.sections.map(s => `
+                <div class="song-section-item">
+                    <div class="section-header">
+                        <span class="section-type">${s.type}</span>
+                        <button class="remove-section-btn" onclick="removeSection(${s.id})">×</button>
+                    </div>
+                    <div class="section-chords">${s.chords.join(' | ')}</div>
+                    <textarea class="section-lyrics"
+                              placeholder="Add lyrics..."
+                              onchange="updateLyrics(${s.id}, this.value)">${s.lyrics}</textarea>
+                </div>
+            `).join('');
+        }
+
+        // =====================
+        // EXPORT
+        // =====================
+        function exportSong() {
+            let text = `SONG\n`;
+            text += `Key: ${state.key} ${state.scale}\n`;
+            text += `Tempo: ${document.getElementById('global-tempo').value} BPM\n\n`;
+            text += `MAIN PROGRESSION: ${state.progression.join(' | ')}\n\n`;
+
+            if (state.sections.length > 0) {
+                text += `STRUCTURE:\n`;
+                state.sections.forEach(s => {
+                    text += `\n[${s.type.toUpperCase()}]\n`;
+                    text += `Chords: ${s.chords.join(' | ')}\n`;
+                    if (s.lyrics) text += `${s.lyrics}\n`;
+                });
+            }
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'song.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // =====================
+        // STATE PERSISTENCE
+        // =====================
+        function saveState() {
+            localStorage.setItem('studioState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('studioState');
+                if (saved) {
+                    const loaded = JSON.parse(saved);
+                    state.key = loaded.key || 'C';
+                    state.scale = loaded.scale || 'major';
+                    state.progression = loaded.progression || [];
+                    state.sections = loaded.sections || [];
+
+                    document.getElementById('global-key').value = state.key;
+                    document.getElementById('global-scale').value = state.scale;
+
+                    renderChords();
+                    renderProgression();
+                    renderSections();
+                    updateMelodySuggestions();
+                }
+            } catch(e) {
+                console.error('Load error:', e);
+            }
+        }
+    </script>
+</body>
+</html>
