@@ -20,6 +20,7 @@
                 <a href="scales.html" class="nav-link">🎵 Scales</a>
                 <a href="strumming.html" class="nav-link">🎼 Strumming</a>
                 <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+                <a href="studio.html" class="nav-link">🎹 Studio</a>
                 <button class="nav-link tool-btn" onclick="toggleTuner()">🎛️ Tuner</button>
                 <button class="nav-link tool-btn" onclick="toggleMetronome()">🥁 Metronome</button>
             </nav>
@@ -46,6 +47,10 @@
             <div class="progress-step" data-step="5">Melody</div>
             <div class="progress-step" data-step="6">Lyrics</div>
             <div class="progress-step" data-step="7">Export</div>
+        </div>
+
+        <div class="workflow-tip">
+            💡 <strong>Tip:</strong> Click any step above to jump directly to it - no need to go in order!
         </div>
 
         <section id="step-mood" class="step-section active">
@@ -210,16 +215,80 @@
         </section>
 
         <section id="step-melody" class="step-section">
-            <h2>Step 5: Melody Ideas</h2>
-            <p>Explore melodic patterns that work with your chord progression.</p>
+            <h2>Step 5: Create Your Melody</h2>
+            <p>Generate melody ideas or use the Studio for hands-on creation.</p>
 
             <div class="top-navigation">
                 <button id="melody-back-top" class="back-button">Back</button>
-                <button id="melody-next-top" class="next-button" disabled>Next: Lyrics</button>
+                <button id="melody-next-top" class="next-button">Next: Lyrics</button>
             </div>
 
-            <div id="melody-suggestions" class="melody-grid"></div>
-            <div id="melody-display" class="melody-display"></div>
+            <div class="melody-workspace">
+                <div class="melody-quick-actions">
+                    <h3>Quick Start</h3>
+                    <div class="melody-action-cards">
+                        <div class="melody-action-card" onclick="window.location.href='studio.html'">
+                            <div class="action-icon">🎹</div>
+                            <h4>Open Studio</h4>
+                            <p>Create melodies with the visual keyboard and piano roll</p>
+                            <button class="action-btn-primary">Go to Studio →</button>
+                        </div>
+
+                        <div class="melody-action-card" id="generate-melody-card">
+                            <div class="action-icon">🎲</div>
+                            <h4>Generate Ideas</h4>
+                            <p>Get melody suggestions based on your chords</p>
+                            <button class="action-btn-secondary" onclick="showMelodyGenerator()">Generate Melodies</button>
+                        </div>
+
+                        <div class="melody-action-card">
+                            <div class="action-icon">🎤</div>
+                            <h4>Record Yourself</h4>
+                            <p>Hum or sing your melody idea</p>
+                            <button class="action-btn-secondary" onclick="alert('Voice recording coming soon!')">Record Audio</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="melody-generator-section" class="melody-generator-section" style="display: none;">
+                    <h3>Melody Generator</h3>
+                    <p>Select a style to generate melody ideas based on your chord progression</p>
+
+                    <div class="melody-style-grid">
+                        <button class="melody-style-card" onclick="generateSimpleMelody('simple')">
+                            <div class="style-name">Simple & Catchy</div>
+                            <div class="style-desc">Easy to remember, repetitive patterns</div>
+                        </button>
+
+                        <button class="melody-style-card" onclick="generateSimpleMelody('flowing')">
+                            <div class="style-name">Smooth & Flowing</div>
+                            <div class="style-desc">Graceful stepwise motion</div>
+                        </button>
+
+                        <button class="melody-style-card" onclick="generateSimpleMelody('dramatic')">
+                            <div class="style-name">Bold & Dramatic</div>
+                            <div class="style-desc">Large intervals and jumps</div>
+                        </button>
+
+                        <button class="melody-style-card" onclick="generateSimpleMelody('rhythmic')">
+                            <div class="style-name">Rhythmic & Punchy</div>
+                            <div class="style-desc">Strong rhythmic emphasis</div>
+                        </button>
+                    </div>
+
+                    <div id="melody-result" class="melody-result"></div>
+                </div>
+
+                <div class="melody-tips">
+                    <h4>💡 Melody Tips</h4>
+                    <ul>
+                        <li><strong>Keep it simple:</strong> The best melodies are easy to remember and hum</li>
+                        <li><strong>Use repetition:</strong> Repeat melodic phrases with slight variations</li>
+                        <li><strong>Match the rhythm:</strong> Make sure your melody fits the song's tempo</li>
+                        <li><strong>Use the Studio:</strong> The visual keyboard makes it easy to try different notes</li>
+                    </ul>
+                </div>
+            </div>
 
         </section>
 
