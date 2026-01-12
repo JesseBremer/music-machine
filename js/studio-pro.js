@@ -378,6 +378,11 @@ function initPianoRoll() {
         studioState.noteLength = parseFloat(e.target.value);
     });
 
+    // Play melody button
+    document.getElementById('melody-play-btn').addEventListener('click', () => {
+        playMelodySequence();
+    });
+
     // Clear button
     document.getElementById('melody-clear-btn').addEventListener('click', () => {
         studioState.melodyNotes = [];
@@ -397,9 +402,10 @@ function renderPianoRoll() {
     const noteGrid = document.createElement('div');
     noteGrid.className = 'note-grid';
 
-    // Generate 2 octaves (24 notes)
-    const startNote = 60; // Middle C
-    for (let i = 23; i >= 0; i--) {
+    // Generate 3 octaves (36 notes) - from C4 to B6
+    const startNote = 60; // Middle C (C4)
+    const numNotes = 36; // 3 octaves
+    for (let i = numNotes - 1; i >= 0; i--) {
         const midiNote = startNote + i;
         const noteName = Tonal.Note.fromMidi(midiNote);
         const isBlack = noteName.includes('#') || noteName.includes('b');
@@ -460,6 +466,47 @@ function toggleNote(pitch, beat) {
     }
 
     renderPianoRoll();
+}
+
+function playMelodySequence() {
+    if (!window.audioEngine) {
+        console.error('Audio engine not available');
+        return;
+    }
+
+    if (studioState.melodyNotes.length === 0) {
+        alert('No melody notes to play! Click on the grid to add notes.');
+        return;
+    }
+
+    // Sort notes by beat position
+    const sortedNotes = [...studioState.melodyNotes].sort((a, b) => a.beat - b.beat);
+
+    // Calculate timing based on tempo
+    const beatDuration = (60 / studioState.tempo); // seconds per beat
+
+    // Play each note at the correct time
+    sortedNotes.forEach((note, index) => {
+        const delay = note.beat * beatDuration * 1000; // convert to milliseconds
+        const noteDuration = note.duration * beatDuration; // note duration in seconds
+
+        setTimeout(() => {
+            window.audioEngine.playMelody([note.pitch], noteDuration);
+        }, delay);
+    });
+
+    // Show feedback
+    const playBtn = document.getElementById('melody-play-btn');
+    playBtn.textContent = '⏸ Playing...';
+    playBtn.disabled = true;
+
+    // Re-enable button after melody finishes
+    const lastNote = sortedNotes[sortedNotes.length - 1];
+    const totalDuration = (lastNote.beat + lastNote.duration) * beatDuration * 1000;
+    setTimeout(() => {
+        playBtn.textContent = '▶ Play';
+        playBtn.disabled = false;
+    }, totalDuration);
 }
 
 // ============================================================
@@ -861,6 +908,23 @@ function playProgression() {
             }
         }, index * chordDuration * 1000);
     });
+
+    // Play melody along with chords
+    if (studioState.melodyNotes.length > 0) {
+        const beatDuration = (60 / studioState.tempo); // seconds per beat
+        const sortedNotes = [...studioState.melodyNotes].sort((a, b) => a.beat - b.beat);
+
+        sortedNotes.forEach(note => {
+            const delay = note.beat * beatDuration * 1000;
+            const noteDuration = note.duration * beatDuration;
+
+            setTimeout(() => {
+                if (studioState.isPlaying) {
+                    window.audioEngine.playMelody([note.pitch], noteDuration);
+                }
+            }, delay);
+        });
+    }
 
     // Loop if enabled
     if (studioState.isLooping) {
