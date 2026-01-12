@@ -295,6 +295,7 @@ window.generateAdvancedMelody = function() {
     try {
         const currentChordProgression = window.appState?.songData?.chordProgression || window.appState?.selectedChordProgression;
         const currentKey = window.appState?.songData?.key;
+        const currentScale = window.appState?.songData?.scale || 'major';
 
         if (!currentChordProgression || !currentKey || !window.MusicTheory?.generateAdvancedMelody) {
             console.warn('Advanced melody generation not available');
@@ -317,7 +318,8 @@ window.generateAdvancedMelody = function() {
             developmentTechniques: ['sequence', 'inversion', 'augmentation'],
             notesPerChord: genre === 'jazz' ? 6 : genre === 'classical' ? 8 : 4,
             style: genre === 'rock' ? 'angular' : genre === 'classical' ? 'smooth' : 'mixed',
-            vocalRange: { low: 'C4', high: 'C6' }
+            vocalRange: { low: 'C4', high: 'C6' },
+            scale: currentScale // Pass the selected scale
         };
 
         console.log('Generating advanced melody with options:', options);
@@ -553,6 +555,7 @@ window.generateSectionMelody = function(sectionId) {
         const lyrics = useLyricsCheckbox?.checked ? lyricsInput?.value?.trim() : null;
         const style = styleSelect?.value || 'verse';
         const key = window.appState?.songData?.key;
+        const scale = window.appState?.songData?.scale || 'major';
 
         if (!chordText || !key) {
             alert('Please ensure the section has chord progression and a key is selected.');
@@ -611,7 +614,8 @@ window.generateSectionMelody = function(sectionId) {
             developmentTechniques: developmentTechniques,
             notesPerChord: notesPerChord,
             style: style === 'angular' ? 'angular' : 'smooth',
-            vocalRange: { low: 'C4', high: 'C6' }
+            vocalRange: { low: 'C4', high: 'C6' },
+            scale: scale // Pass the selected scale
         };
 
         console.log('Generating section melody:', { sectionId, chords, lyrics, style, options });

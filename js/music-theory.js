@@ -418,34 +418,56 @@ function convertSingleNumeralToChord(numeral, key, scale) {
     try {
         // Handle different key formats
         const cleanKey = key.replace('m', '');
-        const isMinorKey = key.includes('m') || scale === 'minor';
-        
-        // Get the scale notes
-        let scaleNotes;
-        if (isMinorKey) {
-            scaleNotes = Tonal.Scale.get(`${cleanKey} minor`).notes;
-        } else {
-            scaleNotes = Tonal.Scale.get(`${cleanKey} major`).notes;
-        }
-        
+
+        // Map scale types to Tonal.js scale names
+        const scaleMap = {
+            'major': 'major',
+            'minor': 'minor',
+            'aeolian': 'aeolian',  // Same as natural minor
+            'dorian': 'dorian',
+            'phrygian': 'phrygian',
+            'lydian': 'lydian',
+            'mixolydian': 'mixolydian',
+            'locrian': 'locrian',
+            'harmonic-minor': 'harmonic minor',
+            'melodic-minor': 'melodic minor ascending',
+            'blues': 'blues',
+            'pentatonic-major': 'major pentatonic',
+            'pentatonic-minor': 'minor pentatonic'
+        };
+
+        // Get the correct scale name for Tonal.js
+        const tonalScaleName = scaleMap[scale] || scale || 'major';
+
+        // Get the scale notes using Tonal.js
+        const scaleData = Tonal.Scale.get(`${cleanKey} ${tonalScaleName}`);
+        const scaleNotes = scaleData.notes;
+
         if (!scaleNotes || scaleNotes.length === 0) {
-            console.warn(`Could not get scale notes for ${key} ${scale}`);
+            console.warn(`Could not get scale notes for ${cleanKey} ${tonalScaleName} (original: ${key} ${scale})`);
+            // Fallback to major if scale doesn't work
+            const fallbackScale = Tonal.Scale.get(`${cleanKey} major`);
+            if (fallbackScale.notes && fallbackScale.notes.length > 0) {
+                console.log(`Using major scale as fallback`);
+                return convertSingleNumeralToChord(numeral, key, 'major');
+            }
             return null;
         }
-        
+
         // Parse the numeral
         const { degree, quality, extension } = parseNumeral(numeral);
-        
+
         if (degree < 1 || degree > 7) return null;
-        
+
         // Get the root note (adjust for 0-based array)
         const rootNote = scaleNotes[degree - 1];
-        
+
         if (!rootNote) return null;
-        
+
         // Build the chord based on quality and extension
-        return buildChord(rootNote, quality, extension, scaleNotes, degree, isMinorKey);
-        
+        const isMinorScale = ['minor', 'aeolian', 'dorian', 'phrygian', 'harmonic-minor', 'melodic-minor', 'blues', 'pentatonic-minor'].includes(scale);
+        return buildChord(rootNote, quality, extension, scaleNotes, degree, isMinorScale);
+
     } catch (error) {
         console.error(`Error converting numeral ${numeral}:`, error);
         return null;
@@ -1204,22 +1226,35 @@ function getChromaticMelodyNotes(scaleNotes) {
 function getScaleNotesForKey(key, scale) {
     try {
         const cleanKey = key.replace('m', '');
-        let scaleName = `${cleanKey} ${scale}`;
-        
-        // Map scale types to Tonal.js scale names
-        if (scale === 'minor') scaleName = `${cleanKey} minor`;
-        else if (scale === 'dorian') scaleName = `${cleanKey} dorian`;
-        else if (scale === 'mixolydian') scaleName = `${cleanKey} mixolydian`;
-        else if (scale === 'lydian') scaleName = `${cleanKey} lydian`;
-        else if (scale === 'phrygian') scaleName = `${cleanKey} phrygian`;
-        else if (scale === 'harmonic-minor') scaleName = `${cleanKey} harmonic minor`;
-        else if (scale === 'pentatonic-major') scaleName = `${cleanKey} pentatonic`;
-        else if (scale === 'pentatonic-minor') scaleName = `${cleanKey} minor pentatonic`;
-        else if (scale === 'blues') scaleName = `${cleanKey} blues`;
-        
-        const scaleInfo = Tonal.Scale.get(scaleName);
-        return scaleInfo.notes || [];
-        
+
+        // Map scale types to Tonal.js scale names (consistent with convertSingleNumeralToChord)
+        const scaleMap = {
+            'major': 'major',
+            'minor': 'minor',
+            'aeolian': 'aeolian',
+            'dorian': 'dorian',
+            'phrygian': 'phrygian',
+            'lydian': 'lydian',
+            'mixolydian': 'mixolydian',
+            'locrian': 'locrian',
+            'harmonic-minor': 'harmonic minor',
+            'melodic-minor': 'melodic minor ascending',
+            'blues': 'blues',
+            'pentatonic-major': 'major pentatonic',
+            'pentatonic-minor': 'minor pentatonic'
+        };
+
+        const tonalScaleName = scaleMap[scale] || scale || 'major';
+        const scaleInfo = Tonal.Scale.get(`${cleanKey} ${tonalScaleName}`);
+
+        if (!scaleInfo.notes || scaleInfo.notes.length === 0) {
+            console.warn(`Could not get scale notes for ${cleanKey} ${tonalScaleName}`);
+            // Fallback to basic major scale
+            return Tonal.Scale.get(`${cleanKey} major`).notes || ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        }
+
+        return scaleInfo.notes;
+
     } catch (error) {
         console.warn(`Error getting scale notes for ${key} ${scale}:`, error);
         // Fallback to basic major scale
@@ -3821,11 +3856,35 @@ export function generateSmartMelody(chordProgression, key, options = {}) {
             octave = 5,
             notesPerChord = 4, // Number of melody notes per chord
             emphasizeStrongBeats = true,
-            vocalRange = { low: 'C4', high: 'C6' } // Vocal-friendly range
+            vocalRange = { low: 'C4', high: 'C6' }, // Vocal-friendly range
+            scale: scaleType = 'major' // Scale type to use
         } = options;
 
-        const scale = Tonal.Scale.get(`${key} major`);
-        if (!scale.notes) return null;
+        // Map scale types to Tonal.js scale names
+        const scaleMap = {
+            'major': 'major',
+            'minor': 'minor',
+            'aeolian': 'aeolian',
+            'dorian': 'dorian',
+            'phrygian': 'phrygian',
+            'lydian': 'lydian',
+            'mixolydian': 'mixolydian',
+            'locrian': 'locrian',
+            'harmonic-minor': 'harmonic minor',
+            'melodic-minor': 'melodic minor ascending',
+            'blues': 'blues',
+            'pentatonic-major': 'major pentatonic',
+            'pentatonic-minor': 'minor pentatonic'
+        };
+
+        const tonalScaleName = scaleMap[scaleType] || scaleType || 'major';
+        const cleanKey = key.replace('m', '');
+        const scale = Tonal.Scale.get(`${cleanKey} ${tonalScaleName}`);
+
+        if (!scale.notes || scale.notes.length === 0) {
+            console.warn(`Could not get scale notes for melody generation: ${cleanKey} ${tonalScaleName}`);
+            return null;
+        }
 
         const melody = [];
         let lastNote = scale.notes[0]; // Start on tonic
@@ -4417,7 +4476,8 @@ export function generateAdvancedMelody(chordProgression, key, options = {}) {
             developmentTechniques = ['sequence', 'inversion'],
             notesPerChord = 4,
             octave = 5,
-            vocalRange = { low: 'C4', high: 'C6' }
+            vocalRange = { low: 'C4', high: 'C6' },
+            scale = 'major' // Scale type to use
         } = options;
 
         // Get genre-specific style preferences
@@ -4438,7 +4498,8 @@ export function generateAdvancedMelody(chordProgression, key, options = {}) {
             octave,
             notesPerChord,
             vocalRange,
-            emphasizeStrongBeats: true
+            emphasizeStrongBeats: true,
+            scale // Pass scale through to generateSmartMelody
         });
 
         if (!baseMelody) return null;
