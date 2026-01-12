@@ -928,6 +928,84 @@ class AudioEngine {
         oscillator.start(startTime);
         oscillator.stop(startTime + duration);
     }
+
+    // =====================================
+    // CHORD SEQUENCE PLAYBACK (for progressions page)
+    // =====================================
+
+    // Play a sequence of chords by name (e.g., ["C", "F", "G", "C"])
+    async playChordSequence(chordNames, tempo = 120) {
+        if (!chordNames || chordNames.length === 0) {
+            console.warn('No chords provided to playChordSequence');
+            return;
+        }
+
+        await this.resumeAudioContext();
+
+        const beatDuration = 60 / tempo;
+        const chordDuration = beatDuration * 2; // Each chord lasts 2 beats
+
+        console.log(`Playing chord sequence: ${chordNames.join(' - ')} at ${tempo} BPM`);
+
+        let currentDelay = 0;
+
+        chordNames.forEach((chordName, index) => {
+            setTimeout(() => {
+                // Get chord notes using Tonal.js if available
+                let chordNotes = [];
+
+                if (window.Tonal && window.Tonal.Chord) {
+                    const chordInfo = window.Tonal.Chord.get(chordName);
+                    chordNotes = chordInfo.notes || [];
+
+                    // If Tonal didn't return notes, try fallback
+                    if (chordNotes.length === 0) {
+                        chordNotes = this.getBasicTriad(chordName, 'C');
+                    }
+                } else {
+                    // Fallback to basic triads
+                    chordNotes = this.getBasicTriad(chordName, 'C');
+                }
+
+                console.log(`Playing chord ${index + 1}/${chordNames.length}: ${chordName} = [${chordNotes.join(', ')}]`);
+
+                // Play chord immediately using the same approach as testSimpleChord
+                const frequencies = chordNotes.map(note => this.noteToFrequency(note, 4));
+                const oscillators = [];
+
+                frequencies.forEach((freq, noteIndex) => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    gainNode.gain.value = 0.2; // Volume for chord
+
+                    oscillator.start();
+                    oscillators.push(oscillator);
+                });
+
+                // Stop all oscillators after chord duration
+                setTimeout(() => {
+                    oscillators.forEach((osc) => {
+                        try {
+                            osc.stop();
+                        } catch (e) {
+                            // Already stopped
+                        }
+                    });
+                }, chordDuration * 1000);
+
+            }, currentDelay);
+
+            currentDelay += chordDuration * 1000; // Convert to milliseconds
+        });
+
+        return currentDelay / 1000; // Return total duration in seconds
+    }
 }
 
 // Create global audio engine instance
