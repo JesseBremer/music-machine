@@ -1593,17 +1593,26 @@ export function initializeSongcraftWorkspace(songData) {
         setupSectionManagement();
 
         // Initialize thematic words
-        renderThematicWords(songData.mood?.themes || [], 'thematic-words');
+        const defaultThematicWords = [
+            'love', 'heart', 'night', 'dream', 'time', 'light', 'eyes', 'soul',
+            'fire', 'rain', 'song', 'world', 'hope', 'fear', 'pain', 'joy',
+            'dance', 'fly', 'fall', 'rise', 'shine', 'fade', 'break', 'mend'
+        ];
+        const themesToDisplay = songData.mood?.themes && songData.mood.themes.length > 0
+            ? songData.mood.themes
+            : defaultThematicWords;
+        renderThematicWords(themesToDisplay, 'thematic-words');
 
         // Set up generate words button
         const generateWordsBtn = document.getElementById('generate-words');
         if (generateWordsBtn) {
             console.log('Generate words button found, attaching listener');
             generateWordsBtn.addEventListener('click', () => {
-                if (songData.mood?.themes) {
-                    const shuffledWords = [...songData.mood.themes].sort(() => Math.random() - 0.5).slice(0, 8);
-                    renderThematicWords(shuffledWords, 'thematic-words');
-                }
+                const wordsToShuffle = songData.mood?.themes && songData.mood.themes.length > 0
+                    ? songData.mood.themes
+                    : defaultThematicWords;
+                const shuffledWords = [...wordsToShuffle].sort(() => Math.random() - 0.5).slice(0, 8);
+                renderThematicWords(shuffledWords, 'thematic-words');
             });
         } else {
             console.warn('Generate words button not found');
@@ -1754,12 +1763,6 @@ function applyTemplate(templateType) {
             { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
             { type: 'Chorus', chords: chorusProgression, lyrics: '' }
         ],
-        'aaba': [
-            { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Verse', chords: baseChords, lyrics: '' },
-            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
-            { type: 'Verse', chords: baseChords, lyrics: '' }
-        ],
         'pop': [
             { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
             { type: 'Verse', chords: baseChords, lyrics: '' },
@@ -1771,6 +1774,98 @@ function applyTemplate(templateType) {
             { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
             { type: 'Chorus', chords: chorusProgression, lyrics: '' },
             { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
+        ],
+        'aaba': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' }
+        ],
+        'rock': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Solo', chords: chorusProgression, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
+        ],
+        'ballad': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '(Outro)' }
+        ],
+        'blues': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' }
+        ],
+        'folk': [
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' }
+        ],
+        'edm': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
+            { type: 'Build', chords: baseChords, lyrics: '' },
+            { type: 'Drop', chords: chorusProgression, lyrics: '' },
+            { type: 'Breakdown', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Build', chords: baseChords, lyrics: '' },
+            { type: 'Drop', chords: chorusProgression, lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
+        ],
+        'rnb': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Pre-Chorus', chords: generateSectionChords('Pre-Chorus', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Vamp', chords: chorusProgression, lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
+        ],
+        'indie': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Outro', chords: generateSectionChords('Outro', baseChords, songData, 0), lyrics: '' }
+        ],
+        'country': [
+            { type: 'Intro', chords: generateSectionChords('Intro', baseChords, songData, 0), lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Solo', chords: chorusProgression, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Tag', chords: chorusProgression, lyrics: '(Repeat and fade)' }
+        ],
+        'hook-first': [
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Verse', chords: baseChords, lyrics: '' },
+            { type: 'Bridge', chords: generateSectionChords('Bridge', baseChords, songData, 0), lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' },
+            { type: 'Chorus', chords: chorusProgression, lyrics: '' }
         ],
         'custom': []
     };
@@ -1823,6 +1918,12 @@ function createSongSection(type, chords, lyrics) {
                     <option value="Pre-Chorus" ${type === 'Pre-Chorus' ? 'selected' : ''}>Pre-Chorus</option>
                     <option value="Chorus" ${type === 'Chorus' ? 'selected' : ''}>Chorus</option>
                     <option value="Bridge" ${type === 'Bridge' ? 'selected' : ''}>Bridge</option>
+                    <option value="Solo" ${type === 'Solo' ? 'selected' : ''}>Solo</option>
+                    <option value="Build" ${type === 'Build' ? 'selected' : ''}>Build</option>
+                    <option value="Drop" ${type === 'Drop' ? 'selected' : ''}>Drop</option>
+                    <option value="Breakdown" ${type === 'Breakdown' ? 'selected' : ''}>Breakdown</option>
+                    <option value="Vamp" ${type === 'Vamp' ? 'selected' : ''}>Vamp</option>
+                    <option value="Tag" ${type === 'Tag' ? 'selected' : ''}>Tag</option>
                     <option value="Outro" ${type === 'Outro' ? 'selected' : ''}>Outro</option>
                 </select>
             </div>

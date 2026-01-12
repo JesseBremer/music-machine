@@ -1787,12 +1787,62 @@ async function loadMelodyStep() {
     UI.showStep('step-melody');
 }
 
+// Generate random chord progression
+function getRandomChordProgression() {
+    const keys = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm'];
+    const progressions = [
+        { name: 'Pop Magic', chords: ['I', 'V', 'vi', 'IV'] },
+        { name: 'Four Chords', chords: ['vi', 'IV', 'I', 'V'] },
+        { name: 'Canon', chords: ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V'] },
+        { name: 'Blues', chords: ['I', 'I', 'I', 'I', 'IV', 'IV', 'I', 'I', 'V', 'IV', 'I', 'V'] },
+        { name: 'Royal Road', chords: ['IV', 'V', 'iii', 'vi'] },
+        { name: 'Sensitive', chords: ['vi', 'IV', 'V', 'I'] },
+        { name: '50s Progression', chords: ['I', 'vi', 'IV', 'V'] },
+        { name: 'Circle', chords: ['vi', 'ii', 'V', 'I'] },
+        { name: 'Andalusian', chords: ['i', 'VII', 'VI', 'V'] },
+        { name: 'Jazz Turnaround', chords: ['I', 'VI', 'ii', 'V'] }
+    ];
+
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    const randomProg = progressions[Math.floor(Math.random() * progressions.length)];
+    const isMinor = randomKey.includes('m');
+    const cleanKey = randomKey.replace('m', '');
+    const scale = isMinor ? 'minor' : 'major';
+
+    // Convert Roman numerals to actual chords
+    const actualChords = randomProg.chords.map(numeral => {
+        if (window.MusicTheory && window.MusicTheory.convertNumeralsToChords) {
+            const converted = window.MusicTheory.convertNumeralsToChords([numeral], cleanKey, scale);
+            return converted[0] || 'C';
+        }
+        return 'C'; // Fallback
+    });
+
+    return {
+        key: cleanKey,
+        scale: scale,
+        progression: {
+            name: randomProg.name,
+            chords: actualChords
+        }
+    };
+}
+
 // Load songcraft step
 async function loadSongcraftStep() {
+    // Don't require chord progression - user can enter manually
+    // Generate random defaults if missing
     if (!appState.songData.chordProgression) {
-        UI.showMessage('Please select a chord progression first', 'error');
-        return;
+        const random = getRandomChordProgression();
+        appState.songData.key = random.key;
+        appState.songData.scale = random.scale;
+        appState.songData.chordProgression = random.progression;
+        console.log('Generated random progression:', random);
     }
+
+    // Set fallback key/scale if still missing
+    if (!appState.songData.key) appState.songData.key = 'C';
+    if (!appState.songData.scale) appState.songData.scale = 'major';
 
     // Show the step first so DOM elements are visible
     UI.showStep('step-songcraft');
@@ -2538,12 +2588,23 @@ async function jumpToStep(stepId, stepNumber) {
             break;
         case 'step-songcraft':
             // Songcraft is lyrics/structure - show it and initialize
+            // Generate random defaults if missing
+            if (!appState.songData.chordProgression) {
+                const random = getRandomChordProgression();
+                appState.songData.key = random.key;
+                appState.songData.scale = random.scale;
+                appState.songData.chordProgression = random.progression;
+                console.log('Generated random progression for direct navigation:', random);
+            }
+
+            // Set fallback key/scale if still missing
+            if (!appState.songData.key) appState.songData.key = 'C';
+            if (!appState.songData.scale) appState.songData.scale = 'major';
+
             UI.showStep('step-songcraft');
             UI.updateProgressBar('step-songcraft');
             // Initialize the workspace when jumping to this step
-            if (appState.songData.chordProgression) {
-                UI.initializeSongcraftWorkspace(appState.songData);
-            }
+            UI.initializeSongcraftWorkspace(appState.songData);
             break;
         case 'step-export':
             await loadExportStep();
