@@ -1794,9 +1794,11 @@ async function loadSongcraftStep() {
         return;
     }
 
-    // Initialize songcraft workspace
-    UI.initializeSongcraftWorkspace(appState.songData);
+    // Show the step first so DOM elements are visible
     UI.showStep('step-songcraft');
+
+    // Then initialize songcraft workspace (needs visible DOM)
+    UI.initializeSongcraftWorkspace(appState.songData);
 
     // Enable the next button since songcraft is optional
     UI.enableButton('songcraft-next-top');
@@ -2535,9 +2537,13 @@ async function jumpToStep(stepId, stepNumber) {
             await loadMelodyStepDirect();
             break;
         case 'step-songcraft':
-            // Songcraft is lyrics/structure - just show it
+            // Songcraft is lyrics/structure - show it and initialize
             UI.showStep('step-songcraft');
             UI.updateProgressBar('step-songcraft');
+            // Initialize the workspace when jumping to this step
+            if (appState.songData.chordProgression) {
+                UI.initializeSongcraftWorkspace(appState.songData);
+            }
             break;
         case 'step-export':
             await loadExportStep();

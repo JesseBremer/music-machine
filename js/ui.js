@@ -1582,29 +1582,38 @@ export function showMessage(message, type = 'info') {
 // =====================================
 
 export function initializeSongcraftWorkspace(songData) {
-    // Initialize template listeners
-    setupTemplateListeners();
+    console.log('Initializing songcraft workspace with data:', songData);
 
-    // Initialize section management
-    setupSectionManagement();
+    // Use setTimeout to ensure DOM is fully rendered after showStep
+    setTimeout(() => {
+        // Initialize template listeners
+        setupTemplateListeners();
 
-    // Initialize thematic words
-    renderThematicWords(songData.mood?.themes || [], 'thematic-words');
+        // Initialize section management
+        setupSectionManagement();
 
-    // Set up generate words button
-    const generateWordsBtn = document.getElementById('generate-words');
-    if (generateWordsBtn) {
-        generateWordsBtn.addEventListener('click', () => {
-            if (songData.mood?.themes) {
-                const shuffledWords = [...songData.mood.themes].sort(() => Math.random() - 0.5).slice(0, 8);
-                renderThematicWords(shuffledWords, 'thematic-words');
-            }
-        });
-    }
+        // Initialize thematic words
+        renderThematicWords(songData.mood?.themes || [], 'thematic-words');
+
+        // Set up generate words button
+        const generateWordsBtn = document.getElementById('generate-words');
+        if (generateWordsBtn) {
+            console.log('Generate words button found, attaching listener');
+            generateWordsBtn.addEventListener('click', () => {
+                if (songData.mood?.themes) {
+                    const shuffledWords = [...songData.mood.themes].sort(() => Math.random() - 0.5).slice(0, 8);
+                    renderThematicWords(shuffledWords, 'thematic-words');
+                }
+            });
+        } else {
+            console.warn('Generate words button not found');
+        }
+    }, 50); // Small delay to ensure DOM is ready
 }
 
 function setupTemplateListeners() {
     const templateCards = document.querySelectorAll('.template-card');
+    console.log(`Found ${templateCards.length} template cards`);
 
     templateCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -1616,6 +1625,7 @@ function setupTemplateListeners() {
 
             // Apply template structure
             const template = card.getAttribute('data-template');
+            console.log(`Applying template: ${template}`);
             applyTemplate(template);
         });
     });
@@ -1625,16 +1635,27 @@ function setupSectionManagement() {
     const addSectionBtn = document.getElementById('add-section');
     const clearBtn = document.getElementById('clear-structure');
 
+    console.log('Setting up section management:', {
+        addSectionBtn: !!addSectionBtn,
+        clearBtn: !!clearBtn
+    });
+
     if (addSectionBtn) {
         addSectionBtn.addEventListener('click', () => {
+            console.log('Add section button clicked');
             addSongSection();
         });
+    } else {
+        console.warn('Add section button not found!');
     }
 
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
+            console.log('Clear button clicked');
             clearAllSections();
         });
+    } else {
+        console.warn('Clear button not found!');
     }
 }
 
