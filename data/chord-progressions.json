@@ -512,25 +512,45 @@
         "name": "Shape of You (Ed Sheeran)",
         "description": "Modern pop hit formula - upbeat and catchy",
         "numerals": ["I", "vi", "V", "IV"],
-        "function": "Contemporary pop progression"
+        "function": "Contemporary pop progression",
+        "songs": [
+          {"title": "Shape of You", "artist": "Ed Sheeran"},
+          {"title": "Perfect", "artist": "Ed Sheeran"},
+          {"title": "Havana", "artist": "Camila Cabello"}
+        ]
       },
       "vi-I-IV-V": {
         "name": "Levitating (Dua Lipa)",
         "description": "Nu-disco pop - danceable and bright",
         "numerals": ["vi", "I", "IV", "V"],
-        "function": "Disco revival in pop"
+        "function": "Disco revival in pop",
+        "songs": [
+          {"title": "Levitating", "artist": "Dua Lipa"},
+          {"title": "Say So", "artist": "Doja Cat"},
+          {"title": "Don't Start Now", "artist": "Dua Lipa"}
+        ]
       },
       "vi-IV-I-V": {
         "name": "Blinding Lights (The Weeknd)",
         "description": "80s synthwave revival - nostalgic pop",
         "numerals": ["vi", "IV", "I", "V"],
-        "function": "Retro synthpop progression"
+        "function": "Retro synthpop progression",
+        "songs": [
+          {"title": "Blinding Lights", "artist": "The Weeknd"},
+          {"title": "Starboy", "artist": "The Weeknd"},
+          {"title": "Can't Feel My Face", "artist": "The Weeknd"}
+        ]
       },
       "I-V-vi-vi": {
         "name": "Bad Guy (Billie Eilish)",
         "description": "Dark pop - stays on vi for modern edge",
         "numerals": ["I", "V", "vi", "vi"],
-        "function": "Alt-pop with extended minor"
+        "function": "Alt-pop with extended minor",
+        "songs": [
+          {"title": "Bad Guy", "artist": "Billie Eilish"},
+          {"title": "Therefore I Am", "artist": "Billie Eilish"},
+          {"title": "Old Town Road", "artist": "Lil Nas X"}
+        ]
       }
     },
     "rock": {
