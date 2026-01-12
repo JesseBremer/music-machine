@@ -5,7 +5,15 @@
         "name": "Pop Magic",
         "description": "The ultimate feel-good progression - uplifting and universal",
         "numerals": ["I", "V", "vi", "IV"],
-        "function": "Tonic-Dominant-Relative Minor-Subdominant"
+        "function": "Tonic-Dominant-Relative Minor-Subdominant",
+        "songs": [
+          {"title": "Let It Be", "artist": "The Beatles"},
+          {"title": "No Woman No Cry", "artist": "Bob Marley"},
+          {"title": "With or Without You", "artist": "U2"},
+          {"title": "Don't Stop Believin'", "artist": "Journey"},
+          {"title": "Poker Face", "artist": "Lady Gaga"},
+          {"title": "Africa", "artist": "Toto"}
+        ]
       },
       "I-IV-V-I": {
         "name": "Perfect Cadence",
@@ -67,7 +75,13 @@
         "name": "Modern Minor",
         "description": "Contemporary minor progression - melancholic and popular",
         "numerals": ["i", "♭VI", "♭III", "♭VII"],
-        "function": "Tonic-Submediant-Mediant-Subtonic"
+        "function": "Tonic-Submediant-Mediant-Subtonic",
+        "songs": [
+          {"title": "Faded", "artist": "Alan Walker"},
+          {"title": "Requiem for a Dream", "artist": "Clint Mansell"},
+          {"title": "Numb", "artist": "Linkin Park"},
+          {"title": "Radioactive", "artist": "Imagine Dragons"}
+        ]
       },
       "i-v-iv-i": {
         "name": "Minor Circle",
@@ -181,7 +195,14 @@
         "name": "Jazz Standard",
         "description": "The most important progression in jazz",
         "numerals": ["ii", "V", "I"],
-        "function": "Subdominant Function-Dominant-Tonic"
+        "function": "Subdominant Function-Dominant-Tonic",
+        "songs": [
+          {"title": "Autumn Leaves", "artist": "Jazz Standard"},
+          {"title": "Satin Doll", "artist": "Duke Ellington"},
+          {"title": "Fly Me to the Moon", "artist": "Frank Sinatra"},
+          {"title": "All of Me", "artist": "Jazz Standard"},
+          {"title": "Take the A Train", "artist": "Duke Ellington"}
+        ]
       },
       "ii7-V7-Imaj7": {
         "name": "Major ii-V-I",
@@ -225,7 +246,14 @@
         "name": "12-Bar Blues",
         "description": "The classic 12-bar blues progression",
         "numerals": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
-        "function": "Traditional blues form"
+        "function": "Traditional blues form",
+        "songs": [
+          {"title": "Sweet Home Chicago", "artist": "Robert Johnson"},
+          {"title": "Johnny B. Goode", "artist": "Chuck Berry"},
+          {"title": "Pride and Joy", "artist": "Stevie Ray Vaughan"},
+          {"title": "Hound Dog", "artist": "Elvis Presley"},
+          {"title": "The Thrill Is Gone", "artist": "B.B. King"}
+        ]
       },
       "I7-IV7-V7": {
         "name": "Quick Change Blues",
@@ -313,7 +341,14 @@
         "name": "Classic Rock Power",
         "description": "Traditional blues and rock progression - simple and powerful",
         "numerals": ["I", "IV", "V"],
-        "function": "Tonic-Subdominant-Dominant power"
+        "function": "Tonic-Subdominant-Dominant power",
+        "songs": [
+          {"title": "Wild Thing", "artist": "The Troggs"},
+          {"title": "Twist and Shout", "artist": "The Beatles"},
+          {"title": "La Bamba", "artist": "Ritchie Valens"},
+          {"title": "Louie Louie", "artist": "The Kingsmen"},
+          {"title": "Good Riddance (Time of Your Life)", "artist": "Green Day"}
+        ]
       },
       "I-V-IV": {
         "name": "Folk Rock",
@@ -445,7 +480,14 @@
         "name": "The Sadness (Someone Like You)",
         "description": "Emotional ballad progression - Adele, Coldplay, Let It Be",
         "numerals": ["vi", "IV", "I", "V"],
-        "function": "Melancholic start with hopeful resolution"
+        "function": "Melancholic start with hopeful resolution",
+        "songs": [
+          {"title": "Someone Like You", "artist": "Adele"},
+          {"title": "The Scientist", "artist": "Coldplay"},
+          {"title": "Apologize", "artist": "OneRepublic"},
+          {"title": "Grenade", "artist": "Bruno Mars"},
+          {"title": "Secrets", "artist": "OneRepublic"}
+        ]
       },
       "I-V-vi-IV": {
         "name": "Indie Anthem",

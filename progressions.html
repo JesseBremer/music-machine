@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Progressions - Music Machine</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tonal@5.0.0/browser/tonal.min.js"></script>
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+    <script src="js/music-theory.js"></script>
+    <script src="js/audio-engine.js"></script>
+    <style>
+        .progressions-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        .key-selector {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .key-selector h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.2rem;
+        }
+
+        .key-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .key-btn {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .key-btn:hover {
+            background: var(--secondary-color);
+            color: var(--background-color);
+            border-color: var(--secondary-color);
+            box-shadow: var(--glow-secondary);
+            transform: translateY(-2px);
+        }
+
+        .key-btn.active {
+            background: var(--primary-color);
+            color: var(--background-color);
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
+        }
+
+        .scale-type-selector {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .scale-type-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .category-section {
+            margin-bottom: var(--spacing-2xl);
+            background: var(--surface-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .progressions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .progression-card {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-subtle);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progression-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: var(--glow-secondary);
+            transform: translateY(-2px);
+        }
+
+        .progression-card.expanded {
+            border-color: var(--primary-color);
+            box-shadow: var(--glow-primary);
+        }
+
+        .progression-header {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .progression-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .progression-chords {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin: var(--spacing-sm) 0;
+            font-family: var(--font-family-mono);
+            letter-spacing: 0.5px;
+        }
+
+        .progression-numerals {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .progression-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            line-height: 1.4;
+        }
+
+        .progression-function {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: var(--border-radius);
+            display: inline-block;
+        }
+
+        .songs-list {
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-subtle);
+            display: none;
+        }
+
+        .progression-card.expanded .songs-list {
+            display: block;
+        }
+
+        .songs-header {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .song-item {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+            background: rgba(255, 107, 107, 0.05);
+            border-left: 3px solid var(--accent-color);
+            border-radius: var(--border-radius);
+        }
+
+        .song-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .song-artist {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: var(--spacing-xs);
+        }
+
+        .play-button {
+            background: var(--accent-color);
+            color: var(--background-color);
+            border: none;
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: var(--spacing-sm);
+        }
+
+        .play-button:hover {
+            background: var(--primary-color);
+            box-shadow: var(--glow-primary);
+            transform: scale(1.05);
+        }
+
+        .no-songs {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .stats-bar {
+            background: var(--surface-elevated);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .stat-item {
+            padding: var(--spacing-sm);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .progressions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>🎵 Chord Progressions Explorer</h1>
+            <p>Discover popular chord progressions and the songs that use them</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="chords.html" class="nav-link">🎸 Chords</a>
+                <a href="scales.html" class="nav-link">🎵 Scales</a>
+                <a href="progressions.html" class="nav-link active">🎼 Progressions</a>
+                <a href="strumming.html" class="nav-link">🎼 Strumming</a>
+                <a href="circle-of-fifths.html" class="nav-link">🎭 Circle of Fifths</a>
+                <a href="studio.html" class="nav-link">🎹 Studio</a>
+            </nav>
+        </header>
+
+        <div class="progressions-page">
+
+            <div class="key-selector">
+                <h3>🎹 Select a Key</h3>
+                <div class="key-buttons">
+                    <button class="key-btn active" data-key="C">C</button>
+                    <button class="key-btn" data-key="C#">C#/Db</button>
+                    <button class="key-btn" data-key="D">D</button>
+                    <button class="key-btn" data-key="Eb">D#/Eb</button>
+                    <button class="key-btn" data-key="E">E</button>
+                    <button class="key-btn" data-key="F">F</button>
+                    <button class="key-btn" data-key="F#">F#/Gb</button>
+                    <button class="key-btn" data-key="G">G</button>
+                    <button class="key-btn" data-key="Ab">G#/Ab</button>
+                    <button class="key-btn" data-key="A">A</button>
+                    <button class="key-btn" data-key="Bb">A#/Bb</button>
+                    <button class="key-btn" data-key="B">B</button>
+                </div>
+            </div>
+
+            <div class="scale-type-selector">
+                <h3>🎶 Scale Type</h3>
+                <div class="scale-type-buttons">
+                    <button class="key-btn active" data-scale="major">Major</button>
+                    <button class="key-btn" data-scale="minor">Minor</button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-progressions">0</span>
+                    <div class="stat-label">Total Progressions</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="with-songs">0</span>
+                    <div class="stat-label">With Song Examples</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="current-key">C</span>
+                    <div class="stat-label">Current Key</div>
+                </div>
+            </div>
+
+            <div id="progressions-container">
+                <!-- Progression categories will be generated here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let progressionsData = null;
+        let currentKey = 'C';
+        let currentScale = 'major';
+
+        // Load chord progressions data
+        async function loadProgressions() {
+            try {
+                const response = await fetch('data/chord-progressions.json');
+                progressionsData = await response.json();
+                console.log('Loaded progressions:', progressionsData);
+                renderProgressions();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading progressions:', error);
+                document.getElementById('progressions-container').innerHTML =
+                    '<div class="error">Error loading chord progressions database</div>';
+            }
+        }
+
+        // Convert Roman numeral to chord name in current key
+        function numeralToChord(numeral, key, scaleType) {
+            const majorScale = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+            const minorScale = ['i', 'ii°', '♭III', 'iv', 'v', '♭VI', '♭VII'];
+
+            const chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const enharmonics = {'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'};
+
+            const normalizedKey = enharmonics[key] || key;
+            const keyIndex = chromaticNotes.indexOf(normalizedKey);
+
+            if (keyIndex === -1) return numeral;
+
+            // Major scale intervals: W-W-H-W-W-W-H (2-2-1-2-2-2-1 semitones)
+            const majorIntervals = [0, 2, 4, 5, 7, 9, 11];
+            // Natural minor scale intervals: W-H-W-W-H-W-W (2-1-2-2-1-2-2 semitones)
+            const minorIntervals = [0, 2, 3, 5, 7, 8, 10];
+
+            const intervals = scaleType === 'major' ? majorIntervals : minorIntervals;
+
+            // Parse the numeral to extract degree and quality
+            let cleanNumeral = numeral.replace(/[♭#]/g, '').replace(/[°+]/g, '').replace(/7|maj7|m7|sus2|sus4|add9|9|11|13|6|m6/g, '');
+
+            // Handle special cases
+            if (numeral.includes('♭VII')) {
+                const noteIndex = (keyIndex + 10) % 12;
+                let noteName = chromaticNotes[noteIndex];
+                if (scaleType === 'minor' && numeral.toLowerCase() === numeral) {
+                    return noteName + 'm';
+                }
+                return noteName;
+            }
+            if (numeral.includes('♭VI')) {
+                const noteIndex = (keyIndex + 8) % 12;
+                return chromaticNotes[noteIndex];
+            }
+            if (numeral.includes('♭III')) {
+                const noteIndex = (keyIndex + 3) % 12;
+                return chromaticNotes[noteIndex];
+            }
+            if (numeral.includes('♭II')) {
+                const noteIndex = (keyIndex + 1) % 12;
+                return chromaticNotes[noteIndex];
+            }
+
+            // Map Roman numerals to scale degrees
+            const romanToIndex = {
+                'I': 0, 'II': 1, 'III': 2, 'IV': 3, 'V': 4, 'VI': 5, 'VII': 6,
+                'i': 0, 'ii': 1, 'iii': 2, 'iv': 3, 'v': 4, 'vi': 5, 'vii': 6
+            };
+
+            const degreeIndex = romanToIndex[cleanNumeral.toUpperCase()];
+            if (degreeIndex === undefined) return numeral;
+
+            const noteIndex = (keyIndex + intervals[degreeIndex]) % 12;
+            let noteName = chromaticNotes[noteIndex];
+
+            // Add chord quality
+            const isLowerCase = cleanNumeral.charAt(0) === cleanNumeral.charAt(0).toLowerCase();
+            let quality = '';
+
+            if (numeral.includes('maj7')) quality = 'maj7';
+            else if (numeral.includes('m7') || numeral.includes('7♭5')) quality = 'm7';
+            else if (numeral.includes('7')) quality = '7';
+            else if (numeral.includes('°')) quality = 'dim';
+            else if (numeral.includes('+') || numeral.includes('aug')) quality = 'aug';
+            else if (numeral.includes('sus2')) quality = 'sus2';
+            else if (numeral.includes('sus4')) quality = 'sus4';
+            else if (numeral.includes('6')) quality = '6';
+            else if (numeral.includes('9')) quality = '9';
+            else if (isLowerCase && !quality) quality = 'm';
+
+            return noteName + quality;
+        }
+
+        // Render progressions
+        function renderProgressions() {
+            if (!progressionsData) return;
+
+            const container = document.getElementById('progressions-container');
+            container.innerHTML = '';
+
+            const progs = progressionsData.progressions;
+
+            // Category display names and emojis
+            const categoryInfo = {
+                'major': { name: 'Major Progressions', emoji: '☀️' },
+                'minor': { name: 'Minor Progressions', emoji: '🌙' },
+                'modal': { name: 'Modal Progressions', emoji: '🎭' },
+                'jazz': { name: 'Jazz Progressions', emoji: '🎷' },
+                'blues': { name: 'Blues Progressions', emoji: '🎸' },
+                'gospel': { name: 'Gospel Progressions', emoji: '⛪' },
+                'latin': { name: 'Latin Progressions', emoji: '💃' },
+                'funk': { name: 'Funk Progressions', emoji: '🕺' },
+                'pop': { name: 'Pop Progressions', emoji: '🎤' },
+                'rock': { name: 'Rock Progressions', emoji: '🤘' },
+                'electronic': { name: 'Electronic Progressions', emoji: '🎧' },
+                'country': { name: 'Country Progressions', emoji: '🤠' },
+                'vintage': { name: 'Vintage Progressions', emoji: '📻' },
+                'alternative': { name: 'Alternative Progressions', emoji: '🎨' },
+                'traditional': { name: 'Traditional Progressions', emoji: '🎻' },
+                'indie': { name: 'Indie Progressions', emoji: '🌟' }
+            };
+
+            Object.keys(progs).forEach(category => {
+                const categoryData = progs[category];
+                const info = categoryInfo[category] || { name: category, emoji: '🎵' };
+
+                // Handle modal category differently (it has subcategories)
+                if (category === 'modal') {
+                    Object.keys(categoryData).forEach(subCategory => {
+                        const subCategoryData = categoryData[subCategory];
+                        renderCategory(
+                            `${info.emoji} ${info.name} - ${subCategory.charAt(0).toUpperCase() + subCategory.slice(1)}`,
+                            subCategoryData,
+                            category
+                        );
+                    });
+                } else {
+                    renderCategory(`${info.emoji} ${info.name}`, categoryData, category);
+                }
+            });
+        }
+
+        function renderCategory(title, progressions, category) {
+            const container = document.getElementById('progressions-container');
+
+            const section = document.createElement('div');
+            section.className = 'category-section';
+
+            const titleEl = document.createElement('h2');
+            titleEl.className = 'category-title';
+            titleEl.textContent = title;
+            section.appendChild(titleEl);
+
+            const grid = document.createElement('div');
+            grid.className = 'progressions-grid';
+
+            Object.keys(progressions).forEach(progKey => {
+                const prog = progressions[progKey];
+                const card = createProgressionCard(progKey, prog);
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            container.appendChild(section);
+        }
+
+        function createProgressionCard(key, progression) {
+            const card = document.createElement('div');
+            card.className = 'progression-card';
+
+            // Convert numerals to actual chords
+            const chords = progression.numerals.map(n => numeralToChord(n, currentKey, currentScale)).join(' - ');
+
+            card.innerHTML = `
+                <div class="progression-header">
+                    <div class="progression-name">${progression.name}</div>
+                    <div class="progression-chords">${chords}</div>
+                    <div class="progression-numerals">${progression.numerals.join(' - ')}</div>
+                </div>
+                <div class="progression-description">${progression.description}</div>
+                <div class="progression-function">${progression.function}</div>
+                <button class="play-button" onclick="playProgression('${progression.numerals.join(',')}', event)">▶ Play Progression</button>
+                <div class="songs-list">
+                    <div class="songs-header">🎵 Songs Using This Progression:</div>
+                    ${renderSongsList(progression.songs)}
+                </div>
+            `;
+
+            card.addEventListener('click', (e) => {
+                if (e.target.classList.contains('play-button')) return;
+                card.classList.toggle('expanded');
+            });
+
+            return card;
+        }
+
+        function renderSongsList(songs) {
+            if (!songs || songs.length === 0) {
+                return '<div class="no-songs">No song examples available yet</div>';
+            }
+
+            return songs.map(song => `
+                <div class="song-item">
+                    <span class="song-title">"${song.title}"</span>
+                    <span class="song-artist">by ${song.artist}</span>
+                </div>
+            `).join('');
+        }
+
+        // Play progression using audio engine
+        async function playProgression(numeralsString, event) {
+            event.stopPropagation();
+
+            const numerals = numeralsString.split(',');
+            const chords = numerals.map(n => numeralToChord(n, currentKey, currentScale));
+
+            console.log('Playing progression:', chords);
+
+            // Use the audio engine to play chords
+            if (window.audioEngine && window.audioEngine.playChordSequence) {
+                await window.audioEngine.playChordSequence(chords, 120); // 120 BPM
+            } else {
+                console.warn('Audio engine not available');
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            if (!progressionsData) return;
+
+            let totalCount = 0;
+            let withSongsCount = 0;
+
+            const progs = progressionsData.progressions;
+            Object.keys(progs).forEach(category => {
+                const categoryData = progs[category];
+
+                if (category === 'modal') {
+                    Object.keys(categoryData).forEach(subCategory => {
+                        const subData = categoryData[subCategory];
+                        Object.keys(subData).forEach(progKey => {
+                            totalCount++;
+                            if (subData[progKey].songs && subData[progKey].songs.length > 0) {
+                                withSongsCount++;
+                            }
+                        });
+                    });
+                } else {
+                    Object.keys(categoryData).forEach(progKey => {
+                        totalCount++;
+                        if (categoryData[progKey].songs && categoryData[progKey].songs.length > 0) {
+                            withSongsCount++;
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('total-progressions').textContent = totalCount;
+            document.getElementById('with-songs').textContent = withSongsCount;
+            document.getElementById('current-key').textContent = currentKey;
+        }
+
+        // Handle key selection
+        document.querySelectorAll('.key-btn[data-key]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.key-btn[data-key]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentKey = btn.getAttribute('data-key');
+                renderProgressions();
+                updateStats();
+            });
+        });
+
+        // Handle scale type selection
+        document.querySelectorAll('.key-btn[data-scale]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.key-btn[data-scale]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentScale = btn.getAttribute('data-scale');
+                renderProgressions();
+            });
+        });
+
+        // Initialize
+        loadProgressions();
+    </script>
+</body>
+</html>
