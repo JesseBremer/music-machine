@@ -416,7 +416,12 @@
         "name": "Quick Change Blues",
         "description": "Fast blues progression",
         "numerals": ["I7", "IV7", "V7"],
-        "function": "Simplified blues changes"
+        "function": "Simplified blues changes",
+        "songs": [
+          {"title": "Rock Around the Clock", "artist": "Bill Haley"},
+          {"title": "Summertime Blues", "artist": "Eddie Cochran"},
+          {"title": "Blue Moon of Kentucky", "artist": "Bill Monroe"}
+        ]
       }
     },
     "gospel": {
@@ -424,13 +429,23 @@
         "name": "Gospel Progression",
         "description": "Common in gospel and R&B",
         "numerals": ["I", "vi", "ii", "V"],
-        "function": "Circle of fifths movement"
+        "function": "Circle of fifths movement",
+        "songs": [
+          {"title": "Amazing Grace", "artist": "Traditional"},
+          {"title": "Oh Happy Day", "artist": "Edwin Hawkins Singers"},
+          {"title": "Lean on Me", "artist": "Bill Withers"}
+        ]
       },
       "I-IV-vi-V": {
         "name": "Contemporary Gospel",
         "description": "Modern gospel chord progression",
         "numerals": ["I", "IV", "vi", "V"],
-        "function": "Uplifting and spiritual"
+        "function": "Uplifting and spiritual",
+        "songs": [
+          {"title": "How Great Is Our God", "artist": "Chris Tomlin"},
+          {"title": "Amazing Grace (My Chains Are Gone)", "artist": "Chris Tomlin"},
+          {"title": "Oceans", "artist": "Hillsong United"}
+        ]
       }
     },
     "latin": {
@@ -438,13 +453,23 @@
         "name": "Latin Minor",
         "description": "Common in Latin music",
         "numerals": ["im", "V7", "im"],
-        "function": "Minor with dominant 7th tension"
+        "function": "Minor with dominant 7th tension",
+        "songs": [
+          {"title": "Besame Mucho", "artist": "Consuelo Velázquez"},
+          {"title": "Europa", "artist": "Santana"},
+          {"title": "Sway", "artist": "Dean Martin"}
+        ]
       },
       "Imaj7-VIm7-ii7-V7": {
         "name": "Bossa Nova",
         "description": "Sophisticated Brazilian progression",
         "numerals": ["Imaj7", "VIm7", "ii7", "V7"],
-        "function": "Jazz influenced Latin progression"
+        "function": "Jazz influenced Latin progression",
+        "songs": [
+          {"title": "The Girl from Ipanema", "artist": "Stan Getz & Astrud Gilberto"},
+          {"title": "Wave", "artist": "Antônio Carlos Jobim"},
+          {"title": "Desafinado", "artist": "João Gilberto"}
+        ]
       }
     },
     "funk": {
@@ -452,19 +477,34 @@
         "name": "Funk Vamp",
         "description": "Classic funk two-chord vamp",
         "numerals": ["i", "♭VII"],
-        "function": "Tonic-Subtonic groove"
+        "function": "Tonic-Subtonic groove",
+        "songs": [
+          {"title": "Superstition", "artist": "Stevie Wonder"},
+          {"title": "Cissy Strut", "artist": "The Meters"},
+          {"title": "Brick House", "artist": "The Commodores"}
+        ]
       },
       "i-iv": {
         "name": "Funk Subdominant",
         "description": "Subdominant funk groove",
         "numerals": ["i", "iv"],
-        "function": "Tonic-Subdominant groove"
+        "function": "Tonic-Subdominant groove",
+        "songs": [
+          {"title": "Superstition", "artist": "Stevie Wonder"},
+          {"title": "Use Me", "artist": "Bill Withers"},
+          {"title": "Chameleon", "artist": "Herbie Hancock"}
+        ]
       },
       "VII-i": {
         "name": "Reverse Funk",
         "description": "Reversed funk progression",
         "numerals": ["♭VII", "i"],
-        "function": "Subtonic-Tonic resolution"
+        "function": "Subtonic-Tonic resolution",
+        "songs": [
+          {"title": "Play That Funky Music", "artist": "Wild Cherry"},
+          {"title": "Cissy Strut", "artist": "The Meters"},
+          {"title": "Fire", "artist": "Ohio Players"}
+        ]
       }
     },
     "pop": {
