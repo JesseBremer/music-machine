@@ -2096,9 +2096,9 @@ body {
 .songcraft-workspace {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr auto;
     gap: var(--spacing-lg);
-    min-height: 500px;
+    min-height: 600px;
 }
 
 .structure-templates {
@@ -2108,6 +2108,8 @@ body {
     padding: var(--spacing-lg);
     grid-column: 1;
     grid-row: 1;
+    overflow-y: auto;
+    max-height: 600px;
 }
 
 .structure-templates h3 {
@@ -2172,9 +2174,11 @@ body {
     border-radius: var(--border-radius);
     padding: var(--spacing-lg);
     grid-column: 2;
-    grid-row: 1 / -1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    max-height: 600px;
 }
 
 .builder-header {
@@ -2224,7 +2228,6 @@ body {
 .song-sections {
     flex: 1;
     overflow-y: auto;
-    max-height: 400px;
 }
 
 .song-section {
@@ -2323,6 +2326,42 @@ body {
     margin-bottom: var(--spacing-md);
 }
 
+.chord-label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.chord-label span {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-small);
+}
+
+.chord-progression-select {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    color: var(--text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chord-progression-select:hover {
+    border-color: var(--primary-color);
+}
+
+.chord-progression-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: var(--glow-primary);
+}
+
 .chord-progression-input {
     background: var(--background-color);
     border: 1px solid var(--border-color);
@@ -2366,8 +2405,10 @@ body {
 .chord-suggestions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
-    margin-top: var(--spacing-xs);
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .chord-suggestion {
@@ -2389,12 +2430,53 @@ body {
     box-shadow: var(--glow-primary);
 }
 
+/* New card-style suggestions with names and descriptions */
+.chord-suggestion-card {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 calc(50% - var(--spacing-sm));
+    min-width: 250px;
+    max-width: 100%;
+}
+
+.chord-suggestion-card:hover {
+    background: var(--gradient-surface);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.chord-suggestion-card .suggestion-name {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-small);
+}
+
+.chord-suggestion-card .suggestion-chords {
+    font-family: var(--font-family-mono);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+}
+
+.chord-suggestion-card .suggestion-description {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
 .lyrics-helper {
     background: var(--gradient-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-lg);
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
 }
 
@@ -2524,9 +2606,14 @@ body {
         grid-template-rows: auto auto auto;
     }
 
+    .structure-templates {
+        max-height: none;
+    }
+
     .song-builder {
         grid-column: 1;
         grid-row: 2;
+        max-height: none;
     }
 
     .lyrics-helper {

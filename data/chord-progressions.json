@@ -867,6 +867,199 @@
           {"title": "Fake Empire", "artist": "The National"}
         ]
       }
+    },
+    "verses": {
+      "I-IV": {
+        "name": "Simple Verse",
+        "description": "Perfect for verses - simple, allows lyrics to shine",
+        "numerals": ["I", "IV"],
+        "function": "Basic verse foundation",
+        "songs": [
+          {"title": "Imagine", "artist": "John Lennon"},
+          {"title": "Free Fallin'", "artist": "Tom Petty"},
+          {"title": "Bad Moon Rising", "artist": "CCR"}
+        ]
+      },
+      "vi-IV": {
+        "name": "Melancholic Verse",
+        "description": "Great for storytelling verses - emotional and intimate",
+        "numerals": ["vi", "IV"],
+        "function": "Minor verse for ballads",
+        "songs": [
+          {"title": "Skinny Love", "artist": "Bon Iver"},
+          {"title": "Hallelujah", "artist": "Jeff Buckley"},
+          {"title": "The Night We Met", "artist": "Lord Huron"}
+        ]
+      },
+      "I-iii-vi": {
+        "name": "Descending Verse",
+        "description": "Ideal for verses - smooth descending movement, contemplative",
+        "numerals": ["I", "iii", "vi"],
+        "function": "Gentle stepwise descent",
+        "songs": [
+          {"title": "Boulevard of Broken Dreams", "artist": "Green Day"},
+          {"title": "Iris", "artist": "Goo Goo Dolls"},
+          {"title": "How to Save a Life", "artist": "The Fray"}
+        ]
+      },
+      "ii-V-I": {
+        "name": "Jazzy Verse",
+        "description": "Sophisticated verse progression - smooth and professional",
+        "numerals": ["ii", "V", "I"],
+        "function": "Jazz-influenced verse",
+        "songs": [
+          {"title": "Just the Two of Us", "artist": "Bill Withers"},
+          {"title": "Isn't She Lovely", "artist": "Stevie Wonder"},
+          {"title": "Fly Me to the Moon", "artist": "Frank Sinatra"}
+        ]
+      },
+      "vi-ii-V-I": {
+        "name": "Extended Verse",
+        "description": "Longer verse progression - allows for more lyrical space",
+        "numerals": ["vi", "ii", "V", "I"],
+        "function": "Extended storytelling progression",
+        "songs": [
+          {"title": "The Way You Look Tonight", "artist": "Frank Sinatra"},
+          {"title": "All of Me", "artist": "John Legend"},
+          {"title": "Sunday Morning", "artist": "Maroon 5"}
+        ]
+      }
+    },
+    "chorus": {
+      "I-V-vi-IV": {
+        "name": "Ultimate Chorus",
+        "description": "THE chorus progression - anthemic, sing-along, unforgettable",
+        "numerals": ["I", "V", "vi", "IV"],
+        "function": "Pop chorus magic",
+        "songs": [
+          {"title": "Let It Be", "artist": "The Beatles"},
+          {"title": "Don't Stop Believin'", "artist": "Journey"},
+          {"title": "Someone Like You", "artist": "Adele"}
+        ]
+      },
+      "IV-V-I": {
+        "name": "Power Chorus",
+        "description": "Strong chorus resolution - triumphant and satisfying",
+        "numerals": ["IV", "V", "I"],
+        "function": "Classic rock chorus",
+        "songs": [
+          {"title": "Sweet Home Alabama", "artist": "Lynyrd Skynyrd"},
+          {"title": "Livin' on a Prayer", "artist": "Bon Jovi"},
+          {"title": "Summer of '69", "artist": "Bryan Adams"}
+        ]
+      },
+      "vi-IV-I-V": {
+        "name": "Emotional Chorus",
+        "description": "Perfect for powerful choruses - emotional payoff",
+        "numerals": ["vi", "IV", "I", "V"],
+        "function": "Ballad chorus with lift",
+        "songs": [
+          {"title": "Someone Like You", "artist": "Adele"},
+          {"title": "The Scientist", "artist": "Coldplay"},
+          {"title": "A Thousand Years", "artist": "Christina Perri"}
+        ]
+      },
+      "I-IV-V-IV": {
+        "name": "Stadium Chorus",
+        "description": "Big arena rock chorus - massive and energetic",
+        "numerals": ["I", "IV", "V", "IV"],
+        "function": "Anthemic rock chorus",
+        "songs": [
+          {"title": "We Are the Champions", "artist": "Queen"},
+          {"title": "Don't Stop Believin'", "artist": "Journey"},
+          {"title": "Pour Some Sugar on Me", "artist": "Def Leppard"}
+        ]
+      },
+      "I-V-IV-V": {
+        "name": "Building Chorus",
+        "description": "Creates momentum in chorus - drives forward energy",
+        "numerals": ["I", "V", "IV", "V"],
+        "function": "Energetic building chorus",
+        "songs": [
+          {"title": "Eye of the Tiger", "artist": "Survivor"},
+          {"title": "Walking on Sunshine", "artist": "Katrina and the Waves"},
+          {"title": "Footloose", "artist": "Kenny Loggins"}
+        ]
+      },
+      "vi-V-IV-V": {
+        "name": "Dynamic Chorus",
+        "description": "Starts dark, ends bright - emotional contrast in chorus",
+        "numerals": ["vi", "V", "IV", "V"],
+        "function": "Minor to major lift",
+        "songs": [
+          {"title": "Counting Stars", "artist": "OneRepublic"},
+          {"title": "Radioactive", "artist": "Imagine Dragons"},
+          {"title": "Demons", "artist": "Imagine Dragons"}
+        ]
+      }
+    },
+    "bridge": {
+      "IV-I-V-vi": {
+        "name": "Contrast Bridge",
+        "description": "Perfect bridge - provides contrast before final chorus",
+        "numerals": ["IV", "I", "V", "vi"],
+        "function": "Unexpected movement for bridge",
+        "songs": [
+          {"title": "Wonderwall", "artist": "Oasis"},
+          {"title": "Mr. Brightside", "artist": "The Killers"},
+          {"title": "Use Somebody", "artist": "Kings of Leon"}
+        ]
+      },
+      "iii-vi-ii-V": {
+        "name": "Tension Bridge",
+        "description": "Builds tension for bridge - creates anticipation",
+        "numerals": ["iii", "vi", "ii", "V"],
+        "function": "Circle progression for bridge",
+        "songs": [
+          {"title": "Just the Way You Are", "artist": "Bruno Mars"},
+          {"title": "Crazy Little Thing Called Love", "artist": "Queen"},
+          {"title": "Your Song", "artist": "Elton John"}
+        ]
+      },
+      "vi-iii-IV-V": {
+        "name": "Smooth Bridge",
+        "description": "Flowing bridge progression - smooth transition back to chorus",
+        "numerals": ["vi", "iii", "IV", "V"],
+        "function": "Linear bridge movement",
+        "songs": [
+          {"title": "Love Story", "artist": "Taylor Swift"},
+          {"title": "Ho Hey", "artist": "The Lumineers"},
+          {"title": "I'm Yours", "artist": "Jason Mraz"}
+        ]
+      },
+      "bVII-IV-I": {
+        "name": "Modal Bridge",
+        "description": "Unexpected bridge - modal mixture creates surprise",
+        "numerals": ["♭VII", "IV", "I"],
+        "function": "Borrowed chord bridge",
+        "songs": [
+          {"title": "Let It Be", "artist": "The Beatles"},
+          {"title": "Hey Jude", "artist": "The Beatles"},
+          {"title": "All You Need Is Love", "artist": "The Beatles"}
+        ]
+      },
+      "IV-vi-V": {
+        "name": "Short Bridge",
+        "description": "Compact bridge - quick contrast before returning",
+        "numerals": ["IV", "vi", "V"],
+        "function": "Brief departure for bridge",
+        "songs": [
+          {"title": "Shake It Off", "artist": "Taylor Swift"},
+          {"title": "Uptown Funk", "artist": "Bruno Mars"},
+          {"title": "Happy", "artist": "Pharrell Williams"}
+        ]
+      },
+      "ii-IV-I-V": {
+        "name": "Climactic Bridge",
+        "description": "Peak moment bridge - emotional high point of song",
+        "numerals": ["ii", "IV", "I", "V"],
+        "function": "Strong resolution bridge",
+        "songs": [
+          {"title": "Firework", "artist": "Katy Perry"},
+          {"title": "Roar", "artist": "Katy Perry"},
+          {"title": "Fight Song", "artist": "Rachel Platten"}
+        ]
+      }
     }
   }
 }

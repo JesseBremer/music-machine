@@ -1928,15 +1928,20 @@ function createSongSection(type, chords, lyrics) {
                 </select>
             </div>
             <div class="section-controls">
-                <button class="refresh-chords-btn" onclick="refreshSectionChords('${sectionId}')" title="Get New Chord Suggestions">🔄</button>
+                <button class="refresh-chords-btn" onclick="refreshSectionChords('${sectionId}')" title="Refresh Chord Suggestions">🔄</button>
                 <button class="move-up-btn" onclick="moveSectionUp('${sectionId}')" title="Move Up">↑</button>
                 <button class="move-down-btn" onclick="moveSectionDown('${sectionId}')" title="Move Down">↓</button>
                 <button class="delete-section-btn" onclick="deleteSection('${sectionId}')" title="Delete">×</button>
             </div>
         </div>
         <div class="chord-input-container">
-            <textarea class="chord-progression-input" placeholder="Enter chord progression (e.g., C - Am - F - G)" rows="2">${chords}</textarea>
-            <div class="chord-suggestions" id="suggestions-${sectionId}"></div>
+            <label class="chord-label">
+                <span>Chord Progression:</span>
+                <select class="chord-progression-select" id="select-${sectionId}" onchange="applySelectedProgression('${sectionId}')">
+                    <option value="">Loading suggestions...</option>
+                </select>
+            </label>
+            <textarea class="chord-progression-input" placeholder="Or enter custom progression (e.g., C - Am - F - G)" rows="2">${chords}</textarea>
         </div>
         <div class="melody-generator-container">
             <div class="melody-section-header">
@@ -1967,6 +1972,11 @@ function createSongSection(type, chords, lyrics) {
     `;
 
     sectionsContainer.appendChild(sectionDiv);
+
+    // Auto-populate chord suggestions for new sections
+    setTimeout(() => {
+        window.refreshSectionChords(sectionId);
+    }, 100);
 }
 
 function clearAllSections() {
@@ -1982,7 +1992,7 @@ window.updateSectionType = function(sectionId, newType) {
     refreshSectionChords(sectionId);
 };
 
-window.refreshSectionChords = function(sectionId) {
+window.refreshSectionChords = async function(sectionId) {
     const section = document.getElementById(sectionId);
     if (!section) return;
 
@@ -1996,44 +2006,110 @@ window.refreshSectionChords = function(sectionId) {
     const songData = window.appState?.songData;
     const baseChords = songData?.chordProgression?.chords?.join(' - ') || '';
 
-    // Generate multiple suggestions for this section type
-    const suggestions = [];
+    // Get progression data
+    const progressionsData = window.appState?.loadedData?.chordProgressions;
+    if (!progressionsData) {
+        console.warn('No chord progressions data available');
+        return;
+    }
 
-    if (sectionType === 'Verse') {
-        suggestions.push(baseChords);
-    } else if (sectionType === 'Chorus') {
-        // Chorus should be consistent - check if we already have a chorus progression
+    // Get all progressions for the current key and genre
+    const key = songData?.key || 'C';
+    const scale = songData?.scale || 'major';
+    const genre = songData?.genre || { id: 'pop', name: 'Pop' };
+
+    // Import MusicTheory if needed
+    const MusicTheory = await import('./music-theory.js');
+    const allProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
+        key,
+        scale,
+        genre,
+        progressionsData  // progressionsData is already the progressions object
+    );
+
+    // Filter progressions by section type
+    let suggestions = [];
+
+    // Map section types to progression categories
+    const sectionTypeMap = {
+        'Verse': 'verses',
+        'Pre-Chorus': 'verses', // Pre-chorus can use verse progressions
+        'Chorus': 'chorus',
+        'Bridge': 'bridge',
+        'Intro': 'major', // Use general progressions
+        'Outro': 'major',
+        'Solo': 'major',
+        'Build': 'major',
+        'Drop': 'major',
+        'Breakdown': 'major',
+        'Vamp': 'major',
+        'Tag': 'major'
+    };
+
+    const categoryFilter = sectionTypeMap[sectionType] || 'major';
+
+    // Filter progressions based on category
+    if (['verses', 'chorus', 'bridge'].includes(categoryFilter)) {
+        // Get section-specific progressions from the progressions data
+        const sectionProgressions = progressionsData[categoryFilter];  // progressionsData is already the progressions object
+        if (sectionProgressions) {
+            Object.keys(sectionProgressions).forEach(progId => {
+                const prog = sectionProgressions[progId];
+                const chords = MusicTheory.convertNumeralsToChords(prog.numerals, key, scale);
+                if (chords && chords.length > 0) {
+                    suggestions.push({
+                        name: prog.name,
+                        description: prog.description,
+                        chords: chords.join(' - ')
+                    });
+                }
+            });
+        }
+    }
+
+    // Add some general progressions as well
+    allProgressions.slice(0, 10 - suggestions.length).forEach(prog => {
+        if (!suggestions.find(s => s.chords === prog.chords.join(' - '))) {
+            suggestions.push({
+                name: prog.name,
+                description: prog.description,
+                chords: prog.chords.join(' - ')
+            });
+        }
+    });
+
+    // For Chorus, check if we already have an existing chorus progression
+    if (sectionType === 'Chorus') {
         const existingChorus = findExistingChorusProgression();
         if (existingChorus) {
-            // Use the existing chorus progression
-            suggestions.push(existingChorus);
-        } else {
-            // Generate a new chorus progression (first time)
-            const chorusProgression = generateSectionChords(sectionType, baseChords, songData, 0); // Use first variation
-            if (chorusProgression) {
-                suggestions.push(chorusProgression);
-            }
-        }
-    } else {
-        // Generate 3 different variations for other sections
-        for (let i = 0; i < 3; i++) {
-            const variation = generateSectionChords(sectionType, baseChords, songData, i);
-            if (variation && !suggestions.includes(variation)) {
-                suggestions.push(variation);
-            }
+            // Add existing chorus as first suggestion
+            suggestions.unshift({
+                name: 'Current Chorus',
+                description: 'Keep it consistent with other choruses',
+                chords: existingChorus
+            });
         }
     }
 
-    // Update the input with the first suggestion
-    if (suggestions.length > 0) {
-        chordInput.value = suggestions[0];
-    }
+    // Limit to 10 suggestions
+    suggestions = suggestions.slice(0, 10);
 
-    // Display clickable suggestions
-    if (suggestionsDiv) {
-        suggestionsDiv.innerHTML = suggestions.map(suggestion =>
-            `<span class="chord-suggestion" onclick="applySuggestion('${sectionId}', '${suggestion}')">${suggestion}</span>`
-        ).join('');
+    // Populate the dropdown with suggestions
+    const selectElement = document.getElementById(`select-${sectionId}`);
+    if (selectElement) {
+        selectElement.innerHTML = '<option value="">-- Select a progression --</option>' +
+            suggestions.map((suggestion, index) =>
+                `<option value="${index}" data-chords="${suggestion.chords.replace(/"/g, '&quot;')}">${suggestion.name} - ${suggestion.chords}</option>`
+            ).join('');
+
+        // Store suggestions data on the select element for later retrieval
+        selectElement.dataset.suggestions = JSON.stringify(suggestions);
+
+        // Update the input with the first suggestion if it's empty
+        if (!chordInput.value && suggestions.length > 0) {
+            chordInput.value = suggestions[0].chords;
+            selectElement.selectedIndex = 1; // Select first actual option (not the placeholder)
+        }
     }
 };
 
@@ -2065,6 +2141,34 @@ window.applySuggestion = function(sectionId, chordProgression) {
     const chordInput = section.querySelector('.chord-progression-input');
     if (chordInput) {
         chordInput.value = chordProgression;
+    }
+};
+
+window.applySelectedProgression = function(sectionId) {
+    const selectElement = document.getElementById(`select-${sectionId}`);
+    const section = document.getElementById(sectionId);
+
+    if (!selectElement || !section) return;
+
+    const selectedIndex = selectElement.value;
+    if (!selectedIndex) return; // No selection or placeholder selected
+
+    // Get the suggestions data from the select element
+    const suggestionsData = selectElement.dataset.suggestions;
+    if (!suggestionsData) return;
+
+    try {
+        const suggestions = JSON.parse(suggestionsData);
+        const selectedSuggestion = suggestions[parseInt(selectedIndex)];
+
+        if (selectedSuggestion) {
+            const chordInput = section.querySelector('.chord-progression-input');
+            if (chordInput) {
+                chordInput.value = selectedSuggestion.chords;
+            }
+        }
+    } catch (error) {
+        console.error('Error applying selected progression:', error);
     }
 };
 

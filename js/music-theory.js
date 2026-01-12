@@ -330,8 +330,12 @@ export function getChordProgressionsForKeyAndGenre(key, scale, genre, progressio
     if (['celtic', 'folk', 'jazz', 'metal', 'flamenco'].includes(genre.id)) {
         categories.push('modal');
     }
-    
+
+    // Always include section-specific categories (verses, chorus, bridge)
+    categories.push('verses', 'chorus', 'bridge');
+
     // Process each category
+
     categories.forEach(category => {
         const categoryProgressions = progressionsData[category];
         if (!categoryProgressions) return;
@@ -393,7 +397,7 @@ export function getChordProgressionsForKeyAndGenre(key, scale, genre, progressio
         }
     });
 
-    return uniqueProgressions.slice(0, 8); // Limit to 8 progressions
+    return uniqueProgressions.slice(0, 20); // Limit to 20 progressions - gives more variety for verse/chorus/bridge
 }
 
 export function convertNumeralsToChords(numerals, key, scale = 'major') {
