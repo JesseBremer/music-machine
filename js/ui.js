@@ -1943,31 +1943,6 @@ function createSongSection(type, chords, lyrics) {
             </label>
             <textarea class="chord-progression-input" placeholder="Or enter custom progression (e.g., C - Am - F - G)" rows="2">${chords}</textarea>
         </div>
-        <div class="melody-generator-container">
-            <div class="melody-section-header">
-                <h4>🎵 Section Melody</h4>
-                <button class="generate-section-melody-btn" onclick="generateSectionMelody('${sectionId}')">Generate Melody</button>
-            </div>
-            <div class="section-melody-options">
-                <div class="melody-option-row">
-                    <label>Style:</label>
-                    <select class="section-melody-style">
-                        <option value="verse" ${type === 'Verse' ? 'selected' : ''}>Narrative (Verse)</option>
-                        <option value="chorus" ${type === 'Chorus' ? 'selected' : ''}>Hook-focused (Chorus)</option>
-                        <option value="bridge" ${type === 'Bridge' ? 'selected' : ''}>Contrasting (Bridge)</option>
-                        <option value="smooth">Smooth & Flowing</option>
-                        <option value="angular">Angular & Dramatic</option>
-                    </select>
-                </div>
-                <div class="melody-option-row">
-                    <label>
-                        <input type="checkbox" class="use-section-lyrics" checked>
-                        Adapt to lyrics below
-                    </label>
-                </div>
-            </div>
-            <div class="section-melody-display" id="melody-${sectionId}" style="display: none;"></div>
-        </div>
         <textarea class="lyrics-input" placeholder="Write your lyrics here..." rows="4">${lyrics}</textarea>
     `;
 

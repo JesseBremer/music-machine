@@ -1863,10 +1863,12 @@ async function loadExportStep() {
         const chordInput = section.querySelector('.chord-progression-input');
         const lyricsInput = section.querySelector('.lyrics-input');
 
-        // Check if this section has a generated melody
-        const melodyDisplay = section.querySelector('.section-melody-display');
+        // Note: Section melody generation has been removed to keep the interface focused
+        // Melody work should be done in the dedicated Melody step
         let sectionMelody = null;
 
+        // Legacy code: Check if this section has a generated melody (from old saves)
+        const melodyDisplay = section.querySelector('.section-melody-display');
         if (melodyDisplay && melodyDisplay.style.display !== 'none') {
             // Extract melody information from the display
             const melodyHeader = melodyDisplay.querySelector('.melody-header h5');
