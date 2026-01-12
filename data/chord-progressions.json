@@ -19,43 +19,80 @@
         "name": "Perfect Cadence",
         "description": "Classic strong resolution - triumphant and complete",
         "numerals": ["I", "IV", "V", "I"],
-        "function": "Tonic-Subdominant-Dominant-Tonic"
+        "function": "Tonic-Subdominant-Dominant-Tonic",
+        "songs": [
+          {"title": "Blue Suede Shoes", "artist": "Elvis Presley"},
+          {"title": "Brown Eyed Girl", "artist": "Van Morrison"},
+          {"title": "Ring of Fire", "artist": "Johnny Cash"},
+          {"title": "I'm Gonna Be (500 Miles)", "artist": "The Proclaimers"}
+        ]
       },
       "I-vi-IV-V": {
         "name": "Heart and Soul",
         "description": "Timeless progression - optimistic and familiar",
         "numerals": ["I", "vi", "IV", "V"],
-        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+        "function": "Tonic-Relative Minor-Subdominant-Dominant",
+        "songs": [
+          {"title": "Heart and Soul", "artist": "Hoagy Carmichael"},
+          {"title": "Stand By Me", "artist": "Ben E. King"},
+          {"title": "Every Breath You Take", "artist": "The Police"},
+          {"title": "Can You Feel The Love Tonight", "artist": "Elton John"}
+        ]
       },
       "I-iii-vi-IV": {
         "name": "Unchained Melody",
         "description": "Romantic ballad progression - tender and flowing",
         "numerals": ["I", "iii", "vi", "IV"],
-        "function": "Stepwise descent to subdominant"
+        "function": "Stepwise descent to subdominant",
+        "songs": [
+          {"title": "Unchained Melody", "artist": "The Righteous Brothers"},
+          {"title": "All of Me", "artist": "John Legend"},
+          {"title": "Thinking Out Loud", "artist": "Ed Sheeran"}
+        ]
       },
       "I-vi-iii-IV": {
         "name": "Stand By Me",
         "description": "Supportive and warm progression - classic and reliable",
         "numerals": ["I", "vi", "iii", "IV"],
-        "function": "Smooth voice leading progression"
+        "function": "Smooth voice leading progression",
+        "songs": [
+          {"title": "Friday I'm In Love", "artist": "The Cure"},
+          {"title": "I'm Yours", "artist": "Jason Mraz"},
+          {"title": "Hey Soul Sister", "artist": "Train"}
+        ]
       },
       "I-V-IV-V": {
         "name": "Anthemic",
         "description": "Building energy and excitement - stadium-ready",
         "numerals": ["I", "V", "IV", "V"],
-        "function": "Strong dominant preparation"
+        "function": "Strong dominant preparation",
+        "songs": [
+          {"title": "Livin' on a Prayer", "artist": "Bon Jovi"},
+          {"title": "We Will Rock You", "artist": "Queen"},
+          {"title": "Eye of the Tiger", "artist": "Survivor"}
+        ]
       },
       "I-iii-IV-V": {
         "name": "Mediant Progression",
         "description": "Uses the iii chord for smooth voice leading - sophisticated",
         "numerals": ["I", "iii", "IV", "V"],
-        "function": "Tonic-Mediant-Subdominant-Dominant"
+        "function": "Tonic-Mediant-Subdominant-Dominant",
+        "songs": [
+          {"title": "Sunday Morning", "artist": "Maroon 5"},
+          {"title": "She Will Be Loved", "artist": "Maroon 5"},
+          {"title": "Lucky", "artist": "Jason Mraz feat. Colbie Caillat"}
+        ]
       },
       "I-IV-vi-V": {
         "name": "Optimistic Flow",
         "description": "Bright and hopeful - perfect for uplifting songs",
         "numerals": ["I", "IV", "vi", "V"],
-        "function": "Tonic-Subdominant-Relative Minor-Dominant"
+        "function": "Tonic-Subdominant-Relative Minor-Dominant",
+        "songs": [
+          {"title": "Love Story", "artist": "Taylor Swift"},
+          {"title": "You Belong With Me", "artist": "Taylor Swift"},
+          {"title": "Riptide", "artist": "Vance Joy"}
+        ]
       }
     },
     "minor": {
@@ -63,13 +100,23 @@
         "name": "Natural Minor Descending",
         "description": "Classic minor progression - dark and emotional",
         "numerals": ["i", "♭VII", "♭VI"],
-        "function": "Tonic-Subtonic-Submediant"
+        "function": "Tonic-Subtonic-Submediant",
+        "songs": [
+          {"title": "All Along the Watchtower", "artist": "Jimi Hendrix"},
+          {"title": "Stairway to Heaven", "artist": "Led Zeppelin"},
+          {"title": "Sultans of Swing", "artist": "Dire Straits"}
+        ]
       },
       "i-iv-V": {
         "name": "Harmonic Minor",
         "description": "Traditional minor with leading tone - dramatic resolution",
         "numerals": ["i", "iv", "V"],
-        "function": "Tonic-Subdominant-Dominant"
+        "function": "Tonic-Subdominant-Dominant",
+        "songs": [
+          {"title": "Smooth Criminal", "artist": "Michael Jackson"},
+          {"title": "Black Magic Woman", "artist": "Santana"},
+          {"title": "Hava Nagila", "artist": "Traditional"}
+        ]
       },
       "i-VI-III-VII": {
         "name": "Modern Minor",
@@ -87,61 +134,111 @@
         "name": "Minor Circle",
         "description": "Closed loop feeling - contemplative and cycling",
         "numerals": ["i", "v", "iv", "i"],
-        "function": "Tonic-Dominant-Subdominant-Tonic"
+        "function": "Tonic-Dominant-Subdominant-Tonic",
+        "songs": [
+          {"title": "Hurt", "artist": "Nine Inch Nails / Johnny Cash"},
+          {"title": "Teardrop", "artist": "Massive Attack"},
+          {"title": "Enjoy the Silence", "artist": "Depeche Mode"}
+        ]
       },
       "i-VII-iv-i": {
         "name": "Gothic Minor",
         "description": "Dark, medieval sound - mysterious and haunting",
         "numerals": ["i", "♭VII", "iv", "i"],
-        "function": "Tonic-Subtonic-Subdominant-Tonic"
+        "function": "Tonic-Subtonic-Subdominant-Tonic",
+        "songs": [
+          {"title": "We Are the Champions", "artist": "Queen"},
+          {"title": "The Unforgiven", "artist": "Metallica"},
+          {"title": "Kashmir", "artist": "Led Zeppelin"}
+        ]
       },
       "i-VI-VII": {
         "name": "Ascending Minor",
         "description": "Building tension progressively - hopeful darkness",
         "numerals": ["i", "♭VI", "♭VII"],
-        "function": "Tonic-Submediant-Subtonic"
+        "function": "Tonic-Submediant-Subtonic",
+        "songs": [
+          {"title": "Bad Romance", "artist": "Lady Gaga"},
+          {"title": "Losing My Religion", "artist": "R.E.M."},
+          {"title": "Killer Queen", "artist": "Queen"}
+        ]
       },
       "i-VI-VII": {
         "name": "Minor Rock Ballad",
         "description": "Emotional and dramatic",
         "numerals": ["i", "♭VI", "♭VII"],
-        "function": "Tonic-Submediant-Subtonic"
+        "function": "Tonic-Submediant-Subtonic",
+        "songs": [
+          {"title": "Where Is My Mind", "artist": "Pixies"},
+          {"title": "Chandelier", "artist": "Sia"},
+          {"title": "Rolling in the Deep", "artist": "Adele"}
+        ]
       },
       "i-III-VII-iv": {
         "name": "Epic Minor",
         "description": "Cinematic and grand",
         "numerals": ["i", "♭III", "♭VII", "iv"],
-        "function": "Tonic-Mediant-Subtonic-Subdominant"
+        "function": "Tonic-Mediant-Subtonic-Subdominant",
+        "songs": [
+          {"title": "Skyfall", "artist": "Adele"},
+          {"title": "Time", "artist": "Hans Zimmer"},
+          {"title": "Inception Theme", "artist": "Hans Zimmer"}
+        ]
       },
       "i-v-VI-VII": {
         "name": "Minor Ascending",
         "description": "Building tension progressively",
         "numerals": ["i", "v", "♭VI", "♭VII"],
-        "function": "Ascending harmonic movement"
+        "function": "Ascending harmonic movement",
+        "songs": [
+          {"title": "Paint It Black", "artist": "The Rolling Stones"},
+          {"title": "Scary Monsters and Nice Sprites", "artist": "Skrillex"},
+          {"title": "Breathe", "artist": "The Prodigy"}
+        ]
       },
       "i-ii°-V": {
         "name": "Minor ii-V-i",
         "description": "Jazz minor progression with half-diminished ii",
         "numerals": ["i", "ii°", "V"],
-        "function": "Tonic-Subdominant Function-Dominant"
+        "function": "Tonic-Subdominant Function-Dominant",
+        "songs": [
+          {"title": "Girl from Ipanema", "artist": "Stan Getz & João Gilberto"},
+          {"title": "Summertime", "artist": "George Gershwin"},
+          {"title": "My Funny Valentine", "artist": "Chet Baker"}
+        ]
       },
       "i-VII": {
         "name": "Minor Power",
         "description": "Simple but powerful minor progression",
         "numerals": ["i", "♭VII"],
-        "function": "Tonic-Subtonic"
+        "function": "Tonic-Subtonic",
+        "songs": [
+          {"title": "Seven Nation Army", "artist": "The White Stripes"},
+          {"title": "Superstition", "artist": "Stevie Wonder"},
+          {"title": "Killing in the Name", "artist": "Rage Against the Machine"}
+        ]
       },
       "i-iv": {
         "name": "Minor Subdominant",
         "description": "Basic minor progression emphasizing subdominant",
         "numerals": ["i", "iv"],
-        "function": "Tonic-Subdominant"
+        "function": "Tonic-Subdominant",
+        "songs": [
+          {"title": "Feel Good Inc.", "artist": "Gorillaz"},
+          {"title": "Back in Black", "artist": "AC/DC"},
+          {"title": "We Will Rock You", "artist": "Queen"}
+        ]
       },
       "VII-i": {
         "name": "Subtonic Resolution",
         "description": "Unusual but groovy resolution to minor tonic",
         "numerals": ["♭VII", "i"],
-        "function": "Subtonic-Tonic"
+        "function": "Subtonic-Tonic",
+        "songs": [
+          {"title": "Smoke on the Water", "artist": "Deep Purple"},
+          {"title": "Enter Sandman", "artist": "Metallica"},
+          {"title": "Immigrant Song", "artist": "Led Zeppelin"}
+        ]
       }
     },
     "modal": {
@@ -150,13 +247,23 @@
           "name": "Dorian Vamp",
           "description": "Simple dorian mode progression",
           "numerals": ["i", "IV", "i"],
-          "function": "Modal characteristic with major IV"
+          "function": "Modal characteristic with major IV",
+          "songs": [
+            {"title": "Oye Como Va", "artist": "Santana"},
+            {"title": "Scarborough Fair", "artist": "Simon & Garfunkel"},
+            {"title": "Evil Ways", "artist": "Santana"}
+          ]
         },
         "i-ii-IV-i": {
           "name": "Dorian Extended",
           "description": "Extended dorian progression",
           "numerals": ["i", "ii", "IV", "i"],
-          "function": "Natural minor with raised 6th degree"
+          "function": "Natural minor with raised 6th degree",
+          "songs": [
+            {"title": "So What", "artist": "Miles Davis"},
+            {"title": "Wicked Game", "artist": "Chris Isaak"},
+            {"title": "Get Lucky", "artist": "Daft Punk"}
+          ]
         }
       },
       "mixolydian": {
@@ -164,13 +271,23 @@
           "name": "Mixolydian Rock",
           "description": "Rock progression using mixolydian mode",
           "numerals": ["I", "♭VII", "I"],
-          "function": "Major with flattened 7th"
+          "function": "Major with flattened 7th",
+          "songs": [
+            {"title": "Norwegian Wood", "artist": "The Beatles"},
+            {"title": "Clocks", "artist": "Coldplay"},
+            {"title": "The End", "artist": "The Doors"}
+          ]
         },
         "I-VII-IV-I": {
           "name": "Mixolydian Extended",
           "description": "Extended mixolydian progression",
           "numerals": ["I", "♭VII", "IV", "I"],
-          "function": "Celtic/folk influenced"
+          "function": "Celtic/folk influenced",
+          "songs": [
+            {"title": "I'm a Believer", "artist": "The Monkees"},
+            {"title": "Tequila", "artist": "The Champs"},
+            {"title": "Hey Jude", "artist": "The Beatles"}
+          ]
         }
       },
       "lydian": {
@@ -178,7 +295,12 @@
           "name": "Lydian Dreamy",
           "description": "Ethereal lydian progression",
           "numerals": ["I", "II", "I"],
-          "function": "Major with raised 4th degree"
+          "function": "Major with raised 4th degree",
+          "songs": [
+            {"title": "Man on the Moon", "artist": "R.E.M."},
+            {"title": "Flying in a Blue Dream", "artist": "Joe Satriani"},
+            {"title": "Here Comes My Girl", "artist": "Tom Petty"}
+          ]
         }
       },
       "phrygian": {
@@ -186,7 +308,12 @@
           "name": "Phrygian Dark",
           "description": "Dark, Spanish-influenced",
           "numerals": ["i", "♭II", "i"],
-          "function": "Minor with flattened 2nd"
+          "function": "Minor with flattened 2nd",
+          "songs": [
+            {"title": "White Rabbit", "artist": "Jefferson Airplane"},
+            {"title": "Army of Me", "artist": "Björk"},
+            {"title": "Wherever I May Roam", "artist": "Metallica"}
+          ]
         }
       }
     },
@@ -208,37 +335,67 @@
         "name": "Major ii-V-I",
         "description": "Most important jazz progression in major",
         "numerals": ["ii7", "V7", "Imaj7"],
-        "function": "Subdominant-Dominant-Tonic"
+        "function": "Subdominant-Dominant-Tonic",
+        "songs": [
+          {"title": "Have You Met Miss Jones", "artist": "Jazz Standard"},
+          {"title": "Blue Bossa", "artist": "Kenny Dorham"},
+          {"title": "Solar", "artist": "Miles Davis"}
+        ]
       },
       "ii7b5-V7-im7": {
         "name": "Minor ii-V-i",
         "description": "Minor version of ii-V-I",
         "numerals": ["ii7♭5", "V7", "im7"],
-        "function": "Half-diminished-Dominant-Minor Tonic"
+        "function": "Half-diminished-Dominant-Minor Tonic",
+        "songs": [
+          {"title": "Beautiful Love", "artist": "Jazz Standard"},
+          {"title": "Softly as in a Morning Sunrise", "artist": "Jazz Standard"},
+          {"title": "Alone Together", "artist": "Arthur Schwartz"}
+        ]
       },
       "Imaj7-vi7-ii7-V7": {
         "name": "Jazz Turnaround",
         "description": "Standard jazz turnaround with 7th chords",
         "numerals": ["Imaj7", "vi7", "ii7", "V7"],
-        "function": "Extended dominant preparation"
+        "function": "Extended dominant preparation",
+        "songs": [
+          {"title": "Tune Up", "artist": "Miles Davis"},
+          {"title": "The Girl from Ipanema", "artist": "Antônio Carlos Jobim"},
+          {"title": "All the Things You Are", "artist": "Jerome Kern"}
+        ]
       },
       "iii7-VI7-ii7-V7-Imaj7": {
         "name": "Circle of Fifths Jazz",
         "description": "Extended circle of fifths with 7th chords",
         "numerals": ["iii7", "VI7", "ii7", "V7", "Imaj7"],
-        "function": "Complete circle of fifths movement"
+        "function": "Complete circle of fifths movement",
+        "songs": [
+          {"title": "Giant Steps", "artist": "John Coltrane"},
+          {"title": "Confirmation", "artist": "Charlie Parker"},
+          {"title": "Countdown", "artist": "John Coltrane"}
+        ]
       },
       "I-vi-ii-V": {
         "name": "Jazz Turnaround",
         "description": "Common jazz turnaround progression",
         "numerals": ["I", "vi", "ii", "V"],
-        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+        "function": "Tonic-Relative Minor-Subdominant-Dominant",
+        "songs": [
+          {"title": "Blue Moon", "artist": "Rodgers & Hart"},
+          {"title": "I Got Rhythm", "artist": "George Gershwin"},
+          {"title": "Sunny", "artist": "Bobby Hebb"}
+        ]
       },
       "i-ii°-V-i": {
         "name": "Minor ii-V-i",
         "description": "Jazz minor progression",
         "numerals": ["i", "ii°", "V", "i"],
-        "function": "Tonic-Subdominant Function-Dominant-Tonic"
+        "function": "Tonic-Subdominant Function-Dominant-Tonic",
+        "songs": [
+          {"title": "Black Orpheus", "artist": "Luiz Bonfá"},
+          {"title": "What Is This Thing Called Love", "artist": "Cole Porter"},
+          {"title": "Footprints", "artist": "Wayne Shorter"}
+        ]
       }
     },
     "blues": {
