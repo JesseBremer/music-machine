@@ -571,37 +571,67 @@
         "name": "Folk Rock",
         "description": "Simple and effective, common in folk rock",
         "numerals": ["I", "V", "IV"],
-        "function": "Tonic-Dominant-Subdominant"
+        "function": "Tonic-Dominant-Subdominant",
+        "songs": [
+          {"title": "Knockin' on Heaven's Door", "artist": "Bob Dylan"},
+          {"title": "Free Fallin'", "artist": "Tom Petty"},
+          {"title": "Sweet Home Alabama", "artist": "Lynyrd Skynyrd"}
+        ]
       },
       "I-bVII-IV-I": {
         "name": "Sweet Child O' Mine",
         "description": "Classic rock with modal flavor - Guns N' Roses style",
         "numerals": ["I", "♭VII", "IV", "I"],
-        "function": "Mixolydian rock progression"
+        "function": "Mixolydian rock progression",
+        "songs": [
+          {"title": "Sweet Child O' Mine", "artist": "Guns N' Roses"},
+          {"title": "Free Bird", "artist": "Lynyrd Skynyrd"},
+          {"title": "Sympathy for the Devil", "artist": "The Rolling Stones"}
+        ]
       },
       "vi-I-V-vi": {
         "name": "Creep (Radiohead)",
         "description": "Alternative rock - haunting and beautiful",
         "numerals": ["vi", "I", "V", "vi"],
-        "function": "Minor tonic with unexpected major resolution"
+        "function": "Minor tonic with unexpected major resolution",
+        "songs": [
+          {"title": "Creep", "artist": "Radiohead"},
+          {"title": "Self Esteem", "artist": "The Offspring"},
+          {"title": "She's Electric", "artist": "Oasis"}
+        ]
       },
       "I-V-vi-iii-IV-I-IV-V": {
         "name": "Canon Rock",
         "description": "Rock arrangement of Pachelbel's Canon - epic and building",
         "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
-        "function": "Classical progression in rock context"
+        "function": "Classical progression in rock context",
+        "songs": [
+          {"title": "Canon in D", "artist": "Johann Pachelbel"},
+          {"title": "Basket Case", "artist": "Green Day"},
+          {"title": "Hook", "artist": "Blues Traveler"}
+        ]
       },
       "i-VI-VII-i": {
         "name": "Stairway to Heaven",
         "description": "Epic rock ballad progression - Led Zeppelin style",
         "numerals": ["i", "♭VI", "♭VII", "i"],
-        "function": "Minor tonic with dramatic ascending movement"
+        "function": "Minor tonic with dramatic ascending movement",
+        "songs": [
+          {"title": "Stairway to Heaven", "artist": "Led Zeppelin"},
+          {"title": "Hotel California", "artist": "Eagles"},
+          {"title": "November Rain", "artist": "Guns N' Roses"}
+        ]
       },
       "i-VII-VI-VII": {
         "name": "Zombie (The Cranberries)",
         "description": "Haunting alternative rock - creates tension and release",
         "numerals": ["i", "♭VII", "♭VI", "♭VII"],
-        "function": "Minor with modal movement"
+        "function": "Minor with modal movement",
+        "songs": [
+          {"title": "Zombie", "artist": "The Cranberries"},
+          {"title": "Kids", "artist": "MGMT"},
+          {"title": "Pumped Up Kicks", "artist": "Foster the People"}
+        ]
       }
     },
     "electronic": {
@@ -609,25 +639,45 @@
         "name": "EDM Dark Drop",
         "description": "Dark electronic music - builds tension for drops",
         "numerals": ["i", "♭VII", "♭VI", "♭VII"],
-        "function": "Minor progression for electronic drops"
+        "function": "Minor progression for electronic drops",
+        "songs": [
+          {"title": "Animals", "artist": "Martin Garrix"},
+          {"title": "Ghosts 'n' Stuff", "artist": "Deadmau5"},
+          {"title": "Strobe", "artist": "Deadmau5"}
+        ]
       },
       "i-VI-III-VII": {
         "name": "Closer (Chainsmokers)",
         "description": "Progressive house buildup - electronic energy",
         "numerals": ["i", "♭VI", "♭III", "♭VII"],
-        "function": "EDM buildup progression"
+        "function": "EDM buildup progression",
+        "songs": [
+          {"title": "Closer", "artist": "The Chainsmokers"},
+          {"title": "Don't Let Me Down", "artist": "The Chainsmokers"},
+          {"title": "Something Just Like This", "artist": "The Chainsmokers & Coldplay"}
+        ]
       },
       "vi-IV-I-V": {
         "name": "EDM Euphoric",
         "description": "Uplifting trance and progressive house",
         "numerals": ["vi", "IV", "I", "V"],
-        "function": "Emotional electronic buildup"
+        "function": "Emotional electronic buildup",
+        "songs": [
+          {"title": "Clarity", "artist": "Zedd"},
+          {"title": "Wake Me Up", "artist": "Avicii"},
+          {"title": "Summertime Sadness", "artist": "Lana Del Rey (Cedric Gervais Remix)"}
+        ]
       },
       "I-V-vi-IV": {
         "name": "Festival Anthem",
         "description": "Big room house and festival EDM",
         "numerals": ["I", "V", "vi", "IV"],
-        "function": "Crowd-pleasing EDM progression"
+        "function": "Crowd-pleasing EDM progression",
+        "songs": [
+          {"title": "Titanium", "artist": "David Guetta ft. Sia"},
+          {"title": "Don't You Worry Child", "artist": "Swedish House Mafia"},
+          {"title": "Levels", "artist": "Avicii"}
+        ]
       }
     },
     "country": {
@@ -635,13 +685,23 @@
         "name": "Old Town Road",
         "description": "Country trap fusion - modern country style",
         "numerals": ["I", "V", "vi", "vi"],
-        "function": "Extended minor for country emotion"
+        "function": "Extended minor for country emotion",
+        "songs": [
+          {"title": "Old Town Road", "artist": "Lil Nas X"},
+          {"title": "Meant to Be", "artist": "Bebe Rexha & Florida Georgia Line"},
+          {"title": "Body Like a Back Road", "artist": "Sam Hunt"}
+        ]
       },
       "I-IV-V-I": {
         "name": "Classic Country",
         "description": "Traditional country progression",
         "numerals": ["I", "IV", "V", "I"],
-        "function": "Simple country resolution"
+        "function": "Simple country resolution",
+        "songs": [
+          {"title": "Friends in Low Places", "artist": "Garth Brooks"},
+          {"title": "Jolene", "artist": "Dolly Parton"},
+          {"title": "Take Me Home, Country Roads", "artist": "John Denver"}
+        ]
       }
     },
     "vintage": {
@@ -649,13 +709,23 @@
         "name": "50s Progression",
         "description": "Classic doo-wop and oldies progression",
         "numerals": ["I", "vi", "IV", "V"],
-        "function": "Tonic-Relative Minor-Subdominant-Dominant"
+        "function": "Tonic-Relative Minor-Subdominant-Dominant",
+        "songs": [
+          {"title": "Earth Angel", "artist": "The Penguins"},
+          {"title": "In the Still of the Night", "artist": "The Five Satins"},
+          {"title": "Blue Moon", "artist": "The Marcels"}
+        ]
       },
       "I-V-vi-iii-IV-I-IV-V": {
         "name": "Canon in D (Pachelbel's Canon)",
         "description": "The most famous classical progression - hundreds of pop songs use this",
         "numerals": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
-        "function": "Descending bass line progression"
+        "function": "Descending bass line progression",
+        "songs": [
+          {"title": "Canon in D", "artist": "Johann Pachelbel"},
+          {"title": "Let It Go", "artist": "Frozen"},
+          {"title": "Memories", "artist": "Maroon 5"}
+        ]
       }
     },
     "alternative": {
@@ -663,19 +733,34 @@
         "name": "Indie Pop (Somebody That I Used to Know)",
         "description": "Modern indie/alternative sound - Gotye, Arctic Monkeys",
         "numerals": ["vi", "V", "IV", "V"],
-        "function": "Minor start with dominant resolution"
+        "function": "Minor start with dominant resolution",
+        "songs": [
+          {"title": "Somebody That I Used to Know", "artist": "Gotye"},
+          {"title": "Do I Wanna Know?", "artist": "Arctic Monkeys"},
+          {"title": "Riptide", "artist": "Vance Joy"}
+        ]
       },
       "i-v-VI-iv": {
         "name": "Mad World",
         "description": "Melancholic progression - Gary Jules, Tears for Fears",
         "numerals": ["i", "v", "♭VI", "iv"],
-        "function": "All minor chords for maximum sadness"
+        "function": "All minor chords for maximum sadness",
+        "songs": [
+          {"title": "Mad World", "artist": "Gary Jules"},
+          {"title": "Everybody Wants to Rule the World", "artist": "Tears for Fears"},
+          {"title": "Boulevard of Broken Dreams", "artist": "Green Day"}
+        ]
       },
       "IV-V-iii-vi": {
         "name": "Axis Progression",
         "description": "Modern alternative/indie - fresh harmonic movement",
         "numerals": ["IV", "V", "iii", "vi"],
-        "function": "Delayed resolution progression"
+        "function": "Delayed resolution progression",
+        "songs": [
+          {"title": "A Sky Full of Stars", "artist": "Coldplay"},
+          {"title": "Magic", "artist": "Coldplay"},
+          {"title": "Viva la Vida", "artist": "Coldplay"}
+        ]
       }
     },
     "traditional": {
@@ -683,13 +768,23 @@
         "name": "House of the Rising Sun",
         "description": "Folk/rock classic - The Animals, many covers",
         "numerals": ["i", "♭III", "♭VII", "♭VI"],
-        "function": "Descending bass line progression"
+        "function": "Descending bass line progression",
+        "songs": [
+          {"title": "House of the Rising Sun", "artist": "The Animals"},
+          {"title": "Hit the Road Jack", "artist": "Ray Charles"},
+          {"title": "Runaway", "artist": "Del Shannon"}
+        ]
       },
       "i-iv-VII-III": {
         "name": "Andalusian Cadence",
         "description": "Spanish/flamenco influenced progression",
         "numerals": ["i", "♭VII", "♭VI", "V"],
-        "function": "Descending progression with Phrygian flavor"
+        "function": "Descending progression with Phrygian flavor",
+        "songs": [
+          {"title": "Hit the Road Jack", "artist": "Ray Charles"},
+          {"title": "Sultans of Swing", "artist": "Dire Straits"},
+          {"title": "Misirlou", "artist": "Dick Dale"}
+        ]
       }
     },
     "indie": {
@@ -710,37 +805,67 @@
         "name": "Indie Anthem",
         "description": "Universal crowd-pleaser - Mumford & Sons, Of Monsters and Men",
         "numerals": ["I", "V", "vi", "IV"],
-        "function": "Epic indie folk progression"
+        "function": "Epic indie folk progression",
+        "songs": [
+          {"title": "Little Lion Man", "artist": "Mumford & Sons"},
+          {"title": "The Cave", "artist": "Mumford & Sons"},
+          {"title": "Little Talks", "artist": "Of Monsters and Men"}
+        ]
       },
       "vi-V-IV-IV": {
         "name": "Sufjan Stevens",
         "description": "Indie folk melancholy - beautiful and contemplative",
         "numerals": ["vi", "V", "IV", "IV"],
-        "function": "Extended subdominant for emotion"
+        "function": "Extended subdominant for emotion",
+        "songs": [
+          {"title": "Chicago", "artist": "Sufjan Stevens"},
+          {"title": "Should Have Known Better", "artist": "Sufjan Stevens"},
+          {"title": "Holocene", "artist": "Bon Iver"}
+        ]
       },
       "I-vi-V-V": {
         "name": "Arctic Monkeys",
         "description": "Indie rock energy - driving and memorable",
         "numerals": ["I", "vi", "V", "V"],
-        "function": "Extended dominant for tension"
+        "function": "Extended dominant for tension",
+        "songs": [
+          {"title": "R U Mine?", "artist": "Arctic Monkeys"},
+          {"title": "Why'd You Only Call Me When You're High?", "artist": "Arctic Monkeys"},
+          {"title": "Fluorescent Adolescent", "artist": "Arctic Monkeys"}
+        ]
       },
       "vi-V-I-IV": {
         "name": "Vampire Weekend",
         "description": "Preppy indie pop - sophisticated and catchy",
         "numerals": ["vi", "V", "I", "IV"],
-        "function": "Unexpected resolution pattern"
+        "function": "Unexpected resolution pattern",
+        "songs": [
+          {"title": "A-Punk", "artist": "Vampire Weekend"},
+          {"title": "Oxford Comma", "artist": "Vampire Weekend"},
+          {"title": "Cousins", "artist": "Vampire Weekend"}
+        ]
       },
       "IV-I-V-vi": {
         "name": "Fleet Foxes",
         "description": "Indie harmony - lush and atmospheric",
         "numerals": ["IV", "I", "V", "vi"],
-        "function": "Plagal motion to relative minor"
+        "function": "Plagal motion to relative minor",
+        "songs": [
+          {"title": "White Winter Hymnal", "artist": "Fleet Foxes"},
+          {"title": "Mykonos", "artist": "Fleet Foxes"},
+          {"title": "Helplessness Blues", "artist": "Fleet Foxes"}
+        ]
       },
       "I-iii-IV-vi": {
         "name": "The National",
         "description": "Moody indie rock - introspective and building",
         "numerals": ["I", "iii", "IV", "vi"],
-        "function": "Stepwise emotional progression"
+        "function": "Stepwise emotional progression",
+        "songs": [
+          {"title": "Bloodbuzz Ohio", "artist": "The National"},
+          {"title": "I Need My Girl", "artist": "The National"},
+          {"title": "Fake Empire", "artist": "The National"}
+        ]
       }
     }
   }
