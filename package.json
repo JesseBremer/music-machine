@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "piano-chart": "^1.5.0"
+    "piano-chart": "^1.5.0",
+    "scribbletune": "^5.1.0",
+    "smplr": "^0.16.4"
   }
 }
