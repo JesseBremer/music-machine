@@ -6487,3 +6487,371 @@ body {
         grid-template-columns: 1fr;
     }
 }
+/* Enhanced Rhythm Section - Bass Visualization */
+.pattern-section {
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg);
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.pattern-section h5 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.bass-notes-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-family-mono);
+    align-items: center;
+    min-height: 40px;
+}
+
+.bass-note {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--secondary-color);
+    color: var(--background-color);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    cursor: help;
+}
+
+.bass-note:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bass-chord-mapping {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--surface-elevated);
+    border-radius: var(--border-radius);
+    align-items: center;
+}
+
+.chord-label {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--accent-color);
+    color: var(--background-color);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+    font-family: var(--font-family-mono);
+}
+
+.rhythm-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.play-rhythm-btn,
+.stop-rhythm-btn {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.play-rhythm-btn {
+    background: var(--secondary-color);
+    color: var(--background-color);
+}
+
+.play-rhythm-btn:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.stop-rhythm-btn {
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.stop-rhythm-btn:hover {
+    background: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+}
+
+.rhythm-tips {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: var(--surface-elevated);
+    border-radius: var(--border-radius);
+    border-left: 3px solid var(--accent-color);
+}
+
+.rhythm-tips p {
+    margin: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+}
+
+.rhythm-tips strong {
+    color: var(--text-primary);
+}
+
+.template-actions {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.preview-btn {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preview-btn:hover {
+    background: var(--secondary-color);
+    color: var(--background-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.template-pattern {
+    margin: var(--spacing-md) 0;
+}
+
+.pattern-display {
+    padding: var(--spacing-md);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    font-family: var(--font-family-mono);
+    text-align: center;
+    color: var(--accent-color);
+    font-size: var(--font-size-large);
+    letter-spacing: 2px;
+}
+
+.bass-style-info {
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--surface-elevated);
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+}
+
+.bass-style-info small {
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+/* Drum Machine Grid Visualization */
+.drum-grid-container {
+    background: var(--background-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+}
+
+.drum-grid-header {
+    display: grid;
+    grid-template-columns: 120px repeat(16, 1fr);
+    gap: 2px;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.drum-name-header {
+    /* Empty corner cell */
+}
+
+.beat-marker {
+    text-align: center;
+    font-weight: 700;
+    color: var(--accent-color);
+    font-size: var(--font-size-large);
+    padding: var(--spacing-xs);
+    background: var(--surface-elevated);
+    border-radius: var(--border-radius);
+}
+
+.drum-row {
+    display: grid;
+    grid-template-columns: 120px repeat(16, 1fr);
+    gap: 2px;
+    margin-bottom: var(--spacing-sm);
+    align-items: center;
+}
+
+.drum-name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-subtle);
+}
+
+.drum-icon {
+    font-size: 1.2rem;
+}
+
+.drum-label {
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.step {
+    aspect-ratio: 1;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    background: var(--surface-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    cursor: default;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.step.downbeat {
+    border-color: var(--border-color);
+    background: rgba(255, 217, 61, 0.05);
+}
+
+.step.active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--background-color);
+    font-weight: bold;
+    transform: scale(1.05);
+}
+
+.step.active:hover {
+    transform: scale(1.1);
+}
+
+.drum-legend {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--surface-elevated);
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.drum-legend strong {
+    color: var(--accent-color);
+}
+
+/* Responsive adjustments for drum grid */
+@media (max-width: 768px) {
+    .drum-grid-container {
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .drum-row {
+        grid-template-columns: 100px repeat(16, minmax(20px, 1fr));
+    }
+
+    .drum-grid-header {
+        grid-template-columns: 100px repeat(16, minmax(20px, 1fr));
+    }
+
+    .step {
+        min-width: 20px;
+        min-height: 20px;
+        font-size: 0.7rem;
+    }
+
+    .drum-name {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs);
+    }
+
+    .drum-icon {
+        font-size: 1rem;
+    }
+}
+
+/* Mini Drum Pattern for Template Cards */
+.template-pattern-preview {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-subtle);
+}
+
+.mini-drum-pattern {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.mini-drum-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.mini-drum-icon {
+    font-size: 1rem;
+    width: 24px;
+    text-align: center;
+}
+
+.mini-step {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-color);
+    transition: all 0.2s ease;
+}
+
+.mini-step.active {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect on template cards to highlight mini pattern */
+.rhythm-template-card:hover .mini-step.active {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
