@@ -861,13 +861,20 @@ async function initializeApp() {
         appState.loadedData.genres = await MusicTheory.getGenresData();
         appState.loadedData.chordProgressions = await MusicTheory.getChordProgressionsData();
         appState.loadedData.drumPatterns = await MusicTheory.getDrumPatternsData();
-        
+
+        // Initialize rhythm engine
+        if (window.rhythmEngine) {
+            console.log('Initializing rhythm engine...');
+            await window.rhythmEngine.initialize();
+            console.log('Rhythm engine initialized');
+        }
+
         // Render initial step
         await loadMoodStep();
-        
+
         // Set up event listeners
         setupEventListeners();
-        
+
         console.log('Music Machine initialized successfully');
     } catch (error) {
         console.error('Failed to initialize Music Machine:', error);
@@ -1241,62 +1248,140 @@ async function loadRhythmStep() {
     UI.showStep('step-rhythm');
 }
 
-// Generate rhythm templates based on current song context
+// Generate rhythm templates based on current song context using enhanced rhythm engine
 function generateRhythmTemplates() {
     const genre = appState.songData.genre;
     const strummingPattern = appState.songData.strummingPattern;
     const tempo = appState.songData.tempo;
 
+    // Map genres to drum styles
+    const genreToStyleMap = {
+        'rock': 'rock',
+        'pop': 'pop',
+        'jazz': 'jazz',
+        'blues': 'blues',
+        'funk': 'funk',
+        'disco': 'disco',
+        'electronic': 'electronic',
+        'edm': 'electronic',
+        'hip hop': 'hiphop',
+        'hiphop': 'hiphop',
+        'reggae': 'reggae',
+        'latin': 'latin'
+    };
+
+    const genreName = (genre?.name || genre?.id || '').toLowerCase();
+
     const templates = [
         {
-            id: 'acoustic-classic',
-            name: 'Acoustic Classic',
-            drumPattern: 'Acoustic Kit',
-            bassStyle: 'Root Notes',
-            compatibility: getCompatibilityRating(genre, strummingPattern, 'acoustic'),
-            description: 'Traditional acoustic setup with clean drums and simple bass',
-            genreMatch: ['folk', 'pop', 'country'],
-            tempoRange: [60, 140]
-        },
-        {
-            id: 'rock-foundation',
-            name: 'Rock Foundation',
-            drumPattern: 'Rock Kit',
-            bassStyle: 'Power Bass',
+            id: 'rock',
+            name: 'Rock Beat',
+            drumStyle: 'rock',
+            bassStyle: 'root',
             compatibility: getCompatibilityRating(genre, strummingPattern, 'rock'),
-            description: 'Driving rock rhythm with punchy drums and strong bass',
-            genreMatch: ['rock', 'alternative', 'pop'],
-            tempoRange: [80, 160]
+            description: 'Classic rock beat with driving kick, snare, and hi-hats',
+            genreMatch: ['rock', 'alternative', 'punk'],
+            tempoRange: [80, 140],
+            pattern: '🥁 x-x-x-x- | 🎸 Root Notes'
         },
         {
-            id: 'mellow-groove',
-            name: 'Mellow Groove',
-            drumPattern: 'Brushed Kit',
-            bassStyle: 'Walking Bass',
-            compatibility: getCompatibilityRating(genre, strummingPattern, 'mellow'),
-            description: 'Smooth, laid-back rhythm perfect for ballads and jazz',
-            genreMatch: ['jazz', 'blues', 'folk'],
-            tempoRange: [60, 120]
+            id: 'pop',
+            name: 'Pop Groove',
+            drumStyle: 'pop',
+            bassStyle: 'rootFifth',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'pop'),
+            description: 'Modern pop groove with syncopated kicks and claps',
+            genreMatch: ['pop', 'indie', 'alternative'],
+            tempoRange: [100, 130],
+            pattern: '🥁 Syncopated | 🎸 Root-Fifth'
         },
         {
-            id: 'modern-pop',
-            name: 'Modern Pop',
-            drumPattern: 'Electronic Kit',
-            bassStyle: 'Synth Bass',
+            id: 'disco',
+            name: 'Disco Four-on-Floor',
+            drumStyle: 'disco',
+            bassStyle: 'disco',
             compatibility: getCompatibilityRating(genre, strummingPattern, 'electronic'),
-            description: 'Contemporary pop sound with electronic elements',
-            genreMatch: ['pop', 'electronic', 'indie'],
-            tempoRange: [100, 140]
+            description: 'Four-on-the-floor kick with open hi-hats',
+            genreMatch: ['disco', 'dance', 'electronic'],
+            tempoRange: [110, 130],
+            pattern: '🥁 Four-on-Floor | 🎸 Disco Bass'
         },
         {
-            id: 'minimal-focus',
-            name: 'Minimal Focus',
-            drumPattern: 'Light Kit',
-            bassStyle: 'Melodic Bass',
-            compatibility: getCompatibilityRating(genre, strummingPattern, 'minimal'),
-            description: 'Subtle rhythm that highlights vocals and melody',
-            genreMatch: ['folk', 'indie', 'acoustic'],
-            tempoRange: [70, 120]
+            id: 'funk',
+            name: 'Funk Groove',
+            drumStyle: 'funk',
+            bassStyle: 'funky',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'funk'),
+            description: 'Syncopated funk groove with 16th note hi-hats',
+            genreMatch: ['funk', 'soul', 'r&b'],
+            tempoRange: [95, 115],
+            pattern: '🥁 Syncopated 16ths | 🎸 Funky Bass'
+        },
+        {
+            id: 'hiphop',
+            name: 'Hip Hop Beat',
+            drumStyle: 'hiphop',
+            bassStyle: 'root',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'hiphop'),
+            description: 'Hip hop beat with heavy kicks and snappy snares',
+            genreMatch: ['hip hop', 'trap', 'urban'],
+            tempoRange: [80, 100],
+            pattern: '🥁 Boom Bap | 🎸 Sub Bass'
+        },
+        {
+            id: 'reggae',
+            name: 'Reggae Riddim',
+            drumStyle: 'reggae',
+            bassStyle: 'reggae',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'reggae'),
+            description: 'Laid-back reggae with offbeat kicks',
+            genreMatch: ['reggae', 'ska', 'dub'],
+            tempoRange: [70, 90],
+            pattern: '🥁 One Drop | 🎸 Offbeat Bass'
+        },
+        {
+            id: 'electronic',
+            name: 'Electronic Dance',
+            drumStyle: 'electronic',
+            bassStyle: 'syncopated',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'electronic'),
+            description: 'High-energy electronic beat with fast hi-hats',
+            genreMatch: ['electronic', 'edm', 'house', 'techno'],
+            tempoRange: [120, 140],
+            pattern: '🥁 4/4 Dance | 🎸 Synth Bass'
+        },
+        {
+            id: 'jazz',
+            name: 'Jazz Swing',
+            drumStyle: 'jazz',
+            bassStyle: 'walking',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'jazz'),
+            description: 'Swinging jazz rhythm with walking bass',
+            genreMatch: ['jazz', 'swing', 'blues'],
+            tempoRange: [100, 160],
+            pattern: '🥁 Swing | 🎸 Walking Bass'
+        },
+        {
+            id: 'latin',
+            name: 'Latin Groove',
+            drumStyle: 'latin',
+            bassStyle: 'latin',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'latin'),
+            description: 'Energetic Latin rhythm with toms and syncopation',
+            genreMatch: ['latin', 'salsa', 'bossa nova'],
+            tempoRange: [100, 130],
+            pattern: '🥁 Tumbao | 🎸 Latin Bass'
+        },
+        {
+            id: 'blues',
+            name: 'Blues Shuffle',
+            drumStyle: 'blues',
+            bassStyle: 'root',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'blues'),
+            description: 'Shuffling blues groove with laid-back feel',
+            genreMatch: ['blues', 'rock', 'country'],
+            tempoRange: [70, 110],
+            pattern: '🥁 Shuffle | 🎸 Blues Bass'
         }
     ];
 
@@ -1313,40 +1398,68 @@ function getCompatibilityRating(genre, strummingPattern, templateStyle) {
     const strummingCategory = strummingPattern?.category?.toLowerCase() || '';
 
     const compatibilityMatrix = {
-        'acoustic': {
-            genres: ['folk', 'country', 'acoustic'],
-            categories: ['basic', 'folk/pop', 'country'],
-            perfect: ['folk', 'country'],
-            good: ['pop', 'acoustic'],
-            fair: ['rock', 'blues']
-        },
         'rock': {
-            genres: ['rock', 'alternative', 'metal'],
+            genres: ['rock', 'alternative', 'metal', 'punk', 'grunge'],
             categories: ['rock', 'basic'],
-            perfect: ['rock', 'alternative'],
-            good: ['pop', 'punk'],
-            fair: ['folk', 'country']
+            perfect: ['rock', 'alternative', 'punk', 'metal'],
+            good: ['pop', 'indie', 'grunge'],
+            fair: ['folk', 'country', 'jazz']
         },
-        'mellow': {
-            genres: ['jazz', 'blues', 'ballad'],
-            categories: ['jazz', 'basic', 'specialty'],
-            perfect: ['jazz', 'blues'],
-            good: ['folk', 'pop'],
-            fair: ['rock', 'country']
+        'pop': {
+            genres: ['pop', 'indie', 'alternative', 'r&b'],
+            categories: ['folk/pop', 'basic'],
+            perfect: ['pop', 'indie'],
+            good: ['alternative', 'r&b', 'electronic'],
+            fair: ['rock', 'jazz', 'country']
         },
         'electronic': {
-            genres: ['pop', 'electronic', 'dance'],
+            genres: ['electronic', 'edm', 'house', 'techno', 'trance', 'dubstep', 'disco'],
             categories: ['basic', 'funk/r&b'],
-            perfect: ['electronic', 'pop'],
-            good: ['funk', 'dance'],
-            fair: ['rock', 'folk']
+            perfect: ['electronic', 'edm', 'house', 'techno', 'disco'],
+            good: ['pop', 'trance', 'dubstep'],
+            fair: ['rock', 'jazz', 'folk']
         },
-        'minimal': {
-            genres: ['folk', 'indie', 'acoustic'],
-            categories: ['basic', 'folk/pop', 'specialty'],
-            perfect: ['folk', 'indie'],
-            good: ['acoustic', 'pop'],
-            fair: ['rock', 'country']
+        'funk': {
+            genres: ['funk', 'soul', 'r&b', 'disco'],
+            categories: ['funk/r&b', 'basic'],
+            perfect: ['funk', 'soul', 'r&b'],
+            good: ['disco', 'pop', 'jazz'],
+            fair: ['rock', 'country', 'folk']
+        },
+        'hiphop': {
+            genres: ['hip hop', 'hiphop', 'rap', 'trap', 'urban'],
+            categories: ['basic', 'funk/r&b'],
+            perfect: ['hip hop', 'hiphop', 'rap', 'trap'],
+            good: ['urban', 'r&b', 'electronic'],
+            fair: ['pop', 'rock', 'jazz']
+        },
+        'reggae': {
+            genres: ['reggae', 'ska', 'dub'],
+            categories: ['reggae/ska', 'world', 'basic'],
+            perfect: ['reggae', 'ska', 'dub'],
+            good: ['world', 'folk'],
+            fair: ['rock', 'pop', 'jazz']
+        },
+        'jazz': {
+            genres: ['jazz', 'swing', 'bebop', 'blues'],
+            categories: ['jazz', 'basic'],
+            perfect: ['jazz', 'swing', 'bebop'],
+            good: ['blues', 'soul', 'funk'],
+            fair: ['rock', 'pop', 'country']
+        },
+        'latin': {
+            genres: ['latin', 'salsa', 'bossa nova', 'samba'],
+            categories: ['latin', 'world', 'basic'],
+            perfect: ['latin', 'salsa', 'bossa nova'],
+            good: ['samba', 'world', 'jazz'],
+            fair: ['pop', 'rock', 'funk']
+        },
+        'blues': {
+            genres: ['blues', 'rock', 'country', 'jazz'],
+            categories: ['basic', 'rock', 'country'],
+            perfect: ['blues'],
+            good: ['rock', 'country', 'jazz'],
+            fair: ['pop', 'funk', 'folk']
         }
     };
 
@@ -1370,44 +1483,125 @@ function updateRhythmContext() {
         appState.songData.strummingPattern?.name || 'Not set';
 }
 
+// Create mini drum pattern visualization for template cards
+function createMiniDrumPattern(drumStyle) {
+    if (!window.rhythmEngine) return '';
+
+    const drumPattern = window.rhythmEngine.getDrumPatterns(drumStyle);
+
+    // Show only kick, snare, hihat for compact view
+    const mainDrums = [
+        { key: 'kick', icon: '🦶', color: '#ff6b6b' },
+        { key: 'snare', icon: '👋', color: '#4ecdc4' },
+        { key: 'hihat', icon: '🎩', color: '#ffd93d' }
+    ];
+
+    let html = '<div class="mini-drum-pattern">';
+
+    mainDrums.forEach(drum => {
+        const pattern = drumPattern[drum.key];
+        if (!pattern) return;
+
+        html += `<div class="mini-drum-row">`;
+        html += `<span class="mini-drum-icon" style="color: ${drum.color};">${drum.icon}</span>`;
+
+        // Show 8 steps (half measure) for compact view
+        for (let i = 0; i < 8; i++) {
+            const isActive = pattern[i] && (pattern[i] === 'x' || pattern[i] === 'X');
+            html += `<span class="mini-step ${isActive ? 'active' : ''}" style="${isActive ? `background: ${drum.color};` : ''}"></span>`;
+        }
+
+        html += '</div>';
+    });
+
+    html += '</div>';
+    return html;
+}
+
 // Render rhythm templates
 function renderRhythmTemplates(templates) {
     const grid = document.getElementById('rhythm-templates-grid');
     if (!grid) return;
 
-    grid.innerHTML = templates.map(template => `
-        <div class="rhythm-template-card" onclick="selectRhythmTemplate('${template.id}')" data-template-id="${template.id}">
+    grid.innerHTML = templates.map(template => {
+        const miniPattern = createMiniDrumPattern(template.drumStyle);
+
+        return `
+        <div class="rhythm-template-card" onclick="selectRhythmTemplate('${template.id}', '${template.drumStyle}', '${template.bassStyle}')" data-template-id="${template.id}">
             <div class="template-header">
                 <div class="template-name">${template.name}</div>
                 <span class="template-compatibility ${template.compatibility}">${template.compatibility}</span>
             </div>
+            <div class="template-pattern-preview">
+                ${miniPattern}
+            </div>
             <div class="template-components">
                 <div class="template-component">
-                    <div class="component-label">Drums</div>
-                    <div class="component-name">${template.drumPattern}</div>
+                    <div class="component-label">Drum Style</div>
+                    <div class="component-name">${template.drumStyle.charAt(0).toUpperCase() + template.drumStyle.slice(1)}</div>
                 </div>
                 <div class="template-component">
-                    <div class="component-label">Bass</div>
-                    <div class="component-name">${template.bassStyle}</div>
+                    <div class="component-label">Bass Style</div>
+                    <div class="component-name">${formatBassStyle(template.bassStyle)}</div>
                 </div>
             </div>
+            <div class="template-actions">
+                <button class="preview-btn" onclick="event.stopPropagation(); previewRhythmTemplate('${template.drumStyle}')">
+                    🔊 Preview Drums
+                </button>
+            </div>
             <div class="template-description">${template.description}</div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
+}
+
+// Format bass style name for display
+function formatBassStyle(style) {
+    const styleNames = {
+        'root': 'Root Notes',
+        'rootFifth': 'Root-Fifth',
+        'walking': 'Walking Bass',
+        'arpeggio': 'Arpeggio',
+        'octaves': 'Octaves',
+        'funky': 'Funky 16ths',
+        'disco': 'Disco Groove',
+        'reggae': 'Offbeat',
+        'latin': 'Tumbao',
+        'syncopated': 'Syncopated'
+    };
+    return styleNames[style] || style;
+}
+
+// Preview rhythm template
+window.previewRhythmTemplate = async function(drumStyle) {
+    if (!window.rhythmEngine) {
+        console.error('Rhythm engine not available');
+        return;
+    }
+
+    const tempo = appState.songData.tempo || 120;
+    await window.rhythmEngine.previewDrumPattern(drumStyle, tempo);
 }
 
 // Select rhythm template
-window.selectRhythmTemplate = function(templateId) {
+window.selectRhythmTemplate = async function(templateId, drumStyle, bassStyle) {
     const templates = generateRhythmTemplates();
     const template = templates.find(t => t.id === templateId);
     if (!template) return;
 
-    // Update app state
-    appState.songData.rhythmTemplate = template;
-    appState.songData.drumPattern = { name: template.drumPattern };
+    // Update app state with enhanced rhythm data
+    appState.songData.rhythmTemplate = {
+        ...template,
+        drumStyle: drumStyle,
+        bassStyle: bassStyle
+    };
+    appState.songData.drumPattern = {
+        name: template.name,
+        style: drumStyle
+    };
     appState.songData.bassLine = {
-        style: template.bassStyle,
-        notes: generateBassLine(appState.songData.chordProgression, template.bassStyle)
+        style: bassStyle,
+        notes: [] // Will be generated when playing
     };
 
     // Update visual selection
@@ -1420,11 +1614,180 @@ window.selectRhythmTemplate = function(templateId) {
         selectedCard.classList.add('selected');
     }
 
-    // Update rhythm preview
-    displayRhythmPreview(template);
+    // Update rhythm preview with full playback
+    await displayEnhancedRhythmPreview(template, drumStyle, bassStyle);
 
     // Check completion
     checkRhythmStepCompletion();
+}
+
+// Create visual drum pattern grid (like a drum machine)
+function createDrumPatternGrid(drumStyle) {
+    if (!window.rhythmEngine) return '<p>Loading drum patterns...</p>';
+
+    const drumPattern = window.rhythmEngine.getDrumPatterns(drumStyle);
+
+    // Define drum instruments with icons and colors
+    const drums = [
+        { key: 'kick', name: 'Kick', icon: '🦶', color: '#ff6b6b' },
+        { key: 'snare', name: 'Snare', icon: '👋', color: '#4ecdc4' },
+        { key: 'hihat', name: 'Hi-Hat', icon: '🎩', color: '#ffd93d' },
+        { key: 'openHihat', name: 'Open HH', icon: '💫', color: '#a8dadc' },
+        { key: 'clap', name: 'Clap', icon: '👏', color: '#f1faee' },
+        { key: 'tom', name: 'Tom', icon: '🥁', color: '#e76f51' }
+    ];
+
+    // Filter to only drums that exist in this pattern
+    const activeDrums = drums.filter(drum => drumPattern[drum.key] && drumPattern[drum.key] !== '');
+
+    if (activeDrums.length === 0) {
+        return '<p>No drum pattern available</p>';
+    }
+
+    // Create 16-step grid (one measure in 16th notes)
+    const steps = 16;
+    const beatsPerMeasure = 4;
+
+    let gridHTML = '<div class="drum-grid-container">';
+
+    // Add beat markers (1, 2, 3, 4)
+    gridHTML += '<div class="drum-grid-header">';
+    gridHTML += '<div class="drum-name-header"></div>'; // Empty corner
+    for (let beat = 0; beat < beatsPerMeasure; beat++) {
+        gridHTML += `<div class="beat-marker" style="grid-column: span 4;">${beat + 1}</div>`;
+    }
+    gridHTML += '</div>';
+
+    // Add each drum row
+    activeDrums.forEach(drum => {
+        const pattern = drumPattern[drum.key];
+        gridHTML += '<div class="drum-row">';
+
+        // Drum name/icon
+        gridHTML += `<div class="drum-name" style="color: ${drum.color};">
+            <span class="drum-icon">${drum.icon}</span>
+            <span class="drum-label">${drum.name}</span>
+        </div>`;
+
+        // 16 steps
+        for (let step = 0; step < steps; step++) {
+            const isActive = pattern[step] && (pattern[step] === 'x' || pattern[step] === 'X');
+            const isDownbeat = step % 4 === 0;
+            const stepClass = isActive ? 'step active' : 'step';
+            const downbeatClass = isDownbeat ? ' downbeat' : '';
+
+            gridHTML += `<div class="${stepClass}${downbeatClass}" style="${isActive ? `background-color: ${drum.color};` : ''}" title="${drum.name} - Step ${step + 1}">
+                ${isActive ? '●' : ''}
+            </div>`;
+        }
+
+        gridHTML += '</div>';
+    });
+
+    gridHTML += '</div>';
+
+    // Add legend
+    gridHTML += '<div class="drum-legend">';
+    gridHTML += '<small><strong>Legend:</strong> ● = Hit | Numbers = Beats (1-4) | Each box = 16th note</small>';
+    gridHTML += '</div>';
+
+    return gridHTML;
+}
+
+// Display enhanced rhythm preview with actual playback
+async function displayEnhancedRhythmPreview(template, drumStyle, bassStyle) {
+    const previewDisplay = document.getElementById('rhythm-preview-display');
+    if (!previewDisplay) return;
+
+    const chords = appState.songData.chordProgression?.chords || ['C', 'Am', 'F', 'G'];
+    const key = appState.songData.key || 'C';
+    const tempo = appState.songData.tempo || 120;
+
+    // Generate bass notes to display
+    let bassNotes = [];
+    if (window.rhythmEngine) {
+        bassNotes = window.rhythmEngine.generateBassLine(chords, key, bassStyle);
+    }
+
+    // Create visual representation of bass notes
+    const bassNotesDisplay = bassNotes.length > 0 ?
+        bassNotes.map((note, i) => {
+            const chordIndex = Math.floor(i / (bassNotes.length / chords.length));
+            const chordLabel = chords[chordIndex] || chords[chords.length - 1];
+            return `<span class="bass-note" title="Note ${i + 1} - For ${chordLabel}">${note}</span>`;
+        }).join(' ') :
+        'Bass notes will be generated...';
+
+    // Calculate note distribution
+    const notesPerChord = (bassNotes.length / chords.length).toFixed(1);
+    const bassStyleInfo = {
+        'root': 'Simple root notes (1 per chord)',
+        'rootFifth': 'Root and fifth alternating (2 per chord)',
+        'walking': 'Walking bass with chromatic approaches (3-4 per chord)',
+        'arpeggio': 'Full chord arpeggios (4 per chord)',
+        'octaves': 'Root notes in octaves (2 per chord)'
+    };
+    const styleDescription = bassStyleInfo[bassStyle] || `${notesPerChord} notes per chord`;
+
+    // Create drum grid visualization
+    const drumGridHTML = createDrumPatternGrid(drumStyle);
+
+    previewDisplay.innerHTML = `
+        <div class="rhythm-preview-content">
+            <h4>${template.name}</h4>
+            <p class="preview-description">${template.description}</p>
+
+            <div class="rhythm-details">
+                <div class="detail-item">
+                    <span class="detail-label">Drum Style:</span>
+                    <span class="detail-value">${drumStyle.charAt(0).toUpperCase() + drumStyle.slice(1)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Bass Style:</span>
+                    <span class="detail-value">${formatBassStyle(bassStyle)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Tempo:</span>
+                    <span class="detail-value">${tempo} BPM</span>
+                </div>
+            </div>
+
+            <div class="rhythm-pattern-visual">
+                <div class="pattern-section">
+                    <h5>🥁 Drum Pattern (One Measure)</h5>
+                    ${drumGridHTML}
+                </div>
+                <div class="pattern-section">
+                    <h5>🎸 Bass Line (${bassNotes.length} notes across ${chords.length} chords)</h5>
+                    <div class="bass-style-info">
+                        <small>${styleDescription}</small>
+                    </div>
+                    <div class="bass-notes-display">
+                        ${bassNotesDisplay}
+                    </div>
+                    <div class="bass-chord-mapping">
+                        <small style="margin-right: 0.5rem; color: var(--text-secondary);">Chord progression:</small>
+                        ${chords.map((chord, i) => `<span class="chord-label">${chord}</span>`).join(' → ')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="rhythm-controls">
+                <button class="play-rhythm-btn" onclick="playCurrentRhythm()">
+                    ▶️ Play Full Rhythm (Drums + Bass)
+                </button>
+                <button class="stop-rhythm-btn" onclick="stopCurrentRhythm()">
+                    ⏹️ Stop
+                </button>
+            </div>
+
+            <div class="rhythm-tips">
+                <p><strong>💡 Tip:</strong> This rhythm will work great with your ${chords.join(' → ')} progression!</p>
+                <p><strong>🎸 Bass Pattern:</strong> All ${bassNotes.length} bass notes will play in sequence (${notesPerChord} notes per chord average)</p>
+                <p><strong>🥁 Drum Pattern:</strong> ${drumStyle.charAt(0).toUpperCase() + drumStyle.slice(1)} beat at ${tempo} BPM (16th note resolution)</p>
+            </div>
+        </div>
+    `;
 }
 
 // Display rhythm preview
@@ -1738,6 +2101,41 @@ function getConnectingNote(currentChord, nextChord) {
     };
 
     return connectingNotes[currentChord] || currentChord.split('/')[0];
+}
+
+// Play current rhythm with rhythm engine
+window.playCurrentRhythm = async function() {
+    if (!window.rhythmEngine) {
+        console.error('Rhythm engine not initialized');
+        return;
+    }
+
+    const chords = appState.songData.chordProgression?.chords || ['C', 'Am', 'F', 'G'];
+    const key = appState.songData.key || 'C';
+    const tempo = appState.songData.tempo || 120;
+    const rhythmTemplate = appState.songData.rhythmTemplate;
+
+    if (!rhythmTemplate) {
+        console.warn('No rhythm template selected');
+        return;
+    }
+
+    const drumStyle = rhythmTemplate.drumStyle || 'rock';
+    const bassStyle = rhythmTemplate.bassStyle || 'root';
+
+    try {
+        await window.rhythmEngine.playRhythmSection(chords, key, tempo, drumStyle, bassStyle);
+        console.log('Playing rhythm:', drumStyle, bassStyle, tempo);
+    } catch (error) {
+        console.error('Error playing rhythm:', error);
+    }
+}
+
+// Stop current rhythm
+window.stopCurrentRhythm = function() {
+    if (window.rhythmEngine) {
+        window.rhythmEngine.stop();
+    }
 }
 
 // Check rhythm step completion
