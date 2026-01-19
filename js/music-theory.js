@@ -179,7 +179,13 @@ export function getAllKeys() {
 
 export function getSuggestedKeysForMoodAndGenre(mood, genre) {
     let suggestedKeys = mood.suggestedKeys || [];
-    
+
+    // If no genre is provided, return ALL keys
+    if (!genre) {
+        const allKeysObj = getAllKeys();
+        return allKeysObj.all; // Return all 24 keys (12 major + 12 minor)
+    }
+
     // Expand suggestions based on genre preferences
     if (genre.id === 'rock' || genre.id === 'metal') {
         // Rock genres prefer guitar-friendly keys
@@ -197,8 +203,8 @@ export function getSuggestedKeysForMoodAndGenre(mood, genre) {
         const classicalKeys = ['C', 'G', 'D', 'A', 'E', 'F', 'Bb', 'Eb', 'Am', 'Em', 'Bm', 'F#m'];
         suggestedKeys = [...new Set([...suggestedKeys, ...classicalKeys])];
     }
-    
-    // Remove duplicates and limit to reasonable number
+
+    // Remove duplicates and limit to reasonable number when genre IS selected
     return [...new Set(suggestedKeys)].slice(0, 8);
 }
 
@@ -217,9 +223,14 @@ export function getSuggestedScalesForMoodAndGenre(mood, genre) {
         { name: 'Pentatonic Major', type: 'pentatonic-major', description: 'Simple, folk-like' },
         { name: 'Pentatonic Minor', type: 'pentatonic-minor', description: 'Rock, blues, world music' }
     ];
-    
+
     let suggestedScales = mood.suggestedScales || ['major', 'minor'];
-    
+
+    // If no genre is provided, return ALL scales for maximum flexibility
+    if (!genre) {
+        return scaleOptions; // Return all 12 scale options
+    }
+
     // Filter based on genre
     if (genre.id === 'blues') {
         suggestedScales = ['blues', 'minor', 'mixolydian'];
@@ -232,33 +243,39 @@ export function getSuggestedScalesForMoodAndGenre(mood, genre) {
     } else if (genre.id === 'metal') {
         suggestedScales = ['minor', 'phrygian', 'harmonic-minor', 'locrian'];
     }
-    
+
     return scaleOptions.filter(scale => suggestedScales.includes(scale.type));
 }
 
 export function getSuggestedTempo(mood, genre) {
     const moodTempo = mood.tempoRange || [120, 120];
+
+    // If no genre is provided, just use mood's tempo range
+    if (!genre) {
+        return moodTempo;
+    }
+
     const genreTempo = genre.typicalTempo || [120, 120];
-    
+
     // Find overlap between mood and genre tempo ranges
     const minTempo = Math.max(moodTempo[0], genreTempo[0]);
     const maxTempo = Math.min(moodTempo[1], genreTempo[1]);
-    
+
     // If no overlap, blend the ranges
     if (minTempo > maxTempo) {
         const blendedMin = Math.round((moodTempo[0] + genreTempo[0]) / 2);
         const blendedMax = Math.round((moodTempo[1] + genreTempo[1]) / 2);
         return [Math.min(blendedMin, blendedMax), Math.max(blendedMin, blendedMax)];
     }
-    
+
     return [minTempo, maxTempo];
 }
 
 export function getChordProgressionsForKeyAndGenre(key, scale, genre, progressionsData) {
     const progressions = [];
 
-    // First, get genre-specific progressions from the genre's commonProgressions
-    if (genre.commonProgressions && genre.commonProgressions.length > 0) {
+    // First, get genre-specific progressions from the genre's commonProgressions (if genre is provided)
+    if (genre && genre.commonProgressions && genre.commonProgressions.length > 0) {
         genre.commonProgressions.forEach(progressionPattern => {
             // Try to find this progression in all categories
             for (const category of Object.keys(progressionsData)) {
@@ -312,23 +329,40 @@ export function getChordProgressionsForKeyAndGenre(key, scale, genre, progressio
     // Then, add general categories as fallback
     let categories = [];
 
+    // Determine base category based on scale type
     if (scale === 'major') {
         categories.push('major');
     } else if (scale === 'minor') {
         categories.push('minor');
+    } else if (['dorian', 'phrygian', 'locrian', 'harmonic-minor', 'melodic-minor', 'pentatonic-minor'].includes(scale)) {
+        // Minor-based modes and scales
+        categories.push('minor');
+        categories.push('modal'); // Also add modal progressions
+    } else if (['lydian', 'mixolydian', 'pentatonic-major'].includes(scale)) {
+        // Major-based modes and scales
+        categories.push('major');
+        categories.push('modal'); // Also add modal progressions
+    } else if (scale === 'blues') {
+        // Blues can work with both
+        categories.push('minor', 'blues');
     }
 
-    // Add specialized genre categories
-    if (genre.id === 'jazz' || genre.id === 'bossanova') categories.push('jazz');
-    if (genre.id === 'blues') categories.push('blues');
-    if (genre.id === 'gospel') categories.push('gospel');
-    if (genre.id === 'latin' || genre.id === 'bossanova') categories.push('latin');
-    if (genre.id === 'funk') categories.push('funk');
-    if (['edm', 'house', 'techno', 'dubstep', 'trance', 'trap'].includes(genre.id)) categories.push('electronic');
+    // If genre is not provided, show ALL categories for maximum variety
+    if (!genre) {
+        categories.push('jazz', 'blues', 'gospel', 'latin', 'funk', 'electronic', 'modal');
+    } else {
+        // Add specialized genre categories
+        if (genre.id === 'jazz' || genre.id === 'bossanova') categories.push('jazz');
+        if (genre.id === 'blues') categories.push('blues');
+        if (genre.id === 'gospel') categories.push('gospel');
+        if (genre.id === 'latin' || genre.id === 'bossanova') categories.push('latin');
+        if (genre.id === 'funk') categories.push('funk');
+        if (['edm', 'house', 'techno', 'dubstep', 'trance', 'trap'].includes(genre.id)) categories.push('electronic');
 
-    // Add modal categories for appropriate genres
-    if (['celtic', 'folk', 'jazz', 'metal', 'flamenco'].includes(genre.id)) {
-        categories.push('modal');
+        // Add modal categories for appropriate genres
+        if (['celtic', 'folk', 'jazz', 'metal', 'flamenco'].includes(genre.id)) {
+            categories.push('modal');
+        }
     }
 
     // Always include section-specific categories (verses, chorus, bridge)
@@ -397,7 +431,9 @@ export function getChordProgressionsForKeyAndGenre(key, scale, genre, progressio
         }
     });
 
-    return uniqueProgressions.slice(0, 20); // Limit to 20 progressions - gives more variety for verse/chorus/bridge
+    // If genre is not provided, show more progressions for maximum variety
+    const limit = !genre ? 40 : 20;
+    return uniqueProgressions.slice(0, limit);
 }
 
 export function convertNumeralsToChords(numerals, key, scale = 'major') {

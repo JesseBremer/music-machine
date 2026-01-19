@@ -884,52 +884,47 @@ async function loadMoodStep() {
 
 // Load key & tempo step
 async function loadKeyTempoStep() {
-    if (!appState.songData.mood || !appState.songData.genre) {
-        UI.showMessage('Please select both mood and genre first', 'error');
-        return;
-    }
-    
+    // Mood and genre are optional - if not selected, show all options
+    const allKeysObj = MusicTheory.getAllKeys();
+    const allKeysArray = allKeysObj.all;
+
+    // Default mood/genre for when they're not selected
+    const defaultMood = { suggestedKeys: allKeysArray, tempoRange: [60, 180], suggestedScales: ['major', 'minor'] };
+    const mood = appState.songData.mood || defaultMood;
+    const genre = appState.songData.genre || null;
+
     // Get suggested keys
-    const suggestedKeys = MusicTheory.getSuggestedKeysForMoodAndGenre(
-        appState.songData.mood,
-        appState.songData.genre
-    );
-    
+    const suggestedKeys = MusicTheory.getSuggestedKeysForMoodAndGenre(mood, genre);
+
     // Get suggested tempo range
-    const tempoRange = MusicTheory.getSuggestedTempo(
-        appState.songData.mood,
-        appState.songData.genre
-    );
-    
+    const tempoRange = MusicTheory.getSuggestedTempo(mood, genre);
+
     // Get suggested scales based on mood and genre
-    const suggestedScales = MusicTheory.getSuggestedScalesForMoodAndGenre(
-        appState.songData.mood,
-        appState.songData.genre
-    );
-    
+    const suggestedScales = MusicTheory.getSuggestedScalesForMoodAndGenre(mood, genre);
+
     // Render keys
     UI.renderKeys(suggestedKeys, 'key-options');
-    
+
     // Render scales with enhanced options
     UI.renderScales(suggestedScales, 'scale-options');
-    
+
     // Render tempos
     UI.renderTempos(tempoRange, 'tempo-options');
-    
+
     UI.showStep('step-key-tempo');
 }
 
 // Load chord progression step
 async function loadChordsStep() {
-    if (!appState.songData.key || !appState.songData.scale || !appState.songData.genre) {
-        UI.showMessage('Please select key, scale, and genre first', 'error');
+    if (!appState.songData.key || !appState.songData.scale) {
+        UI.showMessage('Please select key and scale first', 'error');
         return;
     }
 
     const chordProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
         appState.songData.key,
         appState.songData.scale,
-        appState.songData.genre,
+        appState.songData.genre, // Can be null/undefined
         appState.loadedData.chordProgressions
     );
 
@@ -989,6 +984,11 @@ function getStrummingPatternsForGenre(patterns, genre) {
         'electronic': ['Basic'],
         'classical': ['Specialty']
     };
+
+    // If no genre is selected, show all patterns
+    if (!genre) {
+        return Object.entries(patterns);
+    }
 
     const genreKey = (genre?.name || genre?.id || genre || '').toLowerCase();
     const relevantCategories = genreMappings[genreKey] || ['Basic', 'Folk/Pop'];
@@ -1226,8 +1226,8 @@ function checkChordsStepCompletion() {
 
 // Load rhythm section step
 async function loadRhythmStep() {
-    if (!appState.songData.genre || !appState.songData.strummingPattern) {
-        UI.showMessage('Please complete the previous steps first', 'error');
+    if (!appState.songData.strummingPattern) {
+        UI.showMessage('Please select a chord progression and strumming pattern first', 'error');
         return;
     }
 
@@ -2125,7 +2125,8 @@ function handleOptionSelection(event) {
 }
 
 function checkMoodGenreComplete() {
-    if (appState.songData.mood && appState.songData.genre) {
+    // Only mood is required; genre is optional
+    if (appState.songData.mood) {
         UI.enableButton('mood-next-top');
     }
 }
