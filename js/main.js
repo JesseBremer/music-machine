@@ -1382,6 +1382,97 @@ function generateRhythmTemplates() {
             genreMatch: ['blues', 'rock', 'country'],
             tempoRange: [70, 110],
             pattern: '🥁 Shuffle | 🎸 Blues Bass'
+        },
+        {
+            id: 'metal',
+            name: 'Metal Double Kick',
+            drumStyle: 'metal',
+            bassStyle: 'rootFifth',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'metal'),
+            description: 'Aggressive double kick with crash accents',
+            genreMatch: ['metal', 'hard rock', 'heavy'],
+            tempoRange: [140, 200],
+            pattern: '🥁 Double Bass | 🎸 Picked Bass',
+            bassTone: 'picked',
+            intensity: 'peak'
+        },
+        {
+            id: 'punk',
+            name: 'Punk Beat',
+            drumStyle: 'punk',
+            bassStyle: 'root',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'punk'),
+            description: 'Fast, driving punk rhythm',
+            genreMatch: ['punk', 'hardcore', 'rock'],
+            tempoRange: [160, 200],
+            pattern: '🥁 Driving 8ths | 🎸 Root Notes',
+            bassTone: 'picked',
+            intensity: 'high'
+        },
+        {
+            id: 'rnb',
+            name: 'R&B Groove',
+            drumStyle: 'rnb',
+            bassStyle: 'syncopated',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'rnb'),
+            description: 'Smooth R&B with ghost notes and shaker',
+            genreMatch: ['r&b', 'soul', 'neo-soul'],
+            tempoRange: [85, 110],
+            pattern: '🥁 Ghost Notes | 🎸 Smooth Bass',
+            bassTone: 'fingered',
+            intensity: 'medium'
+        },
+        {
+            id: 'gospel',
+            name: 'Gospel Groove',
+            drumStyle: 'gospel',
+            bassStyle: 'walking',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'gospel'),
+            description: 'Uplifting gospel with tambourine',
+            genreMatch: ['gospel', 'soul', 'christian'],
+            tempoRange: [90, 130],
+            pattern: '🥁 Tambourine | 🎸 Walking Bass',
+            bassTone: 'fingered',
+            intensity: 'high'
+        },
+        {
+            id: 'country',
+            name: 'Country Two-Step',
+            drumStyle: 'country',
+            bassStyle: 'root',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'country'),
+            description: 'Country rhythm with ride cymbal',
+            genreMatch: ['country', 'folk', 'bluegrass'],
+            tempoRange: [110, 140],
+            pattern: '🥁 Two-Step | 🎸 Root Bass',
+            bassTone: 'picked',
+            intensity: 'medium'
+        },
+        {
+            id: 'afrobeat',
+            name: 'Afrobeat Groove',
+            drumStyle: 'afrobeat',
+            bassStyle: 'syncopated',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'afrobeat'),
+            description: 'Polyrhythmic Afrobeat with congas',
+            genreMatch: ['afrobeat', 'world', 'african'],
+            tempoRange: [105, 130],
+            pattern: '🥁 Polyrhythmic | 🎸 Syncopated',
+            bassTone: 'fingered',
+            intensity: 'high'
+        },
+        {
+            id: 'bossanova',
+            name: 'Bossa Nova',
+            drumStyle: 'bossanova',
+            bassStyle: 'latin',
+            compatibility: getCompatibilityRating(genre, strummingPattern, 'bossanova'),
+            description: 'Gentle bossa nova with brushes feel',
+            genreMatch: ['bossa nova', 'jazz', 'latin'],
+            tempoRange: [120, 145],
+            pattern: '🥁 Brushes | 🎸 Latin Bass',
+            bassTone: 'fretless',
+            intensity: 'low'
         }
     ];
 
@@ -1460,6 +1551,55 @@ function getCompatibilityRating(genre, strummingPattern, templateStyle) {
             perfect: ['blues'],
             good: ['rock', 'country', 'jazz'],
             fair: ['pop', 'funk', 'folk']
+        },
+        'metal': {
+            genres: ['metal', 'hard rock', 'heavy', 'thrash'],
+            categories: ['rock', 'basic'],
+            perfect: ['metal', 'hard rock', 'heavy'],
+            good: ['rock', 'punk', 'thrash'],
+            fair: ['alternative', 'grunge']
+        },
+        'punk': {
+            genres: ['punk', 'hardcore', 'ska-punk', 'rock'],
+            categories: ['rock', 'basic'],
+            perfect: ['punk', 'hardcore'],
+            good: ['rock', 'alternative', 'ska'],
+            fair: ['pop', 'indie']
+        },
+        'rnb': {
+            genres: ['r&b', 'rnb', 'soul', 'neo-soul'],
+            categories: ['funk/r&b', 'basic'],
+            perfect: ['r&b', 'rnb', 'neo-soul'],
+            good: ['soul', 'hip hop', 'pop'],
+            fair: ['funk', 'jazz']
+        },
+        'gospel': {
+            genres: ['gospel', 'christian', 'soul', 'choir'],
+            categories: ['basic', 'folk/pop'],
+            perfect: ['gospel', 'christian'],
+            good: ['soul', 'r&b', 'pop'],
+            fair: ['rock', 'folk']
+        },
+        'country': {
+            genres: ['country', 'folk', 'bluegrass', 'americana'],
+            categories: ['country', 'folk/pop', 'basic'],
+            perfect: ['country', 'americana'],
+            good: ['folk', 'bluegrass', 'rock'],
+            fair: ['pop', 'blues']
+        },
+        'afrobeat': {
+            genres: ['afrobeat', 'african', 'world', 'highlife'],
+            categories: ['world', 'latin', 'basic'],
+            perfect: ['afrobeat', 'african', 'highlife'],
+            good: ['world', 'funk', 'reggae'],
+            fair: ['jazz', 'latin']
+        },
+        'bossanova': {
+            genres: ['bossa nova', 'brazilian', 'latin', 'jazz'],
+            categories: ['latin', 'jazz', 'basic'],
+            perfect: ['bossa nova', 'brazilian'],
+            good: ['jazz', 'latin', 'lounge'],
+            fair: ['pop', 'folk']
         }
     };
 
@@ -1604,6 +1744,31 @@ window.selectRhythmTemplate = async function(templateId, drumStyle, bassStyle) {
         notes: [] // Will be generated when playing
     };
 
+    // Apply bass tone and intensity from template if available
+    const bassTone = template.bassTone || 'fingered';
+    const intensity = template.intensity || 'medium';
+
+    appState.songData.bassTone = bassTone;
+    appState.songData.bassIntensity = intensity;
+    appState.songData.drumIntensity = intensity;
+
+    // Apply settings to rhythm engine if available
+    if (window.rhythmEngine) {
+        window.rhythmEngine.setBassTone(bassTone);
+        window.rhythmEngine.setBassIntensity(intensity);
+        window.rhythmEngine.setIntensity(intensity);
+        window.rhythmEngine.setDrumVolumes(intensity);
+    }
+
+    // Update UI selectors if they exist
+    const bassToneSelect = document.getElementById('bass-tone');
+    const bassIntensitySelect = document.getElementById('bass-intensity');
+    const drumIntensitySelect = document.getElementById('drum-intensity');
+
+    if (bassToneSelect) bassToneSelect.value = bassTone;
+    if (bassIntensitySelect) bassIntensitySelect.value = intensity;
+    if (drumIntensitySelect) drumIntensitySelect.value = intensity;
+
     // Update visual selection
     document.querySelectorAll('.rhythm-template-card').forEach(card => {
         card.classList.remove('selected');
@@ -1627,14 +1792,30 @@ function createDrumPatternGrid(drumStyle) {
 
     const drumPattern = window.rhythmEngine.getDrumPatterns(drumStyle);
 
-    // Define drum instruments with icons and colors
+    // Define drum instruments with icons and colors - extended with new instruments
     const drums = [
+        // Core kit
         { key: 'kick', name: 'Kick', icon: '🦶', color: '#ff6b6b' },
         { key: 'snare', name: 'Snare', icon: '👋', color: '#4ecdc4' },
+        { key: 'ghostSnare', name: 'Ghost', icon: '👻', color: '#4ecdc488' },
         { key: 'hihat', name: 'Hi-Hat', icon: '🎩', color: '#ffd93d' },
         { key: 'openHihat', name: 'Open HH', icon: '💫', color: '#a8dadc' },
         { key: 'clap', name: 'Clap', icon: '👏', color: '#f1faee' },
-        { key: 'tom', name: 'Tom', icon: '🥁', color: '#e76f51' }
+        // Toms
+        { key: 'tomHigh', name: 'Tom Hi', icon: '🔵', color: '#60a5fa' },
+        { key: 'tom', name: 'Tom', icon: '🥁', color: '#e76f51' },
+        { key: 'tomLow', name: 'Tom Lo', icon: '🔴', color: '#dc2626' },
+        // Cymbals
+        { key: 'crash', name: 'Crash', icon: '💥', color: '#fbbf24' },
+        { key: 'ride', name: 'Ride', icon: '🔔', color: '#a3e635' },
+        { key: 'rideBell', name: 'Bell', icon: '🛎️', color: '#84cc16' },
+        // Percussion
+        { key: 'rimshot', name: 'Rim', icon: '🪵', color: '#d97706' },
+        { key: 'shaker', name: 'Shaker', icon: '🫨', color: '#94a3b8' },
+        { key: 'tambourine', name: 'Tamb', icon: '🪘', color: '#f472b6' },
+        { key: 'cowbell', name: 'Cowbell', icon: '🔔', color: '#c084fc' },
+        { key: 'conga', name: 'Conga', icon: '🪘', color: '#fb923c' },
+        { key: 'bongo', name: 'Bongo', icon: '🥁', color: '#f97316' }
     ];
 
     // Filter to only drums that exist in this pattern
@@ -1709,12 +1890,17 @@ async function displayEnhancedRhythmPreview(template, drumStyle, bassStyle) {
         bassNotes = window.rhythmEngine.generateBassLine(chords, key, bassStyle);
     }
 
-    // Create visual representation of bass notes
+    // Create visual representation of bass notes (handle both old and new formats)
     const bassNotesDisplay = bassNotes.length > 0 ?
-        bassNotes.map((note, i) => {
+        bassNotes.map((noteData, i) => {
+            // Handle both old format (string) and new format (object with articulation)
+            const noteName = typeof noteData === 'string' ? noteData : noteData.note;
+            const articulation = typeof noteData === 'string' ? '' : noteData.articulation;
             const chordIndex = Math.floor(i / (bassNotes.length / chords.length));
             const chordLabel = chords[chordIndex] || chords[chords.length - 1];
-            return `<span class="bass-note" title="Note ${i + 1} - For ${chordLabel}">${note}</span>`;
+            const articulationBadge = articulation && articulation !== 'normal' ?
+                `<span class="articulation-badge">${articulation}</span>` : '';
+            return `<span class="bass-note" title="Note ${i + 1} - For ${chordLabel}${articulation ? ' (' + articulation + ')' : ''}">${noteName}${articulationBadge}</span>`;
         }).join(' ') :
         'Bass notes will be generated...';
 
@@ -1725,7 +1911,15 @@ async function displayEnhancedRhythmPreview(template, drumStyle, bassStyle) {
         'rootFifth': 'Root and fifth alternating (2 per chord)',
         'walking': 'Walking bass with chromatic approaches (3-4 per chord)',
         'arpeggio': 'Full chord arpeggios (4 per chord)',
-        'octaves': 'Root notes in octaves (2 per chord)'
+        'octaves': 'Root notes in octaves (2 per chord)',
+        'funky': 'Funky bass with ghost notes (4 per chord)',
+        'slap': 'Slap and pop technique (4 per chord)',
+        'disco': 'Disco octave pattern (4 per chord)',
+        'reggae': 'Reggae one-drop bass (4 per chord)',
+        'latin': 'Latin tumbao pattern (4 per chord)',
+        'syncopated': 'Syncopated rhythm (4 per chord)',
+        'pedal': 'Sustained pedal tone (1 per chord)',
+        'chromatic': 'Chromatic walking bass (4 per chord)'
     };
     const styleDescription = bassStyleInfo[bassStyle] || `${notesPerChord} notes per chord`;
 
