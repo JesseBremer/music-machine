@@ -368,26 +368,92 @@ export function displayChords(chordProgression, key) {
 export function renderDrumPatterns(patterns, container) {
     const drumContainer = document.getElementById(container);
     if (!drumContainer) return;
-    
+
     drumContainer.innerHTML = '';
-    
+
+    // Add drum controls section
+    const drumControls = document.createElement('div');
+    drumControls.className = 'drum-controls';
+    drumControls.innerHTML = `
+        <div class="drum-control-row">
+            <div class="control-group">
+                <label for="drum-intensity">Intensity:</label>
+                <select id="drum-intensity" onchange="window.setDrumIntensity && window.setDrumIntensity(this.value)">
+                    <option value="low">Low (Quiet)</option>
+                    <option value="medium" selected>Medium (Balanced)</option>
+                    <option value="high">High (Loud)</option>
+                    <option value="peak">Peak (Maximum)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="humanize-toggle">
+                    <input type="checkbox" id="humanize-toggle" checked onchange="window.setHumanize && window.setHumanize(this.checked)">
+                    Humanize (natural feel)
+                </label>
+            </div>
+            <div class="control-group">
+                <button class="fill-btn" onclick="window.playDrumFill && window.playDrumFill()">
+                    🥁 Play Fill
+                </button>
+            </div>
+        </div>
+    `;
+    drumContainer.appendChild(drumControls);
+
+    // Group patterns by genre type
+    const genreGroups = {
+        standard: { name: 'Standard Beats', patterns: [] },
+        groove: { name: 'Groove & Funk', patterns: [] },
+        world: { name: 'World & Latin', patterns: [] },
+        intense: { name: 'High Energy', patterns: [] }
+    };
+
     patterns.forEach(pattern => {
-        const drumCard = document.createElement('div');
-        drumCard.className = 'drum-card';
-        drumCard.dataset.patternId = pattern.id;
-        
-        drumCard.innerHTML = `
-            <h4>${pattern.name}</h4>
-            <p>${pattern.description}</p>
-            <div class="pattern-preview">${pattern.pattern}</div>
-        `;
-        
-        drumCard.addEventListener('click', () => {
-            selectOption(drumCard, 'drum-pattern');
-            displayDrumPattern(pattern);
+        // Categorize patterns
+        const name = pattern.name?.toLowerCase() || pattern.id?.toLowerCase() || '';
+        if (name.includes('funk') || name.includes('groove') || name.includes('r&b') || name.includes('disco')) {
+            genreGroups.groove.patterns.push(pattern);
+        } else if (name.includes('latin') || name.includes('reggae') || name.includes('afro') || name.includes('bossa')) {
+            genreGroups.world.patterns.push(pattern);
+        } else if (name.includes('metal') || name.includes('punk') || name.includes('electronic')) {
+            genreGroups.intense.patterns.push(pattern);
+        } else {
+            genreGroups.standard.patterns.push(pattern);
+        }
+    });
+
+    // Render pattern groups
+    Object.entries(genreGroups).forEach(([groupId, group]) => {
+        if (group.patterns.length === 0) return;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'drum-pattern-group';
+        groupDiv.innerHTML = `<h5>${group.name}</h5>`;
+
+        const patternsGrid = document.createElement('div');
+        patternsGrid.className = 'drum-patterns-grid';
+
+        group.patterns.forEach(pattern => {
+            const drumCard = document.createElement('div');
+            drumCard.className = 'drum-card';
+            drumCard.dataset.patternId = pattern.id;
+
+            drumCard.innerHTML = `
+                <h4>${pattern.name}</h4>
+                <p>${pattern.description || ''}</p>
+                <div class="pattern-preview">${pattern.pattern || ''}</div>
+            `;
+
+            drumCard.addEventListener('click', () => {
+                selectOption(drumCard, 'drum-pattern');
+                displayDrumPattern(pattern);
+            });
+
+            patternsGrid.appendChild(drumCard);
         });
-        
-        drumContainer.appendChild(drumCard);
+
+        groupDiv.appendChild(patternsGrid);
+        drumContainer.appendChild(groupDiv);
     });
 }
 
@@ -456,36 +522,100 @@ export function renderBassOptions(bassLines, container) {
 
     bassContainer.innerHTML = '';
 
-    // Get all available bass patterns from music theory
+    // Get all available bass patterns - extended with new styles
     const bassPatterns = window.MusicTheory?.getAvailableBassPatterns?.() || [
-        { id: 'simple', name: 'Simple Root', description: 'Root notes following chord changes' },
-        { id: 'walking', name: 'Walking Bass', description: 'Jazz-style walking bass with passing tones' },
-        { id: 'octave', name: 'Octave Bass', description: 'Root note played in different octaves' },
-        { id: 'fifths', name: 'Root-Fifth', description: 'Alternating between root and fifth' },
-        { id: 'triads', name: 'Triad Arpeggios', description: 'Playing through chord tones (1-3-5)' },
-        { id: 'syncopated', name: 'Syncopated Funk', description: 'Funky syncopated bass rhythm' },
-        { id: 'pedal', name: 'Pedal Tone', description: 'Sustained root note throughout' },
-        { id: 'chromatic', name: 'Chromatic Walk', description: 'Chromatic passing tones between chords' },
-        { id: 'reggae', name: 'Reggae One-Drop', description: 'Reggae-style bass with emphasis on off-beats' },
-        { id: 'latin', name: 'Latin Montuno', description: 'Latin-style bass pattern with syncopation' }
+        { id: 'root', name: 'Simple Root', description: 'Root notes following chord changes', category: 'basic' },
+        { id: 'rootFifth', name: 'Root-Fifth', description: 'Alternating between root and fifth', category: 'basic' },
+        { id: 'octaves', name: 'Octave Bass', description: 'Root note played in different octaves', category: 'basic' },
+        { id: 'walking', name: 'Walking Bass', description: 'Jazz-style walking bass with passing tones', category: 'melodic' },
+        { id: 'arpeggio', name: 'Triad Arpeggios', description: 'Playing through chord tones (1-3-5)', category: 'melodic' },
+        { id: 'chromatic', name: 'Chromatic Walk', description: 'Chromatic passing tones between chords', category: 'melodic' },
+        { id: 'funky', name: 'Funky Bass', description: 'Funk-style with ghost notes and syncopation', category: 'groove' },
+        { id: 'slap', name: 'Slap Bass', description: 'Slap and pop technique with percussive hits', category: 'groove' },
+        { id: 'syncopated', name: 'Syncopated', description: 'Off-beat emphasis with rhythmic interest', category: 'groove' },
+        { id: 'disco', name: 'Disco Octaves', description: 'Classic disco octave pattern', category: 'genre' },
+        { id: 'reggae', name: 'Reggae One-Drop', description: 'Reggae-style bass with off-beat emphasis', category: 'genre' },
+        { id: 'latin', name: 'Latin Tumbao', description: 'Latin-style bass pattern with syncopation', category: 'genre' },
+        { id: 'pedal', name: 'Pedal Tone', description: 'Sustained root note throughout', category: 'basic' }
     ];
 
+    // Add bass tone selector
+    const toneSelector = document.createElement('div');
+    toneSelector.className = 'bass-tone-selector';
+    toneSelector.innerHTML = `
+        <label for="bass-tone">Bass Tone:</label>
+        <select id="bass-tone" onchange="window.setBassTone && window.setBassTone(this.value)">
+            <option value="fingered">Fingered (Warm)</option>
+            <option value="picked">Picked (Bright)</option>
+            <option value="synth">Synth Bass (Electronic)</option>
+            <option value="sub">Sub Bass (Deep)</option>
+            <option value="slap">Slap Bass (Percussive)</option>
+            <option value="muted">Muted (Short)</option>
+            <option value="fretless">Fretless (Smooth)</option>
+        </select>
+    `;
+    bassContainer.appendChild(toneSelector);
+
+    // Add bass intensity selector
+    const intensitySelector = document.createElement('div');
+    intensitySelector.className = 'bass-intensity-selector';
+    intensitySelector.innerHTML = `
+        <label for="bass-intensity">Intensity:</label>
+        <select id="bass-intensity" onchange="window.setBassIntensity && window.setBassIntensity(this.value)">
+            <option value="low">Low (Subtle)</option>
+            <option value="medium" selected>Medium (Balanced)</option>
+            <option value="high">High (Driving)</option>
+            <option value="peak">Peak (Powerful)</option>
+        </select>
+    `;
+    bassContainer.appendChild(intensitySelector);
+
+    // Group patterns by category
+    const categories = {
+        basic: { name: 'Basic Patterns', patterns: [] },
+        melodic: { name: 'Melodic Patterns', patterns: [] },
+        groove: { name: 'Groove Patterns', patterns: [] },
+        genre: { name: 'Genre-Specific', patterns: [] }
+    };
+
     bassPatterns.forEach(pattern => {
-        const bassCard = document.createElement('div');
-        bassCard.className = 'bass-card';
-        bassCard.dataset.patternId = pattern.id;
+        const cat = pattern.category || 'basic';
+        if (categories[cat]) {
+            categories[cat].patterns.push(pattern);
+        }
+    });
 
-        bassCard.innerHTML = `
-            <h4>${pattern.name}</h4>
-            <p>${pattern.description}</p>
-        `;
+    // Render each category
+    Object.entries(categories).forEach(([catId, category]) => {
+        if (category.patterns.length === 0) return;
 
-        bassCard.addEventListener('click', () => {
-            selectOption(bassCard, 'bass-pattern');
-            // Generate and display the bass line preview
-            generateBassPreview(pattern.id);
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'bass-category';
+        categoryDiv.innerHTML = `<h5>${category.name}</h5>`;
+
+        const patternsGrid = document.createElement('div');
+        patternsGrid.className = 'bass-patterns-grid';
+
+        category.patterns.forEach(pattern => {
+            const bassCard = document.createElement('div');
+            bassCard.className = 'bass-card';
+            bassCard.dataset.patternId = pattern.id;
+
+            bassCard.innerHTML = `
+                <h4>${pattern.name}</h4>
+                <p>${pattern.description}</p>
+            `;
+
+            bassCard.addEventListener('click', () => {
+                selectOption(bassCard, 'bass-pattern');
+                // Generate and display the bass line preview
+                generateBassPreview(pattern.id);
+            });
+            patternsGrid.appendChild(bassCard);
         });
-        bassContainer.appendChild(bassCard);
+
+        categoryDiv.appendChild(patternsGrid);
+        bassContainer.appendChild(categoryDiv);
     });
 }
 
@@ -1508,6 +1638,115 @@ window.stopAudio = function() {
             console.error('Error stopping audio:', error);
         }
     }
+    // Also stop rhythm engine if available
+    if (window.rhythmEngine) {
+        try {
+            window.rhythmEngine.stop();
+        } catch (error) {
+            console.error('Error stopping rhythm engine:', error);
+        }
+    }
+};
+
+// Rhythm Engine Control Functions
+
+window.setBassTone = function(tone) {
+    if (window.rhythmEngine) {
+        const success = window.rhythmEngine.setBassTone(tone);
+        if (success) {
+            showMessage(`Bass tone set to: ${tone}`, 'info');
+            // Store in app state
+            if (window.appState?.songData) {
+                window.appState.songData.bassTone = tone;
+            }
+        }
+    } else {
+        console.warn('Rhythm engine not available');
+    }
+};
+
+window.setBassIntensity = function(level) {
+    if (window.rhythmEngine) {
+        window.rhythmEngine.setBassIntensity(level);
+        showMessage(`Bass intensity set to: ${level}`, 'info');
+        // Store in app state
+        if (window.appState?.songData) {
+            window.appState.songData.bassIntensity = level;
+        }
+    } else {
+        console.warn('Rhythm engine not available');
+    }
+};
+
+window.setDrumIntensity = function(level) {
+    if (window.rhythmEngine) {
+        window.rhythmEngine.setIntensity(level);
+        window.rhythmEngine.setDrumVolumes(level);
+        showMessage(`Drum intensity set to: ${level}`, 'info');
+        // Store in app state
+        if (window.appState?.songData) {
+            window.appState.songData.drumIntensity = level;
+        }
+    } else {
+        console.warn('Rhythm engine not available');
+    }
+};
+
+window.setHumanize = function(enabled) {
+    if (window.rhythmEngine) {
+        window.rhythmEngine.setHumanize(enabled);
+        showMessage(`Humanization ${enabled ? 'enabled' : 'disabled'}`, 'info');
+        // Store in app state
+        if (window.appState?.songData) {
+            window.appState.songData.humanize = enabled;
+        }
+    } else {
+        console.warn('Rhythm engine not available');
+    }
+};
+
+window.playDrumFill = function() {
+    if (window.rhythmEngine) {
+        const appState = window.appState;
+        const drumStyle = appState?.songData?.rhythmTemplate?.drumStyle || 'rock';
+        // Random fill index for variety
+        const fillIndex = Math.floor(Math.random() * 3);
+        window.rhythmEngine.playDrumFill(drumStyle, fillIndex);
+        showMessage('Playing drum fill...', 'info');
+    } else {
+        showMessage('Rhythm engine not available', 'error');
+    }
+};
+
+window.previewBassTone = function(tone, note = 'C2') {
+    if (window.rhythmEngine) {
+        window.rhythmEngine.previewBassTone(tone, note);
+    }
+};
+
+window.applyGenreSettings = function(genre) {
+    if (window.rhythmEngine) {
+        const settings = window.rhythmEngine.applyGenreSettings(genre);
+        showMessage(`Applied ${genre} rhythm settings`, 'info');
+
+        // Update UI selectors to match
+        const bassToneSelect = document.getElementById('bass-tone');
+        const bassIntensitySelect = document.getElementById('bass-intensity');
+        const drumIntensitySelect = document.getElementById('drum-intensity');
+
+        if (bassToneSelect && settings.bassTone) {
+            bassToneSelect.value = settings.bassTone;
+        }
+        if (bassIntensitySelect && settings.intensity) {
+            bassIntensitySelect.value = settings.intensity;
+        }
+        if (drumIntensitySelect && settings.intensity) {
+            drumIntensitySelect.value = settings.intensity;
+        }
+
+        return settings;
+    }
+    return null;
 };
 
 export function enableButton(buttonId) {
