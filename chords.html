@@ -498,7 +498,7 @@
         // Render chord section
         function renderChordSection(root, chordList) {
             const chordsHtml = chordList.map(chordName => {
-                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '').replace(/[#]/g, 'sharp').replace(/[b]/g, 'flat')}`;
+                const chordId = `chord-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
                 const escapedChordName = chordName.replace(/'/g, "\\'");
                 return `
                     <div class="chord-card clickable-chord" onclick="playChordDiagram('${escapedChordName}')" title="Click to play ${chordName}">
@@ -530,7 +530,7 @@
         function generateDiagrams(chordList) {
             console.log('Generating diagrams for:', chordList);
             chordList.forEach(chordName => {
-                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '').replace(/[#]/g, 'sharp').replace(/[b]/g, 'flat')}`;
+                const chordId = `chord-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
                 console.log(`Processing chord: ${chordName}, ID: ${chordId}`);
 
                 setTimeout(() => {
