@@ -845,6 +845,143 @@ body {
     color: var(--text-secondary);
 }
 
+/* Rhythm Controls */
+.drum-controls,
+.bass-tone-selector,
+.bass-intensity-selector {
+    background: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.drum-control-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.control-group label {
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+}
+
+.control-group select {
+    background: var(--background-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+}
+
+.control-group select:hover {
+    border-color: var(--primary-color);
+}
+
+.control-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.fill-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 8px 16px;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.fill-btn:hover {
+    background: var(--primary-color);
+}
+
+/* Bass Pattern Categories */
+.bass-category,
+.drum-pattern-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.bass-category h5,
+.drum-pattern-group h5 {
+    color: var(--text-secondary);
+    font-size: var(--font-size-small);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.bass-patterns-grid,
+.drum-patterns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+}
+
+/* Intensity Indicator */
+.intensity-indicator {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--spacing-sm);
+}
+
+.intensity-bar {
+    width: 20px;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 2px;
+    transition: background 0.2s ease;
+}
+
+.intensity-bar.active.low {
+    background: #4ade80;
+}
+
+.intensity-bar.active.medium {
+    background: #fbbf24;
+}
+
+.intensity-bar.active.high {
+    background: #f97316;
+}
+
+.intensity-bar.active.peak {
+    background: #ef4444;
+}
+
+/* Template Card Enhancements */
+.rhythm-template-card .template-tone {
+    font-size: var(--font-size-small);
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+/* Articulation Labels */
+.articulation-badge {
+    display: inline-block;
+    background: var(--secondary-color);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 4px;
+    text-transform: uppercase;
+}
+
 /* Display Areas */
 .chord-display,
 .drum-display,
