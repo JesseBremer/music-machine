@@ -39,6 +39,46 @@ const appState = {
 window.appState = appState;
 window.MusicTheory = MusicTheory;
 
+// Update the song reference bar with current values
+function updateReferenceBar() {
+    const refs = {
+        mood: document.getElementById('ref-mood'),
+        genre: document.getElementById('ref-genre'),
+        key: document.getElementById('ref-key'),
+        scale: document.getElementById('ref-scale'),
+        bpm: document.getElementById('ref-bpm'),
+        progression: document.getElementById('ref-progression')
+    };
+
+    // Only update if elements exist
+    if (!refs.mood) return;
+
+    const data = appState.songData;
+
+    refs.mood.textContent = data.mood?.name || '—';
+    refs.genre.textContent = data.genre?.name || '—';
+    refs.key.textContent = data.key || '—';
+    refs.scale.textContent = data.scale ? data.scale.charAt(0).toUpperCase() + data.scale.slice(1) : '—';
+    refs.bpm.textContent = data.tempo || '—';
+
+    // Format chord progression
+    if (data.chordProgression) {
+        const chords = data.chordProgression.chords || data.chordProgression;
+        if (Array.isArray(chords)) {
+            refs.progression.textContent = chords.join(' → ');
+        } else if (data.chordProgression.name) {
+            refs.progression.textContent = data.chordProgression.name;
+        } else {
+            refs.progression.textContent = '—';
+        }
+    } else {
+        refs.progression.textContent = '—';
+    }
+}
+
+// Make updateReferenceBar globally available
+window.updateReferenceBar = updateReferenceBar;
+
 // Global function for playing chord voicings
 window.playVoicing = function(midiNotesStr) {
     try {
@@ -874,6 +914,9 @@ async function initializeApp() {
 
         // Set up event listeners
         setupEventListeners();
+
+        // Initialize reference bar
+        updateReferenceBar();
 
         console.log('Music Machine initialized successfully');
     } catch (error) {
@@ -2436,6 +2479,9 @@ async function loadSongcraftStep() {
     if (!appState.songData.key) appState.songData.key = 'C';
     if (!appState.songData.scale) appState.songData.scale = 'major';
 
+    // Update reference bar with any new values
+    updateReferenceBar();
+
     // Show the step first so DOM elements are visible
     UI.showStep('step-songcraft');
 
@@ -2642,31 +2688,36 @@ function handleOptionSelection(event) {
             const moodId = element.dataset.moodId;
             appState.songData.mood = appState.loadedData.moods.find(m => m.id === moodId);
             checkMoodGenreComplete();
+            updateReferenceBar();
             break;
-            
+
         case 'genre':
             const genreId = element.dataset.genreId;
             appState.songData.genre = appState.loadedData.genres.find(g => g.id === genreId);
             checkMoodGenreComplete();
+            updateReferenceBar();
             break;
-            
+
         case 'key':
             appState.songData.key = element.dataset.key;
             checkKeyTempoComplete();
             if (window.updateScaleTheoryButton) window.updateScaleTheoryButton();
+            updateReferenceBar();
             break;
 
         case 'scale':
             appState.songData.scale = element.dataset.scale;
             checkKeyTempoComplete();
             if (window.updateScaleTheoryButton) window.updateScaleTheoryButton();
+            updateReferenceBar();
             break;
-            
+
         case 'tempo':
             appState.songData.tempo = parseInt(element.dataset.tempo);
             checkKeyTempoComplete();
+            updateReferenceBar();
             break;
-            
+
         case 'chord-progression':
             const progressionId = element.dataset.progressionId;
             const progressions = MusicTheory.getChordProgressionsForKeyAndGenre(
@@ -2677,6 +2728,7 @@ function handleOptionSelection(event) {
             );
             appState.songData.chordProgression = progressions.find(p => p.id === progressionId);
             checkChordsStepCompletion();
+            updateReferenceBar();
             break;
             
         case 'drum-pattern':
@@ -3196,6 +3248,7 @@ async function jumpToStep(stepId, stepNumber) {
             if (!appState.songData.key) appState.songData.key = 'C';
             if (!appState.songData.scale) appState.songData.scale = 'major';
 
+            updateReferenceBar();
             UI.showStep('step-songcraft');
             UI.updateProgressBar('step-songcraft');
             // Initialize the workspace when jumping to this step
@@ -3290,6 +3343,7 @@ async function loadChordsStepDirect() {
     }
 
     console.log('Chord step - Key:', appState.songData.key, 'Scale:', appState.songData.scale, 'Genre:', appState.songData.genre);
+    updateReferenceBar();
 
     const chordProgressions = MusicTheory.getChordProgressionsForKeyAndGenre(
         appState.songData.key,
@@ -3333,6 +3387,7 @@ async function loadRhythmStepDirect() {
     }
 
     console.log('Rhythm step - Genre:', appState.songData.genre, 'Tempo:', appState.songData.tempo);
+    updateReferenceBar();
 
     // Update rhythm context display
     updateRhythmContext();
@@ -3365,6 +3420,7 @@ async function loadMelodyStepDirect() {
 
     console.log('Melody step - Key:', appState.songData.key, 'Scale:', appState.songData.scale);
     console.log('Chord progression:', appState.songData.chordProgression);
+    updateReferenceBar();
 
     const melodyIdeas = MusicTheory.generateMelodyIdeas(
         appState.songData.key,

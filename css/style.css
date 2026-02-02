@@ -461,6 +461,79 @@ body {
     }
 }
 
+/* Song Reference Bar */
+.song-reference-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(78, 205, 196, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--border-radius);
+    animation: fadeIn 0.5s ease-in;
+}
+
+.ref-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ref-item-wide {
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.ref-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ref-value {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.ref-value:empty::after,
+.ref-value:contains('—')  {
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .song-reference-bar {
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .ref-item {
+        padding: 3px 8px;
+    }
+
+    .ref-item-wide {
+        width: 100%;
+        max-width: none;
+    }
+
+    .ref-label {
+        font-size: 0.65rem;
+    }
+
+    .ref-value {
+        font-size: 0.8rem;
+    }
+}
+
 /* Melody Workspace */
 .melody-workspace {
     display: flex;
