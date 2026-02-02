@@ -805,7 +805,7 @@ function generateGuitarDiagram(chordName) {
     }
 
     // Create unique ID for this chart (must match chords.html ID format)
-    const chartId = `guitar-chart-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
+    const chartId = `guitar-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-')}`;
 
     // Calculate position early so we can use it in the template
     const activeFrets = chord.frets.filter(f => f !== null && f !== 0);
@@ -938,7 +938,7 @@ function generatePianoDiagram(chordName) {
     }
 
     // Create unique ID for this chart
-    const chartId = `piano-chart-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
+    const chartId = `piano-chart-${chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-')}`;
 
     // Return just the SVG content directly for embedding in existing containers
     return generateEnhancedPianoSVG(chordName, chordNotes);
@@ -1023,7 +1023,7 @@ function initializePianoChart(containerId, chordNotes) {
 
 // Generate enhanced professional piano SVG
 function generateEnhancedPianoSVG(chordName, chordNotes) {
-    const chartId = chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '');
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-');
     const width = 200;  // Increased width to ensure no cut-off
     const height = 120;
     const whiteKeyWidth = 24;
@@ -1178,7 +1178,7 @@ function generateEnhancedPianoSVG(chordName, chordNotes) {
 
 // Generate professional piano SVG (fallback function)
 function generatePianoSVG(chordName, chordNotes) {
-    const chartId = chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '');
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-');
     const width = 240;
     const height = 110;
     const whiteKeyWidth = 34;
@@ -1314,7 +1314,7 @@ function generateBassDiagram(chordName) {
 function generateBassFretboardDiagram(chordName, bassChord) {
     const width = 220;
     const height = 140;
-    const chartId = chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '');
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-');
 
     // Bass tuning: E A D G (4-string bass, lowest to highest)
     const strings = ['E', 'A', 'D', 'G']; // Corresponds to array indices [0, 1, 2, 3]
@@ -1420,7 +1420,7 @@ function generateBassFretboardDiagram(chordName, bassChord) {
 function generateBassLineSVG(chordName, rootNote, fifth) {
     const width = 200;
     const height = 120;
-    const chartId = chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '');
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-');
 
     // Bass tuning: E A D G (4-string bass)
     const strings = ['G', 'D', 'A', 'E']; // Top to bottom on diagram
@@ -1589,7 +1589,7 @@ function getBassPosition(noteName) {
 
 // Enhanced bass diagram generation with support for inversions and extensions
 function generateBassSVG(chordName, chordNotes, rootNote) {
-    const chartId = chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '');
+    const chartId = chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-');
 
     // Parse chord name for better understanding
     const chordInfo = parseEnhancedChordName(chordName);

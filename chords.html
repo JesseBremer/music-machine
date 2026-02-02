@@ -498,7 +498,7 @@
         // Render chord section
         function renderChordSection(root, chordList) {
             const chordsHtml = chordList.map(chordName => {
-                const chordId = `chord-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-')}`;
                 const escapedChordName = chordName.replace(/'/g, "\\'");
                 return `
                     <div class="chord-card clickable-chord" onclick="playChordDiagram('${escapedChordName}')" title="Click to play ${chordName}">
@@ -530,7 +530,7 @@
         function generateDiagrams(chordList) {
             console.log('Generating diagrams for:', chordList);
             chordList.forEach(chordName => {
-                const chordId = `chord-${chordName.replace(/[#]/g, 'sharp').replace(/([A-G])b/g, '$1flat').replace(/[^a-zA-Z0-9]/g, '')}`;
+                const chordId = `chord-${chordName.replace(/[^a-zA-Z0-9]/g, '-').replace(/--+/g, '-')}`;
                 console.log(`Processing chord: ${chordName}, ID: ${chordId}`);
 
                 setTimeout(() => {
@@ -611,11 +611,12 @@
                     if (match) {
                         const sectionNote = match[1];
 
-                        // Handle compound note filters (e.g., "C#/Db" should match both "C#" and "Db" sections)
+                        // Handle compound note filters (e.g., "C#/Db" should match "C#/Db" section title)
                         let shouldShow = false;
                         if (selectedNote.includes('/')) {
                             const [sharp, flat] = selectedNote.split('/');
-                            shouldShow = sectionNote === sharp || sectionNote === flat;
+                            // Match the full compound name OR individual sharp/flat
+                            shouldShow = sectionNote === selectedNote || sectionNote === sharp || sectionNote === flat;
                         } else {
                             shouldShow = sectionNote === selectedNote;
                         }
