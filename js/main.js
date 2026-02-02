@@ -2861,8 +2861,8 @@ function exportChordChart() {
 }
 
 function startOver() {
-    // Reset app state
-    appState.currentStep = 'step-mood';
+    // Use the same reset logic as createNewSong but without confirmation
+    // Fully reset songData
     appState.songData = {
         mood: null,
         genre: null,
@@ -2870,6 +2870,7 @@ function startOver() {
         scale: null,
         tempo: null,
         chordProgression: null,
+        strummingPattern: null,
         drumPattern: null,
         bassLine: null,
         bassComplexity: 'simple',
@@ -2877,15 +2878,58 @@ function startOver() {
         songStructure: null,
         arrangementTips: null,
         lyrics: '',
-        title: 'My Song'
+        title: 'My Song',
+        songSections: []
     };
-    
-    // Clear lyrics textarea
-    const lyricsTextarea = document.getElementById('lyrics-text');
-    if (lyricsTextarea) {
-        lyricsTextarea.value = '';
+
+    // Reset selected properties
+    Object.keys(appState).forEach(key => {
+        if (key.startsWith('selected')) {
+            appState[key] = null;
+        }
+    });
+    appState.songSections = [];
+    appState.currentStep = 'step-mood';
+
+    // Reset UI - song title
+    const songTitleInput = document.getElementById('song-title');
+    if (songTitleInput) songTitleInput.value = 'My Song';
+
+    // Clear all selected UI states
+    document.querySelectorAll('.option-card.selected, .template-card.selected, .strumming-pattern-card.selected').forEach(el => {
+        el.classList.remove('selected');
+    });
+
+    // Clear chord display
+    const chordDisplay = document.getElementById('chord-display');
+    if (chordDisplay) chordDisplay.innerHTML = '';
+
+    // Clear strumming pattern display
+    const strumDisplay = document.getElementById('strumming-pattern-display');
+    if (strumDisplay) {
+        strumDisplay.innerHTML = '<p>🎸 Select a strumming pattern above to see details and hear a preview</p>';
     }
-    
+
+    // Clear song sections in songcraft workspace
+    const songSectionsContainer = document.getElementById('song-sections');
+    if (songSectionsContainer) songSectionsContainer.innerHTML = '';
+
+    // Clear thematic words
+    const thematicWords = document.getElementById('thematic-words');
+    if (thematicWords) thematicWords.innerHTML = '';
+
+    // Disable next buttons that require selections
+    const buttonsToDisable = ['key-tempo-next-top', 'chords-next-top', 'songcraft-next-top'];
+    buttonsToDisable.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) btn.disabled = true;
+    });
+
+    // Update reference bar to show empty state
+    if (typeof updateReferenceBar === 'function') {
+        updateReferenceBar();
+    }
+
     // Go back to first step
     loadMoodStep();
     UI.showMessage('Starting new song creation', 'info');
@@ -3004,23 +3048,80 @@ function loadSong(songTitle) {
 
 function createNewSong() {
     if (confirm('Create a new song? All unsaved changes will be lost.')) {
-        // Reset app state
+        // Fully reset songData
+        appState.songData = {
+            mood: null,
+            genre: null,
+            key: null,
+            scale: null,
+            tempo: null,
+            chordProgression: null,
+            strummingPattern: null,
+            drumPattern: null,
+            bassLine: null,
+            bassComplexity: 'simple',
+            melodyIdea: null,
+            songStructure: null,
+            arrangementTips: null,
+            lyrics: '',
+            title: 'My Song',
+            songSections: []
+        };
+
+        // Reset selected properties
         Object.keys(appState).forEach(key => {
             if (key.startsWith('selected')) {
                 appState[key] = null;
             }
         });
         appState.songSections = [];
+        appState.currentStep = 'step-mood';
 
-        // Reset UI
-        document.getElementById('song-title').value = 'My Song';
-        refreshAllSections();
+        // Reset UI - song title
+        const songTitleInput = document.getElementById('song-title');
+        if (songTitleInput) songTitleInput.value = 'My Song';
+
+        // Clear all selected UI states
+        document.querySelectorAll('.option-card.selected, .template-card.selected, .strumming-pattern-card.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        // Clear chord display
+        const chordDisplay = document.getElementById('chord-display');
+        if (chordDisplay) chordDisplay.innerHTML = '';
+
+        // Clear strumming pattern display
+        const strumDisplay = document.getElementById('strumming-pattern-display');
+        if (strumDisplay) {
+            strumDisplay.innerHTML = '<p>🎸 Select a strumming pattern above to see details and hear a preview</p>';
+        }
+
+        // Clear song sections in songcraft workspace
+        const songSectionsContainer = document.getElementById('song-sections');
+        if (songSectionsContainer) songSectionsContainer.innerHTML = '';
+
+        // Clear thematic words
+        const thematicWords = document.getElementById('thematic-words');
+        if (thematicWords) thematicWords.innerHTML = '';
+
+        // Disable next buttons that require selections
+        const buttonsToDisable = ['key-tempo-next-top', 'chords-next-top', 'songcraft-next-top'];
+        buttonsToDisable.forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (btn) btn.disabled = true;
+        });
+
+        // Update reference bar to show empty state
+        if (typeof updateReferenceBar === 'function') {
+            updateReferenceBar();
+        }
 
         // Go to first step
-        showStep(1);
+        loadMoodStep();
 
         updateSaveStatus('New song');
-        console.log('New song created');
+        UI.showMessage('Started new song', 'info');
+        console.log('New song created - all data cleared');
     }
 }
 
