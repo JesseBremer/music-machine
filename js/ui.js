@@ -21,13 +21,8 @@ export function updateProgressBar(currentStepId) {
         'step-mood': 1,
         'step-key-tempo': 2,
         'step-chords': 3,
-        'step-drums': 4,
-        'step-bass': 5,
-        'step-melody': 6,
-        'step-structure': 7,
-        'step-arrangement': 8,
-        'step-lyrics': 9,
-        'step-export': 10
+        'step-songcraft': 4,
+        'step-export': 5
     };
     
     const currentStepNumber = stepMap[currentStepId] || 1;

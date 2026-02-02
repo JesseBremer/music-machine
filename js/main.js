@@ -2621,9 +2621,7 @@ function setupNavigationListeners() {
     const nextButtons = {
         'mood-next-top': () => loadKeyTempoStep(),
         'key-tempo-next-top': () => loadChordsStep(),
-        'chords-next-top': () => loadRhythmStep(),
-        'rhythm-next-top': () => loadMelodyStep(),
-        'melody-next-top': () => loadSongcraftStep(),
+        'chords-next-top': () => loadSongcraftStep(),
         'songcraft-next-top': () => loadExportStep()
     };
     
@@ -2638,9 +2636,7 @@ function setupNavigationListeners() {
     const backButtons = {
         'key-tempo-back-top': () => loadMoodStep(),
         'chords-back-top': () => loadKeyTempoStep(),
-        'rhythm-back-top': () => loadChordsStep(),
-        'melody-back-top': () => loadRhythmStep(),
-        'songcraft-back-top': () => loadMelodyStep()
+        'songcraft-back-top': () => loadChordsStep()
     };
     
     Object.entries(backButtons).forEach(([buttonId, handler]) => {
@@ -2657,10 +2653,8 @@ function setupProgressBarListeners() {
         1: () => loadMoodStep(),
         2: () => loadKeyTempoStep(),
         3: () => loadChordsStep(),
-        4: () => loadRhythmStep(),
-        5: () => loadMelodyStep(),
-        6: () => loadSongcraftStep(),
-        7: () => loadExportStep()
+        4: () => loadSongcraftStep(),
+        5: () => loadExportStep()
     };
     
     document.querySelectorAll('.progress-step').forEach((step, index) => {
@@ -3187,10 +3181,8 @@ function setupProgressBarNavigation() {
         1: 'step-mood',
         2: 'step-key-tempo',
         3: 'step-chords',
-        4: 'step-rhythm',
-        5: 'step-melody',
-        6: 'step-songcraft',
-        7: 'step-export'
+        4: 'step-songcraft',
+        5: 'step-export'
     };
 
     progressSteps.forEach((step, index) => {
@@ -3226,12 +3218,6 @@ async function jumpToStep(stepId, stepNumber) {
             break;
         case 'step-chords':
             await loadChordsStepDirect();
-            break;
-        case 'step-rhythm':
-            await loadRhythmStepDirect();
-            break;
-        case 'step-melody':
-            await loadMelodyStepDirect();
             break;
         case 'step-songcraft':
             // Songcraft is lyrics/structure - show it and initialize
