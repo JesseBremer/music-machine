@@ -909,6 +909,217 @@ const bassPatterns = {
             });
             return bassLine;
         }
+    },
+    'syncopated-funk': {
+        name: 'Modern Funk Syncopation',
+        description: 'Punchy syncopated groove with octave and approach tones',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const fifthNote = getChordFifth(chord);
+                const nextChord = chords[index + 1];
+                const nextRoot = nextChord ? getChordRoot(nextChord) : null;
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1
+                });
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'sixteenth',
+                    measure: index + 1,
+                    beat: 1.75,
+                    octave: 'high'
+                });
+
+                const seventhNote = getChordSeventh(chord);
+                bassLine.push({
+                    note: seventhNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2.5
+                });
+
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 3
+                });
+
+                if (nextRoot) {
+                    bassLine.push({
+                        note: getApproachTone(rootNote, nextRoot),
+                        rhythm: 'sixteenth',
+                        measure: index + 1,
+                        beat: 3.75
+                    });
+
+                    bassLine.push({
+                        note: nextRoot,
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 4,
+                        octave: 'high'
+                    });
+                } else {
+                    bassLine.push({
+                        note: rootNote,
+                        rhythm: 'quarter',
+                        measure: index + 1,
+                        beat: 4
+                    });
+                }
+            });
+            return bassLine;
+        }
+    },
+    'motown-soul': {
+        name: 'Motown Soul',
+        description: 'Classic R&B bounce with expressive passing tones',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const thirdNote = getChordThird(chord);
+                const fifthNote = getChordFifth(chord);
+                const sixthNote = getChordSixth(chord);
+                const nextChord = chords[index + 1];
+                const nextRoot = nextChord ? getChordRoot(nextChord) : null;
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1
+                });
+
+                bassLine.push({
+                    note: thirdNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1.5
+                });
+
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2
+                });
+
+                bassLine.push({
+                    note: sixthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2.5
+                });
+
+                if (nextRoot) {
+                    bassLine.push({
+                        note: getApproachTone(rootNote, nextRoot),
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 3.5
+                    });
+
+                    bassLine.push({
+                        note: nextRoot,
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 4,
+                        octave: 'high'
+                    });
+                } else {
+                    bassLine.push({
+                        note: rootNote,
+                        rhythm: 'quarter',
+                        measure: index + 1,
+                        beat: 4
+                    });
+                }
+            });
+            return bassLine;
+        }
+    },
+    'disco-octave': {
+        name: 'Disco Octaves',
+        description: 'Driving octave pulse inspired by classic dance bass lines',
+        generate: (chords) => {
+            const bassLine = [];
+            chords.forEach((chord, index) => {
+                const rootNote = getChordRoot(chord);
+                const fifthNote = getChordFifth(chord);
+                const nextChord = chords[index + 1];
+                const nextRoot = nextChord ? getChordRoot(nextChord) : null;
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1
+                });
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 1.5,
+                    octave: 'high'
+                });
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2
+                });
+
+                bassLine.push({
+                    note: rootNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 2.5,
+                    octave: 'high'
+                });
+
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 3
+                });
+
+                bassLine.push({
+                    note: fifthNote,
+                    rhythm: 'eighth',
+                    measure: index + 1,
+                    beat: 3.5,
+                    octave: 'high'
+                });
+
+                if (nextRoot) {
+                    bassLine.push({
+                        note: getApproachTone(rootNote, nextRoot),
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 4
+                    });
+                } else {
+                    bassLine.push({
+                        note: rootNote,
+                        rhythm: 'eighth',
+                        measure: index + 1,
+                        beat: 4
+                    });
+                }
+            });
+            return bassLine;
+        }
     }
 };
 
@@ -960,6 +1171,98 @@ function getChordFifth(chord) {
     }
 }
 
+function getChordThird(chord) {
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        if (chordInfo.notes && chordInfo.notes.length > 1) {
+            return chordInfo.notes[1];
+        }
+
+        const root = getChordRoot(chord);
+        const interval = isMinorChord(chord) ? '3m' : '3M';
+        const third = Tonal.Note.transpose(root, interval);
+        return Tonal.Note.enharmonic(third) || third || root;
+    } catch (error) {
+        const root = getChordRoot(chord);
+        const interval = isMinorChord(chord) ? '3m' : '3M';
+        const third = Tonal.Note.transpose(root, interval);
+        return Tonal.Note.enharmonic(third) || third || root;
+    }
+}
+
+function getChordSixth(chord) {
+    try {
+        const root = getChordRoot(chord);
+        const interval = isMinorChord(chord) ? '6m' : '6M';
+        const sixth = Tonal.Note.transpose(root, interval);
+        return Tonal.Note.enharmonic(sixth) || sixth || root;
+    } catch (error) {
+        return getChordRoot(chord);
+    }
+}
+
+function getChordSeventh(chord) {
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        if (chordInfo.notes && chordInfo.notes.length > 3) {
+            return chordInfo.notes[3];
+        }
+
+        const root = getChordRoot(chord);
+        const symbol = (chordInfo.symbol || chord).toLowerCase();
+        const isMajorSeventh = symbol.includes('maj7') || symbol.includes('maj9') || symbol.includes('Δ');
+        const interval = isMajorSeventh ? '7M' : '7m';
+        const seventh = Tonal.Note.transpose(root, interval);
+        return Tonal.Note.enharmonic(seventh) || seventh || root;
+    } catch (error) {
+        const root = getChordRoot(chord);
+        const seventh = Tonal.Note.transpose(root, '7m');
+        return Tonal.Note.enharmonic(seventh) || seventh || root;
+    }
+}
+
+function getApproachTone(currentRoot, nextRoot) {
+    try {
+        const currentMidi = Tonal.Note.midi(currentRoot);
+        const nextMidi = Tonal.Note.midi(nextRoot);
+
+        if (nextMidi === null) return currentRoot;
+
+        if (currentMidi === null) {
+            const below = Tonal.Note.transpose(nextRoot, '-2m');
+            return Tonal.Note.enharmonic(below) || below || nextRoot;
+        }
+
+        const directionInterval = nextMidi >= currentMidi ? '-2m' : '2m';
+        const approach = Tonal.Note.transpose(nextRoot, directionInterval);
+        return Tonal.Note.enharmonic(approach) || approach || nextRoot;
+    } catch (error) {
+        return nextRoot;
+    }
+}
+
+function isMinorChord(chord) {
+    if (!chord) return false;
+    try {
+        const chordInfo = Tonal.Chord.get(chord);
+        if (chordInfo?.quality) {
+            const quality = chordInfo.quality.toLowerCase();
+            if (quality.includes('minor') || quality.includes('diminished')) {
+                return true;
+            }
+            if (quality.includes('major')) {
+                return false;
+            }
+        }
+    } catch (error) {
+        // Fall back to string inspection below
+    }
+
+    const normalized = chord.toLowerCase();
+    if (normalized.includes('maj')) return false;
+    return normalized.includes('min') || /(?:^|[^a-z])m(?![aj])/i.test(chord);
+}
+
 function getChordTones(chord) {
     try {
         const chordInfo = Tonal.Chord.get(chord);
@@ -971,21 +1274,22 @@ function getChordTones(chord) {
 
 function getChromaticPassingTone(currentRoot, nextRoot) {
     try {
-        const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        const currentIndex = noteOrder.indexOf(currentRoot);
-        const nextIndex = noteOrder.indexOf(nextRoot);
+        const currentMidi = Tonal.Note.midi(currentRoot);
+        const nextMidi = Tonal.Note.midi(nextRoot);
 
-        if (currentIndex === -1 || nextIndex === -1) return currentRoot;
-
-        // Find chromatic note between current and next
-        let passingIndex;
-        if (nextIndex > currentIndex) {
-            passingIndex = (currentIndex + 1) % 12;
-        } else {
-            passingIndex = (currentIndex - 1 + 12) % 12;
+        if (currentMidi === null || nextMidi === null) {
+            const fallback = Tonal.Note.transpose(currentRoot, '2m');
+            return Tonal.Note.enharmonic(fallback) || fallback || currentRoot;
         }
 
-        return noteOrder[passingIndex];
+        if (currentMidi === nextMidi) {
+            const fifth = Tonal.Note.transpose(currentRoot, '5P');
+            return Tonal.Note.enharmonic(fifth) || fifth || currentRoot;
+        }
+
+        const interval = nextMidi > currentMidi ? '2m' : '-2m';
+        const passingTone = Tonal.Note.transpose(currentRoot, interval);
+        return Tonal.Note.enharmonic(passingTone) || passingTone || currentRoot;
     } catch (error) {
         return currentRoot;
     }
@@ -993,16 +1297,27 @@ function getChromaticPassingTone(currentRoot, nextRoot) {
 
 function getWalkingNote(currentRoot, nextRoot) {
     try {
-        const currentNote = Tonal.Note.get(currentRoot);
-        const nextNote = Tonal.Note.get(nextRoot);
-        
-        // Calculate interval and choose appropriate walking note
-        const interval = Tonal.Interval.distance(currentRoot, nextRoot);
-        
-        // Simple walking logic - could be enhanced
-        const chromatic = Tonal.Note.enharmonic(Tonal.Note.transpose(currentRoot, '2M'));
-        return chromatic || currentRoot;
-        
+        const currentMidi = Tonal.Note.midi(currentRoot);
+        const nextMidi = Tonal.Note.midi(nextRoot);
+
+        if (currentMidi === null || nextMidi === null) {
+            const fallback = Tonal.Note.transpose(currentRoot, '2M');
+            return Tonal.Note.enharmonic(fallback) || fallback || currentRoot;
+        }
+
+        if (currentMidi === nextMidi) {
+            const fifth = Tonal.Note.transpose(currentRoot, '5P');
+            return Tonal.Note.enharmonic(fifth) || fifth || currentRoot;
+        }
+
+        const stepInterval = nextMidi > currentMidi ? '2M' : '-2M';
+        const walking = Tonal.Note.transpose(currentRoot, stepInterval);
+        if (walking) {
+            return Tonal.Note.enharmonic(walking) || walking;
+        }
+
+        return getChromaticPassingTone(currentRoot, nextRoot);
+
     } catch (error) {
         console.warn('Error calculating walking note:', error);
         return currentRoot;
